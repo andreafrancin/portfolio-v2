@@ -1,0 +1,57 @@
+@use '../../styles/variables' as *;
+
+.contact-container {
+  max-width: 1600px;
+  width: 80%;
+  height: 100%;
+  min-height: 100vh;
+  margin: 0 10%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 150px;
+}
+
+.contact-field-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+h1 {
+  color: $secondary-color;
+}
+
+.contact-field {
+  width: 500px;
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  margin-top: 5px;
+}
+
+.contact-field-textarea {
+  width: 500px;
+  height: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  margin-top: 5px;
+}
+
+.contact-submit-button {
+  width: 200px;
+  height: 40px;
+  border: 1px solid $secondary-color;
+  border-radius: 20px;
+  color: $secondary-color;
+  font-size: 18px;
+  transition: all 0.2s ease-in-out;
+  background-color: transparent;
+  cursor: pointer;
+  font-weight: 300;
+
+  &:hover {
+    background-color: $secondary-color;
+    color: #fff;
+  }
+}

@@ -1,0 +1,7 @@
+@use '../../styles/variables' as *;
+
+.footer-container {
+  width: 100vw;
+  height: 300px;
+  background-color: $secondary-color;
+}
