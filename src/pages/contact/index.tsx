@@ -18,14 +18,14 @@ function Contact() {
     <div className="contact-container">
       <h1>Contact</h1>
       <div>
-        please don't hesitate to bother me with collabs, requests, dreams, fears, sweet talk,
+        Please, don't hesitate to bother me with collabs, requests, dreams, fears, sweet talk,
         brownie recipes etc...
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form className="contact-form-container" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="contact-field-container">
-          <label htmlFor="name">Name:</label>
           <input
             className="contact-field"
+            placeholder="Name"
             id="name"
             {...register('name', {
               required: 'Name is required',
@@ -33,14 +33,14 @@ function Contact() {
             })}
           />
           {errors.name?.message && typeof errors.name.message === 'string' && (
-            <p style={{ color: 'red' }}>{errors.name.message}</p>
+            <p className="contact-error-message">{errors.name.message}</p>
           )}
         </div>
 
         <div className="contact-field-container">
-          <label htmlFor="email">Email:</label>
           <input
             className="contact-field"
+            placeholder="Email"
             id="email"
             type="email"
             {...register('email', {
@@ -52,14 +52,14 @@ function Contact() {
             })}
           />
           {errors.email?.message && typeof errors.email.message === 'string' && (
-            <p style={{ color: 'red' }}>{errors.email.message}</p>
+            <p className="contact-error-message">{errors.email.message}</p>
           )}
         </div>
 
         <div className="contact-field-container">
-          <label htmlFor="message">Message:</label>
           <textarea
             className="contact-field-textarea"
+            placeholder="Message"
             id="message"
             {...register('message', {
               required: 'Message is required',
@@ -68,7 +68,7 @@ function Contact() {
           />
 
           {errors.message?.message && typeof errors.message.message === 'string' && (
-            <p style={{ color: 'red' }}>{errors.message.message}</p>
+            <p className="contact-error-message">{errors.message.message}</p>
           )}
         </div>
 

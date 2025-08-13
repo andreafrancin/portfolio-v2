@@ -1,18 +1,6 @@
-@use '../../styles/variables' as *;
+@use '../../../../../styles/variables' as *;
 
-.contact-container {
-  max-width: 1600px;
-  width: 80%;
-  height: 100%;
-  min-height: 100vh;
-  margin: 0 10%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 150px;
-}
-
-.contact-field-container {
+.project-field-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -23,7 +11,7 @@ h1 {
   color: $secondary-color;
 }
 
-.contact-field {
+.project-field {
   width: 500px;
   height: 40px;
   border: 1px solid rgba(0, 0, 0, 0.4);
@@ -37,7 +25,7 @@ h1 {
   }
 }
 
-.contact-field-textarea {
+.project-field-textarea {
   width: 500px;
   height: 100px;
   border: 1px solid rgba(0, 0, 0, 0.4);
@@ -51,7 +39,7 @@ h1 {
   }
 }
 
-.contact-submit-button {
+.project-submit-button {
   width: 500px;
   height: 40px;
   border: 1px solid $secondary-color;
@@ -69,12 +57,46 @@ h1 {
   }
 }
 
-.contact-form-container {
+.project-form-container {
   margin-top: 20px;
 }
 
-.contact-error-message {
+.project-error-message {
   color: $remove-color;
   margin: 5px;
   font-size: 14px;
+}
+
+.project-image-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-right: 10px;
+  overflow: hidden;
+  border-radius: 5px;
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }
+
+  button {
+    top: 0;
+    right: 0;
+    position: absolute;
+    z-index: 999;
+    background-color: $remove-color;
+    border: none;
+    width: 30px;
+    height: 30px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+}
+
+.project-existing-images-section {
+  display: flex;
+  flex-wrap: wrap;
 }

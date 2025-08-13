@@ -1,0 +1,30 @@
+@use '../../styles/variables' as *;
+
+.button {
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  background-color: $secondary-color;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  padding: 0 30px;
+
+  &:hover {
+    border: 1px solid $secondary-color;
+    background-color: #fff;
+    color: $secondary-color;
+  }
+}
+
+.button-submit {
+  @extend .button;
+  background-color: $submit-color;
+
+  &:hover {
+    border: 1px solid $submit-color;
+    background-color: #fff;
+    color: $submit-color;
+  }
+}

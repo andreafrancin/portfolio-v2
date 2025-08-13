@@ -1,3 +1,5 @@
+import { del, get, post, put } from '../../api-client/api-client';
+
 async function fetchProjectsFromAPI(): Promise<any> {
   const response = await fetch('https://back.andreafrancin.com/api/projects/');
   if (!response.ok) {
@@ -7,4 +9,42 @@ async function fetchProjectsFromAPI(): Promise<any> {
   return data;
 }
 
-export { fetchProjectsFromAPI };
+async function fetchProjectsFromNewAPI(): Promise<any> {
+  const response = await get('projects/');
+  return response;
+}
+
+async function fetchProjectFromNewAPI(id: number): Promise<any> {
+  const response = await get(`projects/${id}/`);
+  return response;
+}
+
+async function fetchReorderProjectsFromNewAPI(body: any): Promise<any> {
+  const response = await post('projects/reorder/', body);
+  return response;
+}
+
+async function fetchRemoveProjectFromAPI(id: number): Promise<any> {
+  const response = await del(`projects/${id}/`);
+  return response;
+}
+
+async function fetchAddProjectFromAPI(body: any): Promise<any> {
+  const response = await post(`projects/`, body);
+  return response;
+}
+
+async function fetchEditProjectFromAPI(id: number, body: any): Promise<any> {
+  const response = await put(`projects/${id}/`, body);
+  return response;
+}
+
+export {
+  fetchProjectsFromAPI,
+  fetchProjectsFromNewAPI,
+  fetchReorderProjectsFromNewAPI,
+  fetchRemoveProjectFromAPI,
+  fetchAddProjectFromAPI,
+  fetchEditProjectFromAPI,
+  fetchProjectFromNewAPI,
+};
