@@ -1,0 +1,40 @@
+@use '../../../styles/variables' as *;
+
+.project-container {
+  max-width: 1600px;
+  width: 50%;
+  height: 100%;
+  min-height: 100vh;
+  margin: 0 25%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 150px;
+  padding-bottom: 150px;
+
+  @media screen and (max-width: $tablet-breakpoint) {
+    width: 90%;
+    margin: 0 5%;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    width: 80%;
+    margin: 0 10%;
+  }
+
+  img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  hr {
+    height: 0.01em !important;
+  }
+}
+
+.markdown-viewer-container {
+  width: 100%;
+}

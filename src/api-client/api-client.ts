@@ -4,7 +4,7 @@ function getToken(): string | null {
   return localStorage.getItem('access_token');
 }
 
-async function request(endpoint: string, options: RequestInit = {}) {
+async function request(endpoint: string, options: RequestInit = {}, isAuth?: boolean) {
   const token = getToken();
 
   if (!token) {
@@ -15,7 +15,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(isAuth && { Authorization: `Bearer ${token}` }),
       ...(options.headers || {}),
     },
   });
@@ -32,26 +32,34 @@ async function request(endpoint: string, options: RequestInit = {}) {
   return res.json();
 }
 
-export function get(endpoint: string, options?: any) {
-  return request(endpoint, { method: 'GET', ...options });
+export function get(endpoint: string, isAuth: boolean, options?: any) {
+  return request(endpoint, { method: 'GET', ...options }, isAuth);
 }
 
-export function post(endpoint: string, body: any, options?: any) {
-  return request(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(body),
-    ...options,
-  });
+export function post(endpoint: string, body: any, isAuth: boolean, options?: any) {
+  return request(
+    endpoint,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...options,
+    },
+    isAuth
+  );
 }
 
-export function put(endpoint: string, body: any, options?: any) {
-  return request(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(body),
-    ...options,
-  });
+export function put(endpoint: string, body: any, isAuth: boolean, options?: any) {
+  return request(
+    endpoint,
+    {
+      method: 'PUT',
+      body: JSON.stringify(body),
+      ...options,
+    },
+    isAuth
+  );
 }
 
-export function del(endpoint: string, options?: any) {
-  return request(endpoint, { method: 'DELETE', ...options });
+export function del(endpoint: string, isAuth: boolean, options?: any) {
+  return request(endpoint, { method: 'DELETE', ...options }, isAuth);
 }

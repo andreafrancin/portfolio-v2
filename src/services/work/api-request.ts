@@ -10,32 +10,32 @@ async function fetchProjectsFromAPI(): Promise<any> {
 }
 
 async function fetchProjectsFromNewAPI(): Promise<any> {
-  const response = await get('projects/');
+  const response = await get('projects/', false);
   return response;
 }
 
 async function fetchProjectFromNewAPI(id: number): Promise<any> {
-  const response = await get(`projects/${id}/`);
+  const response = await get(`projects/${id}/`, false);
   return response;
 }
 
 async function fetchReorderProjectsFromNewAPI(body: any): Promise<any> {
-  const response = await post('projects/reorder/', body);
+  const response = await post('projects/reorder/', body, true);
   return response;
 }
 
 async function fetchRemoveProjectFromAPI(id: number): Promise<any> {
-  const response = await del(`projects/${id}/`);
+  const response = await del(`projects/${id}/`, true);
   return response;
 }
 
 async function fetchAddProjectFromAPI(body: any): Promise<any> {
-  const response = await post(`projects/`, body);
+  const response = await post(`projects/`, body, true);
   return response;
 }
 
 async function fetchEditProjectFromAPI(id: number, body: any): Promise<any> {
-  const response = await put(`projects/${id}/`, body);
+  const response = await put(`projects/${id}/`, body, true);
   return response;
 }
 

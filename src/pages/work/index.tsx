@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { fetchProjectsFromAPI } from '../../services/work/api-request';
+import { fetchProjectsFromAPI, fetchProjectsFromNewAPI } from '../../services/work/api-request';
 import './index.scss';
 import Spinner from '../../components/spinner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface WorkProps {}
 
 function Work(props: WorkProps) {
+  const navigate = useNavigate();
+
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -14,7 +16,7 @@ function Work(props: WorkProps) {
   }, []);
 
   const fetchProjects = async () => {
-    const response = await fetchProjectsFromAPI();
+    const response = await fetchProjectsFromNewAPI();
     console.log('response: ', response);
     setData(response);
   };
@@ -27,18 +29,24 @@ function Work(props: WorkProps) {
     );
   }
 
+  const handleNavigateToProject = (id: number) => {
+    navigate(`/work/${id}`, {
+      state: { id },
+    });
+  };
+
   return (
     <div className="work-container">
       <ul className="work-list-container">
         {data.map((item: any) => {
           return (
             <li className="work-list-element" key={item.id}>
-              <Link
-                to={`/work/${item.id}`}
+              <div
                 className="work-link"
                 style={{
-                  backgroundImage: `url(${item?.image_resources?.[0]?.image_url})`,
+                  backgroundImage: `url(${item?.images?.[0]?.image_url})`,
                 }}
+                onClick={() => handleNavigateToProject(item.id)}
               />
               <div className="work-link-title">{item?.title}</div>
             </li>

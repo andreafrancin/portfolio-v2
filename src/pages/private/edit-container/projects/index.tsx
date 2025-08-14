@@ -8,12 +8,15 @@ import {
 import DragAndDropIcon from '../../../../components/icons/icon-drag';
 import Button from '../../../../components/button';
 import { useNavigate } from 'react-router-dom';
+import TrashIcon from '../../../../components/icons/icon-trash';
+import EditIcon from '../../../../components/icons/icon-edit';
 
 interface ProjectData {
   id: number;
   title: string;
   description: any;
   order: number;
+  images: any;
 }
 
 const EditProjectsContainer = () => {
@@ -109,6 +112,9 @@ const EditProjectsContainer = () => {
             <div className="edit-project-drag-icon-container">
               <DragAndDropIcon />
             </div>
+            <div className="project-image-container">
+              <img className="project-image" src={item.images?.[0].image_url}></img>
+            </div>
             <p className="project-title">{item.title}</p>
           </div>
           <div className="edit-project-item-actions-container">
@@ -116,13 +122,13 @@ const EditProjectsContainer = () => {
               className="edit-project-item-action-button-edit"
               onClick={() => handleEditProject(item.id)}
             >
-              Edit
+              <EditIcon width={20} height={20} color="#FFF" />
             </button>
             <button
               className="edit-project-item-action-button-remove"
               onClick={() => handleRemoveProject(item.id)}
             >
-              Remove
+              <TrashIcon width={20} height={20} color="#FFF" />
             </button>
           </div>
         </div>

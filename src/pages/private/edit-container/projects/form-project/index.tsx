@@ -1,71 +1,48 @@
 import { useForm } from 'react-hook-form';
-import './index.scss';
 import { useEffect, useState } from 'react';
+import MarkdownEditor from '../../../../../components/markdown';
+import './index.scss';
 
 interface FormProjectProps {
   onFormSubmit: Function;
   currentData?: any;
   existingImages?: any;
+  handleRemoveExistingImage?: any;
+  handleNewImages?: any;
+  isEditProject?: boolean;
+  handleMarkdownChange?: Function;
+  httpCallLoading?: boolean;
+  handleCopyImageLink?: any;
 }
 
-function FormProject({ onFormSubmit, currentData }: FormProjectProps) {
+function FormProject({
+  onFormSubmit,
+  currentData,
+  existingImages,
+  handleRemoveExistingImage,
+  handleNewImages,
+  isEditProject,
+  handleMarkdownChange,
+  httpCallLoading,
+  handleCopyImageLink,
+}: FormProjectProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<any[]>(currentData?.images || []);
-  const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
+  const [markdownInitialValue, setMarkdownInitialValue] = useState<string | null>(null);
+  const onSubmit = async (data: any) => {
+    onFormSubmit && onFormSubmit(data);
+  };
 
   useEffect(() => {
-    if (currentData?.images) setExistingImages(currentData.images);
-    setImagesToRemove([]);
-  }, [currentData]);
-
-  const handleRemoveExistingImage = (id: number) => {
-    setExistingImages((prev) => prev.filter((img) => img.id !== id));
-    setImagesToRemove((prev) => [...prev, id]);
-  };
-
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const onSubmit = async (data: any) => {
-    const existingPayload = existingImages.map((img) => ({
-      id: img.id,
-      caption: img.caption,
-      order: img.order,
-    }));
-
-    const newPayload = await Promise.all(
-      newImages.map(async (file) => ({
-        caption: file.name,
-        image: await fileToBase64(file),
-        order: 0,
-      }))
-    );
-
-    const payload = {
-      ...data,
-      images: [...existingPayload, ...newPayload],
-      images_to_remove: imagesToRemove,
-    };
-
-    onFormSubmit && onFormSubmit(payload);
-  };
-
-  const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewImages([...newImages, ...Array.from(e.target.files)]);
+    if (currentData?.content) {
+      setMarkdownInitialValue(currentData?.content);
+    } else {
+      setMarkdownInitialValue('Start...');
     }
-  };
+  }, [currentData]);
 
   return (
     <form className="project-form-container" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -85,38 +62,45 @@ function FormProject({ onFormSubmit, currentData }: FormProjectProps) {
         )}
       </div>
 
-      <div className="project-field-container">
-        <textarea
-          className="project-field-textarea"
-          placeholder="Description"
-          defaultValue={currentData?.description || ''}
-          id="description"
-          {...register('description', {
-            required: 'Description is required',
-            minLength: { value: 10, message: 'Minimum 10 characters' },
-          })}
-        />
-        {errors.description?.message && typeof errors.description.message === 'string' && (
-          <p className="project-error-message">{errors.description.message}</p>
-        )}
-      </div>
+      {isEditProject && !httpCallLoading && (
+        <div className="project-form-markdown-editor-container">
+          <MarkdownEditor
+            onChange={handleMarkdownChange}
+            className=""
+            colorMode="light"
+            height={500}
+            initialValue={currentData?.content || ''}
+          />
+        </div>
+      )}
 
       <div className="project-images-section">
-        <h4>Existing Images</h4>
-        <div className="project-existing-images-section">
-          {existingImages.map((img) => (
-            <div key={img.id} className="project-image-item">
-              <img src={`${img.image_url}`} alt={img.caption} width={100} />
-              <button
-                className="project-image-remove"
-                type="button"
-                onClick={() => handleRemoveExistingImage(img.id)}
-              >
-                X
-              </button>
+        {!!existingImages && existingImages?.length > 0 && (
+          <>
+            <h4>Existing Images</h4>
+            <div className="project-existing-images-section">
+              {existingImages.map((img: any) => (
+                <div key={img.id} className="project-image-item">
+                  <img src={`${img.image_url}`} alt={img.caption} width={100} />
+                  <button
+                    className="project-image-remove"
+                    type="button"
+                    onClick={() => handleRemoveExistingImage(img.id)}
+                  >
+                    X
+                  </button>
+                  <button
+                    className="project-image-copy-link"
+                    type="button"
+                    onClick={() => handleCopyImageLink(img.id)}
+                  >
+                    Copy link
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
         <h4>New Images</h4>
         <div className="project-field-container">
