@@ -35,6 +35,14 @@ function AddProject() {
 
       const payload = {
         ...data,
+        title_i18n: {
+          en: data.title,
+        },
+        content_i18n: {
+          en: {
+            md: '',
+          },
+        },
         images: imagesPayload,
       };
 

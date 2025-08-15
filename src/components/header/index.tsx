@@ -1,21 +1,34 @@
-import { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import LinkedinIcon from '../icons/icon-linkedin';
 import useScrollPosition from '../../hooks/useScrollPosition';
 import ArrowIcon from '../icons/icon-arrow';
 import { paths as initialPaths } from './config';
 import './index.scss';
+import { useLang } from '../../context/lang-context';
+import { useStickyFixedHeader } from '../../hooks/useStickyFixedHeader';
+import useHtmlScrollLock from '../../hooks/useHtmlScrollLock';
 
 function Header() {
+  const [navPaths, setNavPaths] = useState(initialPaths);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('');
+
   const scrolled = useScrollPosition(0);
   const location = useLocation();
-
-  const [currentLang, setCurrentLang] = useState('es');
-  const [navPaths, setNavPaths] = useState(initialPaths);
+  const navigate = useNavigate();
+  const { lang, setLang } = useLang();
+  useStickyFixedHeader();
+  useHtmlScrollLock(isMenuOpen);
 
   const handleChangeLanguage = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setCurrentLang(event.currentTarget.value);
+    const value = (event.currentTarget as HTMLButtonElement).value as 'es' | 'en' | 'ca';
+    setLang(value);
   };
+
+  useEffect(() => {
+    setSelectedLang(lang);
+  }, [lang]);
 
   useEffect(() => {
     const updatedPaths: any = Object.fromEntries(
@@ -27,62 +40,86 @@ function Header() {
     setNavPaths(updatedPaths);
   }, [location]);
 
+  const toggleMenuStatus = useCallback(() => {
+    setIsMenuOpen((prevState) => !prevState);
+  }, []);
+
+  const openMenuClass = useMemo(() => {
+    return isMenuOpen ? 'open' : '';
+  }, [isMenuOpen]);
+
+  const getSelectedLangClass = useCallback(
+    (value: string) => {
+      return lang === value ? 'selected' : '';
+    },
+    [lang]
+  );
+
+  const handleNavigateToPage = useCallback((path: string) => {
+    setIsMenuOpen(false);
+    navigate(path);
+  }, []);
+
   return (
     <div className={`header-container ${scrolled ? 'scrolled' : ''}`}>
-      <div className="header-content">
-        <ul className="header-list-container">
-          <li className="header-list-element">
-            <Link
-              to={navPaths.work.path}
-              className={`header-link ${navPaths.work.selected ? 'header-link-selected' : ''}`}
-            >
-              work
-            </Link>
-          </li>
-          <li className="header-list-element">
-            <Link
-              to={navPaths.about.path}
-              className={`header-link ${navPaths.about.selected ? 'header-link-selected' : ''}`}
-            >
-              about
-            </Link>
-          </li>
-          <li className="header-list-element">
-            <Link
-              to={navPaths.contact.path}
-              className={`header-link ${navPaths.contact.selected ? 'header-link-selected' : ''}`}
-            >
-              contact
-            </Link>
-          </li>
+      <div className={`header-logo-container`}>
+        <h1 className="header-logo-title">Andrea Francín</h1>
+      </div>
+      <button onClick={toggleMenuStatus} className="burger-menu-button-container">
+        <div className={`burger-menu-button ${openMenuClass}`}></div>
+      </button>
+
+      <div className={`header-content ${openMenuClass}`}>
+        <ul className={`header-list-container ${openMenuClass}`}>
+          {Object.entries(navPaths).map(([key, { path, selected }]) => (
+            <li key={key} className={`header-list-element ${openMenuClass}`}>
+              <button
+                onClick={() => handleNavigateToPage(path)}
+                className={`header-link ${selected ? 'header-link-selected' : ''} ${openMenuClass}`}
+              >
+                {key}
+              </button>
+            </li>
+          ))}
         </ul>
-        <div className="header-logo-container">
-          <h1 className="header-logo-title">Andrea Francín</h1>
-        </div>
-        <ul className="header-social-list-container">
+
+        <ul className={`header-social-list-container ${openMenuClass}`}>
           <div className="header-social-icon">
             <LinkedinIcon width={20} height={20} color="#141516" />
           </div>
         </ul>
-        <div className="header-lang-container">
-          <div className="header-lang">{currentLang}</div>
-          <div className="header-arrow-icon">
+
+        <div className={`header-lang-container ${openMenuClass}`}>
+          <div className={`header-lang ${openMenuClass}`}>{lang}</div>
+          <div className={`header-arrow-icon ${openMenuClass}`}>
             <ArrowIcon width={20} height={20} color="#141516" />
           </div>
-          <ul className="header-lang-box">
-            <li className="header-lang-box-element">
-              <button onClick={handleChangeLanguage} value="en" className="header-lang-button">
+          <ul className={`header-lang-box ${openMenuClass}`}>
+            <li className={`header-lang-box-element ${openMenuClass}`}>
+              <button
+                onClick={handleChangeLanguage}
+                value="en"
+                className={`header-lang-button ${openMenuClass} ${getSelectedLangClass('en')}`}
+              >
                 en
               </button>
             </li>
-            <li className="header-lang-box-element">
-              <button onClick={handleChangeLanguage} value="es" className="header-lang-button">
+            <li className={`header-lang-box-element ${openMenuClass}`}>
+              <button
+                onClick={handleChangeLanguage}
+                value="es"
+                className={`header-lang-button ${openMenuClass} ${getSelectedLangClass('es')}`}
+              >
                 es
               </button>
             </li>
-            <li className="header-lang-box-element">
-              <button onClick={handleChangeLanguage} value="ca" className="header-lang-button">
-                ca
+            <li className={`header-lang-box-element ${openMenuClass}`}>
+              <button
+                onClick={handleChangeLanguage}
+                value="ca"
+                className={`header-lang-button ${openMenuClass} ${getSelectedLangClass('ca')}`}
+              >
+                cat
               </button>
             </li>
           </ul>

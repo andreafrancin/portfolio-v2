@@ -4,11 +4,13 @@ import './index.scss';
 import { useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { fetchProjectFromNewAPI } from '../../../services/work/api-request';
+import { useLang } from '../../../context/lang-context';
 
 function ProjectDetail() {
   const [data, setData] = useState<any>(null);
   const [markdownContent, setMarkdownContent] = useState('');
 
+  const { lang } = useLang();
   const location = useLocation();
 
   const { id } = location.state || {};
@@ -27,10 +29,13 @@ function ProjectDetail() {
 
   return (
     <div className="project-container">
-      <h1>{data?.title}</h1>
-      {data && !!data.content && (
+      <h1>{data?.title_i18n?.[lang]}</h1>
+      {data && !!data?.content_i18n?.[lang] && (
         <div className="markdown-viewer-container" data-color-mode="light">
-          <MDEditor.Markdown source={data?.content} rehypePlugins={[[rehypeSanitize]]} />
+          <MDEditor.Markdown
+            source={data?.content_i18n?.[lang]?.md}
+            rehypePlugins={[[rehypeSanitize]]}
+          />
         </div>
       )}
     </div>

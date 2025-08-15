@@ -16,6 +16,7 @@ function EditProject() {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [httpCallLoading, setHttpCallLoading] = useState(true);
   const [markdownContent, setMarkdownContent] = useState('');
+  const [language, setLanguage] = useState('en');
 
   const { id } = location.state || {};
 
@@ -74,7 +75,16 @@ function EditProject() {
 
       const payload = {
         ...data,
-        content: markdownContent,
+        title: currentData?.title,
+        content: language === 'en' ? markdownContent : currentData?.content,
+        title_i18n: {
+          [language]: data.title || currentData?.title_i18n?.[language],
+        },
+        content_i18n: {
+          [language]: {
+            md: markdownContent || currentData?.content_i18n?.[language]?.md,
+          },
+        },
         images: [...existingPayload, ...newPayload],
         images_to_remove: imagesToRemove,
       };
@@ -84,7 +94,7 @@ function EditProject() {
         replace: true,
       });
     },
-    [id, newImages, existingImages, imagesToRemove, markdownContent]
+    [id, newImages, existingImages, imagesToRemove, markdownContent, language, currentData]
   );
 
   const handleMarkdownChange = useCallback((value: any) => {
@@ -99,6 +109,21 @@ function EditProject() {
     [currentData]
   );
 
+  const handleLanguageSelect = useCallback((event: any) => {
+    setLanguage(event?.currentTarget?.value);
+  }, []);
+
+  useEffect(() => {
+    console.log(currentData);
+  }, [currentData]);
+
+  useEffect(() => {
+    setHttpCallLoading(true);
+    setTimeout(() => {
+      setHttpCallLoading(false);
+    }, 500);
+  }, [language]);
+
   return (
     <div className="edit-project-container">
       <h1>Edit project</h1>
@@ -112,6 +137,8 @@ function EditProject() {
         handleMarkdownChange={handleMarkdownChange}
         httpCallLoading={httpCallLoading}
         handleCopyImageLink={handleCopyImageLink}
+        handleLanguageSelect={handleLanguageSelect}
+        selectedLanguage={language}
       />
     </div>
   );

@@ -13,49 +13,52 @@ import PrivateArea from './pages/private';
 import { AuthProvider } from './context/auth-context';
 import AddProject from './pages/private/edit-container/projects/add-project';
 import EditProject from './pages/private/edit-container/projects/edit-project';
+import { LangProvider } from './context/lang-context';
 
 const App = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <div className="app">
-          <Header />
-          <Routes>
-            <Route path="/" element={<Navigate to="/work" replace />} />
-            <Route path="/work" element={<Work />} />
-            <Route path="/work/:id" element={<ProjectDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/private"
-              element={
-                <ProtectedRoute>
-                  <PrivateArea />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/private/add-project"
-              element={
-                <ProtectedRoute>
-                  <AddProject />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/private/edit-project/:id"
-              element={
-                <ProtectedRoute>
-                  <EditProject />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<div />} />
-          </Routes>
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <LangProvider>
+        <BrowserRouter>
+          <div className="app">
+            <Header />
+            <Routes>
+              <Route path="/" element={<Navigate to="/work" replace />} />
+              <Route path="/work" element={<Work />} />
+              <Route path="/work/:id" element={<ProjectDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/private"
+                element={
+                  <ProtectedRoute>
+                    <PrivateArea />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/private/add-project"
+                element={
+                  <ProtectedRoute>
+                    <AddProject />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/private/edit-project/:id"
+                element={
+                  <ProtectedRoute>
+                    <EditProject />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<div />} />
+            </Routes>
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </LangProvider>
     </AuthProvider>
   );
 };

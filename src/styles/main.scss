@@ -34,4 +34,18 @@ h1 {
   font-size: 30px;
   color: #141516;
   text-align: center;
+  margin: 0;
+  margin-bottom: 30px;
+}
+
+ul {
+  list-style: none;
+}
+
+body {
+  overflow-y: auto;
+}
+
+html.scroll-lock {
+  overflow: hidden;
 }

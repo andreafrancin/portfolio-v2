@@ -1,0 +1,12 @@
+.lang-selector-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+
+  label {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+}

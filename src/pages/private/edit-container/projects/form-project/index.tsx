@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import MarkdownEditor from '../../../../../components/markdown';
 import './index.scss';
+import ProjectLangSelector from '../../../../../components/lang-selector';
 
 interface FormProjectProps {
   onFormSubmit: Function;
@@ -13,6 +14,8 @@ interface FormProjectProps {
   handleMarkdownChange?: Function;
   httpCallLoading?: boolean;
   handleCopyImageLink?: any;
+  handleLanguageSelect?: any;
+  selectedLanguage?: string;
 }
 
 function FormProject({
@@ -25,35 +28,28 @@ function FormProject({
   handleMarkdownChange,
   httpCallLoading,
   handleCopyImageLink,
+  handleLanguageSelect,
+  selectedLanguage = 'en',
 }: FormProjectProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const [markdownInitialValue, setMarkdownInitialValue] = useState<string | null>(null);
   const onSubmit = async (data: any) => {
     onFormSubmit && onFormSubmit(data);
   };
 
-  useEffect(() => {
-    if (currentData?.content) {
-      setMarkdownInitialValue(currentData?.content);
-    } else {
-      setMarkdownInitialValue('Start...');
-    }
-  }, [currentData]);
-
   return (
     <form className="project-form-container" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {isEditProject && <ProjectLangSelector handleLanguageSelect={handleLanguageSelect} />}
       <div className="project-field-container">
         <input
           className="project-field"
           placeholder="Title"
-          defaultValue={currentData?.title || ''}
+          defaultValue={currentData?.title_i18n?.[selectedLanguage] || ''}
           id="title"
           {...register('title', {
-            required: 'Title is required',
             minLength: { value: 2, message: 'Minimum 2 characters' },
           })}
         />
@@ -69,7 +65,7 @@ function FormProject({
             className=""
             colorMode="light"
             height={500}
-            initialValue={currentData?.content || ''}
+            initialValue={currentData?.content_i18n?.[selectedLanguage]?.md || ''}
           />
         </div>
       )}
