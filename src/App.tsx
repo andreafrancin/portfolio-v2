@@ -14,11 +14,13 @@ import { AuthProvider } from './context/auth-context';
 import AddProject from './pages/private/edit-container/projects/add-project';
 import EditProject from './pages/private/edit-container/projects/edit-project';
 import { LangProvider } from './context/lang-context';
+import I18nSync from './I18nSync';
 
 const App = () => {
   return (
     <AuthProvider>
       <LangProvider>
+        <I18nSync />
         <BrowserRouter>
           <div className="app">
             <Header />

@@ -1,28 +1,30 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import './index.scss';
-import Button from '../../../components/button';
-import { fetchProjectsFromNewAPI } from '../../../services/work/api-request';
 import EditProjectsContainer from './projects';
+import { useTranslation } from 'react-i18next';
+import EditContactContainer from './contact';
 
-type Tab = 'Projects' | 'About' | 'Contact';
+type Tab = 'PRIVATE.TABS.WORK' | 'PRIVATE.TABS.ABOUT' | 'PRIVATE.TABS.CONTACT';
 
 const EditContainer = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('Projects');
+  const [activeTab, setActiveTab] = useState<Tab>('PRIVATE.TABS.WORK');
 
-  const tabs: Tab[] = ['Projects', 'About', 'Contact'];
+  const { t } = useTranslation();
 
-  const ActiveTab = () => {
+  const tabs: Tab[] = ['PRIVATE.TABS.WORK', 'PRIVATE.TABS.ABOUT', 'PRIVATE.TABS.CONTACT'];
+
+  const ActiveTab = useCallback(() => {
     switch (activeTab) {
       case tabs[0]:
         return <EditProjectsContainer />;
       case tabs[1]:
         return <div />;
       case tabs[2]:
-        return <div />;
+        return <EditContactContainer />;
       default:
         return <div />;
     }
-  };
+  }, [activeTab]);
 
   return (
     <div className="edit-container">
@@ -33,7 +35,7 @@ const EditContainer = () => {
               className={`edit-tab-list-button ${activeTab === tab ? 'edit-tab-list-button-selected' : ''}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab}
+              {t(tab)}
             </button>
           </li>
         ))}

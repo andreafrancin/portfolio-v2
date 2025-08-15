@@ -8,6 +8,7 @@ import './index.scss';
 import { useLang } from '../../context/lang-context';
 import { useStickyFixedHeader } from '../../hooks/useStickyFixedHeader';
 import useHtmlScrollLock from '../../hooks/useHtmlScrollLock';
+import { useTranslation } from 'react-i18next';
 
 function Header() {
   const [navPaths, setNavPaths] = useState(initialPaths);
@@ -18,6 +19,8 @@ function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { lang, setLang } = useLang();
+  const { t } = useTranslation();
+
   useStickyFixedHeader();
   useHtmlScrollLock(isMenuOpen);
 
@@ -71,13 +74,13 @@ function Header() {
 
       <div className={`header-content ${openMenuClass}`}>
         <ul className={`header-list-container ${openMenuClass}`}>
-          {Object.entries(navPaths).map(([key, { path, selected }]) => (
+          {Object.entries(navPaths).map(([key, { path, selected, title }]) => (
             <li key={key} className={`header-list-element ${openMenuClass}`}>
               <button
                 onClick={() => handleNavigateToPage(path)}
                 className={`header-link ${selected ? 'header-link-selected' : ''} ${openMenuClass}`}
               >
-                {key}
+                {t(title)}
               </button>
             </li>
           ))}

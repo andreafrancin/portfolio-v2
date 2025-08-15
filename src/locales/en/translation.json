@@ -1,0 +1,28 @@
+{
+  "HEADER": {
+    "WORK": "work",
+    "ABOUT": "about",
+    "CONTACT": "contact"
+  },
+  "PRIVATE": {
+    "TABS": {
+      "WORK": "Work",
+      "ABOUT": "About",
+      "CONTACT": "Contact"
+    },
+    "PRIVATE_AREA_TITLE": "Private Area",
+    "LOGOUT": "Log out",
+    "ADD_PROJECT": "Add project",
+    "SAVE_PROJECTS": "Save sorting",
+    "CHOOSE_LANGUAGE": "Choose a language:",
+    "CONTENT": "Content",
+    "UPLOADED_IMAGES": "Uploaded images",
+    "SAVE": "Save"
+  },
+  "LOGIN": {
+    "LOGIN_TITLE": "Log in",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "SUBMIT": "Log in"
+  }
+}

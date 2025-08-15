@@ -50,11 +50,13 @@
     "clean-webpack-plugin": "4.0.0",
     "core-js": "3.41.0",
     "html-webpack-plugin": "5.6.3",
+    "i18next": "^25.3.6",
     "luxon": "3.6.1",
     "mini-css-extract-plugin": "2.9.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
+    "react-i18next": "^15.6.1",
     "react-router-dom": "^7.8.0",
     "rehype-sanitize": "^6.0.0"
   },

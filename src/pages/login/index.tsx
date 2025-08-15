@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './index.scss';
+import { useTranslation } from 'react-i18next';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +41,11 @@ function Login() {
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form-container">
-        <h1>Login</h1>
+        <h1>{t('LOGIN.LOGIN_TITLE')}</h1>
         <input
           className="login-form-input"
           type="text"
-          placeholder="Username"
+          placeholder={t('LOGIN.USERNAME')}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -51,12 +53,12 @@ function Login() {
         <input
           className="login-form-input"
           type="password"
-          placeholder="Password"
+          placeholder={t('LOGIN.PASSWORD')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <input className="login-form-input-submit" type="submit" value="Submit" />
+        <input className="login-form-input-submit" type="submit" value={t('LOGIN.SUBMIT')} />
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
     </div>

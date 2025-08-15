@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import MarkdownEditor from '../../../../../components/markdown';
 import './index.scss';
-import ProjectLangSelector from '../../../../../components/lang-selector';
+import LangSelector from '../../../../../components/lang-selector';
 
 interface FormProjectProps {
   onFormSubmit: Function;
@@ -42,7 +42,7 @@ function FormProject({
 
   return (
     <form className="project-form-container" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {isEditProject && <ProjectLangSelector handleLanguageSelect={handleLanguageSelect} />}
+      {isEditProject && <LangSelector handleLanguageSelect={handleLanguageSelect} />}
       <div className="project-field-container">
         <input
           className="project-field"

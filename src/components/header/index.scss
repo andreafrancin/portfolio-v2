@@ -33,7 +33,6 @@
 
   @media screen and (max-width: $header-breakpoint) {
     position: absolute;
-    height: 100px;
   }
 }
 
@@ -86,7 +85,7 @@
 }
 
 .header-list-element {
-  margin-right: 30px;
+  margin-right: 15px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -375,6 +374,7 @@
   padding: 0;
   z-index: 999;
   border: none;
+  transform: translateY(-5px);
 
   @media screen and (max-width: $header-breakpoint) {
     display: flex;

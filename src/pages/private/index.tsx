@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import './index.scss';
 import LogoutButton from '../../components/logout';
 import EditContainer from './edit-container';
+import { useTranslation } from 'react-i18next';
 
 const PrivateArea = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const isTokenExpired = (token: string) => {
     try {
@@ -37,7 +39,7 @@ const PrivateArea = () => {
 
   return (
     <div className="private-area-container">
-      <h1>Private Area</h1>
+      <h1>{t('PRIVATE.PRIVATE_AREA_TITLE')}</h1>
       <div className="private-area-logout-container">
         <LogoutButton />
       </div>

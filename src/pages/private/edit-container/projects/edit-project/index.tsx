@@ -114,10 +114,6 @@ function EditProject() {
   }, []);
 
   useEffect(() => {
-    console.log(currentData);
-  }, [currentData]);
-
-  useEffect(() => {
     setHttpCallLoading(true);
     setTimeout(() => {
       setHttpCallLoading(false);

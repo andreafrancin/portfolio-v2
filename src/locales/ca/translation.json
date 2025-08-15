@@ -1,0 +1,28 @@
+{
+  "HEADER": {
+    "WORK": "projectes",
+    "ABOUT": "sobre mi",
+    "CONTACT": "contacte"
+  },
+  "PRIVATE": {
+    "TABS": {
+      "WORK": "Projectes",
+      "ABOUT": "Sobre mi",
+      "CONTACT": "Contacte"
+    },
+    "PRIVATE_AREA_TITLE": "Àrea Privada",
+    "LOGOUT": "Tancar sessió",
+    "ADD_PROJECT": "Afegir projecte",
+    "SAVE_PROJECTS": "Guardar ordre",
+    "CHOOSE_LANGUAGE": "Selecciona un idioma:",
+    "CONTENT": "Contingut",
+    "UPLOADED_IMAGES": "Imatges pujades",
+    "SAVE": "Guardar"
+  },
+  "LOGIN": {
+    "LOGIN_TITLE": "Iniciar sessió",
+    "USERNAME": "Nom d'usuari",
+    "PASSWORD": "Contrasenya",
+    "SUBMIT": "Entrar"
+  }
+}

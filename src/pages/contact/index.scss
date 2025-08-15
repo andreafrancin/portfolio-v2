@@ -2,14 +2,19 @@
 
 .contact-container {
   max-width: 1600px;
-  width: 80%;
+  width: 90%;
   height: 100%;
   min-height: 100vh;
-  margin: 0 10%;
+  margin: 0 5%;
   display: flex;
   align-items: center;
   flex-direction: column;
   padding-top: 150px;
+}
+
+.contact-description {
+  width: 90vw;
+  max-width: 500px;
 }
 
 .contact-field-container {
@@ -24,7 +29,8 @@ h1 {
 }
 
 .contact-field {
-  width: 500px;
+  width: 90vw;
+  max-width: 500px;
   height: 40px;
   border: 1px solid rgba(0, 0, 0, 0.4);
   border-radius: 10px;
@@ -38,7 +44,8 @@ h1 {
 }
 
 .contact-field-textarea {
-  width: 500px;
+  max-width: 500px;
+  width: 90vw;
   height: 100px;
   border: 1px solid rgba(0, 0, 0, 0.4);
   border-radius: 10px;
@@ -52,12 +59,13 @@ h1 {
 }
 
 .contact-submit-button {
-  width: 500px;
+  max-width: 500px;
+  width: 90vw;
   height: 40px;
   border: 1px solid $secondary-color;
   border-radius: 10px;
   font-size: 16px;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
   cursor: pointer;
   font-weight: 300;
   background-color: $secondary-color;
@@ -71,6 +79,10 @@ h1 {
 
 .contact-form-container {
   margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .contact-error-message {

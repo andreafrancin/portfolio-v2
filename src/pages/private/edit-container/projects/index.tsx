@@ -10,6 +10,7 @@ import Button from '../../../../components/button';
 import { useNavigate } from 'react-router-dom';
 import TrashIcon from '../../../../components/icons/icon-trash';
 import EditIcon from '../../../../components/icons/icon-edit';
+import { useTranslation } from 'react-i18next';
 
 interface ProjectData {
   id: number;
@@ -24,6 +25,7 @@ const EditProjectsContainer = () => {
   const dragItemIndex = useRef<number | null>(null);
   const dragOverItemIndex = useRef<number | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchProjects();
@@ -93,9 +95,9 @@ const EditProjectsContainer = () => {
   return (
     <div className="edit-projects-container">
       <div className="edit-projects-buttons-container">
-        <Button onClick={handleClickAddProject}>Add project</Button>
+        <Button onClick={handleClickAddProject}>{t('PRIVATE.ADD_PROJECT')}</Button>
         <Button type="submit" onClick={fetchReorderProjects}>
-          Save projects
+          {t('PRIVATE.SAVE_PROJECTS')}
         </Button>
       </div>
       {data?.map((item, index) => (

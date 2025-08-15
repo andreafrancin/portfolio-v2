@@ -1,14 +1,17 @@
 import React from 'react';
 import './index.scss';
+import { useTranslation } from 'react-i18next';
 
-interface ProjectLangSelectorProps {
+interface LangSelectorProps {
   handleLanguageSelect: any;
 }
 
-function ProjectLangSelector({ handleLanguageSelect }: ProjectLangSelectorProps) {
+function LangSelector({ handleLanguageSelect }: LangSelectorProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="lang-selector-container">
-      <label>Choose a lang:</label>
+      <label>{t('PRIVATE.CHOOSE_LANGUAGE')}</label>
       <select defaultValue={'en'} name="languages" id="lang-select" onChange={handleLanguageSelect}>
         <option value="">--Please choose a language--</option>
         <option value="en">English</option>
@@ -19,4 +22,4 @@ function ProjectLangSelector({ handleLanguageSelect }: ProjectLangSelectorProps)
   );
 }
 
-export default ProjectLangSelector;
+export default LangSelector;
