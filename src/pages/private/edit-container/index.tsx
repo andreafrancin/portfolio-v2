@@ -3,6 +3,7 @@ import './index.scss';
 import EditProjectsContainer from './projects';
 import { useTranslation } from 'react-i18next';
 import EditContactContainer from './contact';
+import EditAboutContainer from './about';
 
 type Tab = 'PRIVATE.TABS.WORK' | 'PRIVATE.TABS.ABOUT' | 'PRIVATE.TABS.CONTACT';
 
@@ -18,7 +19,7 @@ const EditContainer = () => {
       case tabs[0]:
         return <EditProjectsContainer />;
       case tabs[1]:
-        return <div />;
+        return <EditAboutContainer />;
       case tabs[2]:
         return <EditContactContainer />;
       default:

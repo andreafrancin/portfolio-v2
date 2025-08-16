@@ -77,7 +77,7 @@ function FormProject({
             <div className="project-existing-images-section">
               {existingImages.map((img: any) => (
                 <div key={img.id} className="project-image-item">
-                  <img src={`${img.image_url}`} alt={img.caption} width={100} />
+                  <img src={`${img?.image_url}`} alt={img.caption} width={100} />
                   <button
                     className="project-image-remove"
                     type="button"

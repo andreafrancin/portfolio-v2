@@ -8,7 +8,6 @@ import { useLang } from '../../../context/lang-context';
 
 function ProjectDetail() {
   const [data, setData] = useState<any>(null);
-  const [markdownContent, setMarkdownContent] = useState('');
 
   const { lang } = useLang();
   const location = useLocation();
@@ -23,7 +22,6 @@ function ProjectDetail() {
     if (!!id) {
       const response = await fetchProjectFromNewAPI(id);
       setData(response);
-      console.log(response);
     }
   }, [id]);
 

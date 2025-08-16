@@ -7,7 +7,7 @@ function getToken(): string | null {
 async function request(endpoint: string, options: RequestInit = {}, isAuth?: boolean) {
   const token = getToken();
 
-  if (!token) {
+  if (!token && isAuth) {
     throw new Error('No auth token.');
   }
 

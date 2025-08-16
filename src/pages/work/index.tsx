@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
-import { fetchProjectsFromAPI, fetchProjectsFromNewAPI } from '../../services/work/api-request';
+import { useContext, useEffect, useState } from 'react';
+import { fetchProjectsFromNewAPI } from '../../services/work/api-request';
 import './index.scss';
 import Spinner from '../../components/spinner';
-import { Link, useNavigate } from 'react-router-dom';
+import ProjectCard from '../../components/project-card';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../../context/auth-context';
+import { useTranslation } from 'react-i18next';
 
 interface WorkProps {}
 
-function Work(props: WorkProps) {
-  const navigate = useNavigate();
-
+function Work({}: WorkProps) {
+  const { token } = useContext(AuthContext);
+  const { t } = useTranslation();
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -29,30 +32,21 @@ function Work(props: WorkProps) {
     );
   }
 
-  const handleNavigateToProject = (id: number) => {
-    navigate(`/work/${id}`, {
-      state: { id },
-    });
-  };
-
   return (
     <div className="work-container">
       <ul className="work-list-container">
         {data.map((item: any) => {
           return (
             <li className="work-list-element" key={item.id}>
-              <div
-                className="work-link"
-                style={{
-                  backgroundImage: `url(${item?.images?.[0]?.image_url})`,
-                }}
-                onClick={() => handleNavigateToProject(item.id)}
-              />
-              <div className="work-link-title">{item?.title}</div>
+              <ProjectCard item={item} />
             </li>
           );
         })}
       </ul>
+
+      <Link className="footer-login-button" to={token ? '/private' : '/login'}>
+        {t('PRIVATE.PRIVATE_AREA_TITLE')}
+      </Link>
     </div>
   );
 }

@@ -1,0 +1,42 @@
+$blurup-bg: #eee !default;
+$blurup-transition: 350ms !default;
+$blurup-blur: 20px !default;
+$blurup-scale: 1.05 !default;
+
+.blurup {
+  position: relative;
+  overflow: hidden;
+  background: $blurup-bg;
+  width: 100%;
+  height: 100%;
+
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__img--low {
+    filter: blur($blurup-blur);
+    transform: scale($blurup-scale);
+    opacity: 1;
+    transition: opacity $blurup-transition ease;
+  }
+
+  &__img--high {
+    opacity: 0;
+    transition: opacity $blurup-transition ease;
+  }
+
+  &.is-loaded {
+    .blurup__img--high {
+      opacity: 1;
+    }
+    .blurup__img--low {
+      opacity: 0;
+    }
+  }
+}

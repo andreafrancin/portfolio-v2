@@ -13,6 +13,16 @@
   align-items: center;
   padding-top: 150px;
   padding-bottom: 150px;
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    width: 90%;
+    margin: 0 5%;
+
+    h1 {
+      width: 100%;
+      text-align: left;
+    }
+  }
 }
 
 .private-area-logout-container {

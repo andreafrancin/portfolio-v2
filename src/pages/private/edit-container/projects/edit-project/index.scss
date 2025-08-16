@@ -11,4 +11,9 @@
   flex-direction: column;
   padding-top: 150px;
   padding-bottom: 150px;
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    width: 90vw;
+    margin: 0 5vw;
+  }
 }

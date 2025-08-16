@@ -115,7 +115,7 @@ const EditProjectsContainer = () => {
               <DragAndDropIcon />
             </div>
             <div className="project-image-container">
-              <img className="project-image" src={item.images?.[0].image_url}></img>
+              <img className="project-image" src={item.images?.[0]?.image_url}></img>
             </div>
             <p className="project-title">{item.title}</p>
           </div>

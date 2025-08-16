@@ -1,23 +1,23 @@
 @use '../../../../styles/variables' as *;
 
-.edit-contact-container {
+.edit-about-container {
   width: 100%;
   height: 100%;
   margin: 25px 0;
 }
 
-.contact-field-container {
+.about-form-field-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 15px;
 }
 
-.contact-field {
+.about-form-field {
   width: 100%;
   max-width: 500px;
   height: 40px;
-  border: 1px solid hsl(210, 18%, 87%);
+  border: 1px solid $border-color;
   border-radius: 10px;
   margin-top: 5px;
   padding: 0 10px;
@@ -28,14 +28,28 @@
   }
 }
 
-.contact-submit-button {
-  width: 90vw;
+.about-form-markdown-editor-container {
+  width: 100%;
+  height: 500px;
+  max-height: 500px;
+
+  textarea {
+    min-height: 370px;
+  }
+
+  * {
+    max-height: 400px;
+  }
+}
+
+.about-submit-button {
+  width: 100%;
   max-width: 500px;
   height: 40px;
   border: 1px solid $secondary-color;
   border-radius: 10px;
   font-size: 16px;
-  transition: background-color 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   cursor: pointer;
   font-weight: 300;
   background-color: $secondary-color;

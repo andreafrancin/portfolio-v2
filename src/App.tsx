@@ -6,7 +6,6 @@ import Work from './pages/work';
 import About from './pages/about';
 import Contact from './pages/contact';
 import ProjectDetail from './pages/work/project';
-import Footer from './components/footer';
 import Login from './pages/login';
 import ProtectedRoute from './components/protected-route';
 import PrivateArea from './pages/private';
@@ -57,7 +56,6 @@ const App = () => {
               />
               <Route path="*" element={<div />} />
             </Routes>
-            <Footer />
           </div>
         </BrowserRouter>
       </LangProvider>
