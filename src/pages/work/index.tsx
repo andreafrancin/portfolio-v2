@@ -24,25 +24,23 @@ function Work({}: WorkProps) {
     setData(response);
   };
 
-  if (!data || !data?.length) {
-    return (
-      <div className="loading-spinner-container">
-        <Spinner />
-      </div>
-    );
-  }
-
   return (
     <div className="work-container">
-      <ul className="work-list-container">
-        {data.map((item: any) => {
-          return (
-            <li className="work-list-element" key={item.id}>
-              <ProjectCard item={item} />
-            </li>
-          );
-        })}
-      </ul>
+      {!data || !data?.length ? (
+        <div className="loading-spinner-container">
+          <Spinner />
+        </div>
+      ) : (
+        <ul className="work-list-container">
+          {data.map((item: any) => {
+            return (
+              <li className="work-list-element" key={item.id}>
+                <ProjectCard item={item} />
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       <Link className="footer-login-button" to={token ? '/private' : '/login'}>
         {t('PRIVATE.PRIVATE_AREA_TITLE')}
