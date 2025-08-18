@@ -12,7 +12,7 @@ async function request(endpoint: string, options: RequestInit = {}, isAuth?: boo
     throw new Error('No auth token.');
   }
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const res = await fetch(`${PROD_API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

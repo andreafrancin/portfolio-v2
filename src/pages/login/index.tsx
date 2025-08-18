@@ -18,7 +18,7 @@ function Login() {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}auth/token/`, {
+      const response = await fetch(`${PROD_API_BASE_URL}auth/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
