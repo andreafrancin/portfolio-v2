@@ -85,8 +85,6 @@ function EditAboutContainer({}: EditAboutContainerProps) {
     }, 500);
   }, [selectedLanguage]);
 
-  console.log(currentData);
-
   return (
     <div className="edit-about-container">
       <LangSelector handleLanguageSelect={handleLanguageSelect} />
@@ -97,7 +95,7 @@ function EditAboutContainer({}: EditAboutContainerProps) {
               className="about-form-field"
               placeholder="Page title"
               id="title"
-              defaultValue={currentData?.[0].title_i18n?.[selectedLanguage] || ''}
+              defaultValue={currentData?.[0]?.title_i18n?.[selectedLanguage] || ''}
               {...register('title', {
                 minLength: { value: 2, message: 'Minimum 2 characters' },
               })}
@@ -114,7 +112,7 @@ function EditAboutContainer({}: EditAboutContainerProps) {
                 className=""
                 colorMode="light"
                 height={400}
-                initialValue={currentData?.[0].content_i18n?.[selectedLanguage]?.md || ''}
+                initialValue={currentData?.[0]?.content_i18n?.[selectedLanguage]?.md || ''}
               />
             </div>
           )}

@@ -1,6 +1,8 @@
 .app {
-  height: 100%;
+  height: auto;
   width: 100%;
+  position: relative;
+  overflow-x: hidden;
 }
 
 html,
@@ -12,4 +14,23 @@ ul {
 
 * {
   box-sizing: border-box;
+}
+
+.social-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  width: 100vw;
+  position: absolute;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.social-icon {
+  &:hover {
+    path {
+      fill: #bc0e4d;
+    }
+  }
 }

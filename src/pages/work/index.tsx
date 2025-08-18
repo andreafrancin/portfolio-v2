@@ -20,12 +20,12 @@ function Work({}: WorkProps) {
 
   const fetchProjects = async () => {
     const response = await fetchProjectsFromNewAPI();
-    console.log('response: ', response);
     setData(response);
   };
 
   return (
     <div className="work-container">
+      <h1 className="work-main-title">Andrea Francín</h1>
       {!data || !data?.length ? (
         <div className="loading-spinner-container">
           <Spinner />
