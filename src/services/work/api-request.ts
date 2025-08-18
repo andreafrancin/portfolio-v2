@@ -1,7 +1,10 @@
 import { del, get, post, put } from '../../api-client/api-client';
 
+const API_BASE_URL = 'http://localhost:8000/api/';
+const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
+
 async function fetchProjectsFromAPI(): Promise<any> {
-  const response = await fetch('https://back.andreafrancin.com/api/projects/');
+  const response = await fetch(API_BASE_URL);
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`);
   }

@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 interface WorkProps {}
 
 function Work({}: WorkProps) {
-  const { token } = useContext(AuthContext);
   const { t } = useTranslation();
   const [data, setData] = useState<any>(null);
 
@@ -41,10 +40,6 @@ function Work({}: WorkProps) {
           })}
         </ul>
       )}
-
-      <Link className="footer-login-button" to={token ? '/private' : '/login'}>
-        {t('PRIVATE.PRIVATE_AREA_TITLE')}
-      </Link>
     </div>
   );
 }

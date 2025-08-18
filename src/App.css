@@ -22,7 +22,7 @@ ul {
   justify-content: center;
   height: 150px;
   width: 100vw;
-  position: absolute;
+  position: relative;
   bottom: 0;
   overflow: hidden;
 }

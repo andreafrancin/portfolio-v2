@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import './index.scss';
 import { useTranslation } from 'react-i18next';
 
+const API_BASE_URL = 'http://localhost:8000/api/';
+const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
+
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +18,7 @@ function Login() {
     setError('');
 
     try {
-      const response = await fetch('https://back.andreafrancin.com/api/auth/token/', {
+      const response = await fetch(`${API_BASE_URL}auth/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
