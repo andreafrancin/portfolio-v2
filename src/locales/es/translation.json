@@ -17,7 +17,8 @@
     "CHOOSE_LANGUAGE": "Selecciona un idioma:",
     "CONTENT": "Contenido",
     "UPLOADED_IMAGES": "Imágenes subidas",
-    "SAVE": "Guardar"
+    "SAVE": "Guardar",
+    "SUCCESS": "Proyecto actualizado correctamente!"
   },
   "LOGIN": {
     "LOGIN_TITLE": "Iniciar sesión",

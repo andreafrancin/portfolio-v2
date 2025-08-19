@@ -17,7 +17,8 @@
     "CHOOSE_LANGUAGE": "Choose a language:",
     "CONTENT": "Content",
     "UPLOADED_IMAGES": "Uploaded images",
-    "SAVE": "Save"
+    "SAVE": "Save",
+    "SUCCESS": "Project updated successfully!"
   },
   "LOGIN": {
     "LOGIN_TITLE": "Log in",

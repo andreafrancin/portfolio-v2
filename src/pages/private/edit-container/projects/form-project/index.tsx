@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import MarkdownEditor from '../../../../../components/markdown';
 import './index.scss';
 import LangSelector from '../../../../../components/lang-selector';
+import Spinner from '../../../../../components/spinner';
+import { useTranslation } from 'react-i18next';
 
 interface FormProjectProps {
   onFormSubmit: Function;
@@ -16,6 +18,7 @@ interface FormProjectProps {
   handleCopyImageLink?: any;
   handleLanguageSelect?: any;
   selectedLanguage?: string;
+  loading?: boolean;
 }
 
 function FormProject({
@@ -30,12 +33,15 @@ function FormProject({
   handleCopyImageLink,
   handleLanguageSelect,
   selectedLanguage = 'en',
+  loading,
 }: FormProjectProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { t } = useTranslation();
+
   const onSubmit = async (data: any) => {
     onFormSubmit && onFormSubmit(data);
   };
@@ -105,7 +111,7 @@ function FormProject({
       </div>
 
       <button className="project-submit-button" type="submit">
-        Save
+        {loading ? <Spinner size={24} /> : t('PRIVATE.SAVE')}
       </button>
     </form>
   );

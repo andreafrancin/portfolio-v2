@@ -12,3 +12,22 @@
   padding-top: 150px;
   padding-bottom: 150px;
 }
+
+.add-project-message-space {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 10px;
+
+  p {
+    background-color: $remove-color;
+    border-radius: 10px;
+    width: 100%;
+    min-height: 30px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 10px;
+  }
+}

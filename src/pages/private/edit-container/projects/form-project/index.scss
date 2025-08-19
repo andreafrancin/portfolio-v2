@@ -53,10 +53,27 @@ h1 {
   font-weight: 300;
   background-color: $secondary-color;
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .spinner {
+    border-color: #fff;
+    border-left-color: $secondary-color;
+  }
 
   &:hover {
     background-color: transparent;
     color: $secondary-color;
+
+    .spinner {
+      border-color: $secondary-color;
+      border-left-color: #fff;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    width: 100%;
   }
 }
 

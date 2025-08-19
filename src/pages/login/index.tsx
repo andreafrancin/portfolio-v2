@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './index.scss';
 import { useTranslation } from 'react-i18next';
+import Spinner from '../../components/spinner';
 
 const API_BASE_URL = 'http://localhost:8000/api/';
 const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
@@ -9,12 +10,15 @@ const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
     try {
@@ -39,12 +43,15 @@ function Login() {
     } catch (err) {
       setError((err as Error).message);
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form-container">
         <h1>{t('LOGIN.LOGIN_TITLE')}</h1>
+        <div className="message-space">{error && <p>Error: {error}</p>}</div>
         <input
           className="login-form-input"
           type="text"
@@ -61,8 +68,9 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <input className="login-form-input-submit" type="submit" value={t('LOGIN.SUBMIT')} />
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <button className="login-form-input-submit" type="submit">
+          {loading ? <Spinner size={24} /> : t('LOGIN.SUBMIT')}
+        </button>
       </form>
     </div>
   );

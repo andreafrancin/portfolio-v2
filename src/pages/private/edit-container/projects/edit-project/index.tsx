@@ -6,10 +6,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FormProject from '../form-project';
 import './index.scss';
+import { useTranslation } from 'react-i18next';
 
 function EditProject() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+
   const [currentData, setCurrentData] = useState<any>(null);
   const [existingImages, setExistingImages] = useState<any[]>(currentData?.images || []);
   const [imagesToRemove, setImagesToRemove] = useState<number[]>([]);
@@ -17,6 +19,9 @@ function EditProject() {
   const [httpCallLoading, setHttpCallLoading] = useState(true);
   const [markdownContent, setMarkdownContent] = useState('');
   const [language, setLanguage] = useState('en');
+  const [loading, setLoading] = useState(false);
+  const [displaySuccessMessage, setDisplaySuccessMessage] = useState(false);
+  const [error, setError] = useState('');
 
   const { id } = location.state || {};
 
@@ -59,40 +64,49 @@ function EditProject() {
 
   const onFormSubmit = useCallback(
     async (data: any) => {
-      const existingPayload = existingImages.map((img) => ({
-        id: img.id,
-        caption: img.caption,
-        order: img.order,
-      }));
+      setLoading(true);
+      setDisplaySuccessMessage(false);
+      setError('');
 
-      const newPayload = await Promise.all(
-        newImages.map(async (file) => ({
-          caption: file.name,
-          image: await fileToBase64(file),
-          order: 0,
-        }))
-      );
+      try {
+        const existingPayload = existingImages.map((img) => ({
+          id: img.id,
+          caption: img.caption,
+          order: img.order,
+        }));
 
-      const payload = {
-        ...data,
-        title: currentData?.title,
-        content: language === 'en' ? markdownContent : currentData?.content,
-        title_i18n: {
-          [language]: data.title || currentData?.title_i18n?.[language],
-        },
-        content_i18n: {
-          [language]: {
-            md: markdownContent || currentData?.content_i18n?.[language]?.md,
+        const newPayload = await Promise.all(
+          newImages.map(async (file) => ({
+            caption: file.name,
+            image: await fileToBase64(file),
+            order: 0,
+          }))
+        );
+
+        const payload = {
+          ...data,
+          title: currentData?.title,
+          content: language === 'en' ? markdownContent : currentData?.content,
+          title_i18n: {
+            [language]: data.title || currentData?.title_i18n?.[language],
           },
-        },
-        images: [...existingPayload, ...newPayload],
-        images_to_remove: imagesToRemove,
-      };
+          content_i18n: {
+            [language]: {
+              md: markdownContent || currentData?.content_i18n?.[language]?.md,
+            },
+          },
+          images: [...existingPayload, ...newPayload],
+          images_to_remove: imagesToRemove,
+        };
 
-      await fetchEditProjectFromAPI(id, payload);
-      navigate('/private', {
-        replace: true,
-      });
+        await fetchEditProjectFromAPI(id, payload).then(() => {
+          setDisplaySuccessMessage(true);
+        });
+      } catch (error) {
+        setError('Something went wrong. Please, try again later');
+      }
+
+      setLoading(false);
     },
     [id, newImages, existingImages, imagesToRemove, markdownContent, language, currentData]
   );
@@ -114,7 +128,10 @@ function EditProject() {
   }, []);
 
   useEffect(() => {
+    setError('');
+    setDisplaySuccessMessage(false);
     setHttpCallLoading(true);
+
     setTimeout(() => {
       setHttpCallLoading(false);
     }, 500);
@@ -135,7 +152,12 @@ function EditProject() {
         handleCopyImageLink={handleCopyImageLink}
         handleLanguageSelect={handleLanguageSelect}
         selectedLanguage={language}
+        loading={loading}
       />
+      <div className="edit-project-message-space">{error && <p>Error: {error}</p>}</div>
+      <div className="edit-project-success-message-space">
+        {displaySuccessMessage && <p>{t('PRIVATE.SUCCESS')} </p>}
+      </div>
     </div>
   );
 }
