@@ -34,7 +34,7 @@ function Contact() {
       <h1>{contactData?.[0]?.title_i18n?.[lang]}</h1>
       <p className="contact-description">{contactData?.[0]?.description_i18n?.[lang]}</p>
       <a className="contact-email" href="mailto:andrea@example.com">
-        andfrancín@gmail.com
+        andfrancin@gmail.com
       </a>
     </div>
   );

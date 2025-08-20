@@ -15,13 +15,16 @@
 .contact-description {
   width: 90vw;
   max-width: 500px;
+  text-align: center;
 }
 
 .contact-email {
   text-decoration: none;
-  color: $text-color;
+  color: $secondary-color;
+  font-weight: 400;
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    color: $secondary-color;
+    font-weight: 600;
   }
 }

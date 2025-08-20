@@ -59,9 +59,9 @@ function Header() {
 
   return (
     <div className={containerClasses}>
-      <div className="header-logo-container">
+      <a href="/" className="header-logo-container">
         <LogoIcon color="#141516" />
-      </div>
+      </a>
 
       <div className="header-content">
         <ul className="header-list-container">

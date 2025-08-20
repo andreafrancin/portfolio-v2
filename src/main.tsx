@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { useContext } from 'react';
 import Header from './components/header';
 import Work from './pages/work';
 import About from './pages/about';
@@ -13,7 +14,6 @@ import LinkedinIcon from './components/icons/icon-linkedin';
 import useIsMobile from './hooks/useIsMobile';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from './context/auth-context';
-import { useContext } from 'react';
 import './styles/main.scss';
 import './App.css';
 
