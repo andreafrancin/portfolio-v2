@@ -1,3 +1,4 @@
+const { DefinePlugin } = require('webpack');
 const { default: merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -13,7 +14,12 @@ const prodConfig = {
       chunks: 'all',
     },
   },
-  plugins: [new MiniCssExtractPlugin()],
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new DefinePlugin({
+      __API_BASE_URL__: JSON.stringify('https://back.andreafrancin.com/api/'),
+    }),
+  ],
   module: {
     rules: [
       {

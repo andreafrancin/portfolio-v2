@@ -37,3 +37,11 @@
 .markdown-viewer-container {
   width: 100%;
 }
+
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 50vh;
+}

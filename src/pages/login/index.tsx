@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './index.scss';
 import { useTranslation } from 'react-i18next';
 import Spinner from '../../components/spinner';
-
-const API_BASE_URL = 'http://localhost:8000/api/';
-const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
+import { login } from '../../services/login/api-request';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -22,26 +20,14 @@ function Login() {
     setError('');
 
     try {
-      const response = await fetch(`${PROD_API_BASE_URL}auth/token/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
-      }
-
-      const data = await response.json();
+      const data = await login(username, password);
 
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
 
-      navigate('/private', {
-        replace: true,
-      });
+      navigate('/private', { replace: true });
     } catch (err) {
-      setError((err as Error).message);
+      setError('Invalid credentials');
     }
 
     setLoading(false);

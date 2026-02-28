@@ -1,29 +1,41 @@
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import './index.scss';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { fetchProjectFromNewAPI } from '../../../services/work/api-request';
 import { useLang } from '../../../context/lang-context';
+import Spinner from '../../../components/spinner';
 
 function ProjectDetail() {
   const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const { lang } = useLang();
-  const location = useLocation();
-
-  const { id } = location.state || {};
+  const { id } = useParams();
 
   useEffect(() => {
     fetchProject();
-  }, []);
+  }, [id]);
 
   const fetchProject = useCallback(async () => {
-    if (!!id) {
-      const response = await fetchProjectFromNewAPI(id);
+    if (id) {
+      setLoading(true);
+      const response = await fetchProjectFromNewAPI(Number(id));
       setData(response);
+      setLoading(false);
     }
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="project-container">
+        <div className="loading-spinner-container">
+          <Spinner />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="project-container">

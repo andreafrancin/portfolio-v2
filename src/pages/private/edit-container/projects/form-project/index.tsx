@@ -1,117 +1,109 @@
-import { useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import MarkdownEditor from '../../../../../components/markdown';
+import ImageManager, { ExistingImage, ImageChangePayload } from '../../../../../components/image-manager';
 import './index.scss';
 import LangSelector from '../../../../../components/lang-selector';
-import Spinner from '../../../../../components/spinner';
 import { useTranslation } from 'react-i18next';
 
 interface FormProjectProps {
-  onFormSubmit: Function;
-  currentData?: any;
-  existingImages?: any;
-  handleRemoveExistingImage?: any;
-  handleNewImages?: any;
+  onFormSubmit: () => void;
+  existingImages?: ExistingImage[];
+  onImagesChange?: (payload: ImageChangePayload) => void;
+  onCopyImageLink?: (id: number) => void;
+  onNewFilesAdded?: (files: File[]) => void;
+  onExistingImageRemoved?: (id: number) => void;
   isEditProject?: boolean;
-  handleMarkdownChange?: Function;
-  httpCallLoading?: boolean;
-  handleCopyImageLink?: any;
-  handleLanguageSelect?: any;
+  markdownValue?: string;
+  onMarkdownChange?: (value: string) => void;
+  titleValue?: string;
+  onTitleChange?: (value: string) => void;
   selectedLanguage?: string;
-  loading?: boolean;
+  onLanguageChange?: (lang: string) => void;
+  contentByLang?: Record<string, string>;
+  hidden?: boolean;
+  onHiddenChange?: (val: boolean) => void;
 }
 
 function FormProject({
   onFormSubmit,
-  currentData,
-  existingImages,
-  handleRemoveExistingImage,
-  handleNewImages,
+  existingImages = [],
+  onImagesChange,
+  onCopyImageLink,
+  onNewFilesAdded,
+  onExistingImageRemoved,
   isEditProject,
-  handleMarkdownChange,
-  httpCallLoading,
-  handleCopyImageLink,
-  handleLanguageSelect,
+  markdownValue = '',
+  onMarkdownChange,
+  titleValue = '',
+  onTitleChange,
   selectedLanguage = 'en',
-  loading,
+  onLanguageChange,
+  contentByLang,
+  hidden,
+  onHiddenChange,
 }: FormProjectProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   const { t } = useTranslation();
 
-  const onSubmit = async (data: any) => {
-    onFormSubmit && onFormSubmit(data);
-  };
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      onFormSubmit();
+    },
+    [onFormSubmit]
+  );
 
   return (
-    <form className="project-form-container" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {isEditProject && <LangSelector handleLanguageSelect={handleLanguageSelect} />}
+    <form className="project-form-container" onSubmit={handleSubmit} noValidate>
+      {isEditProject && onLanguageChange && (
+        <LangSelector
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={onLanguageChange}
+          contentByLang={contentByLang}
+        />
+      )}
+
       <div className="project-field-container">
         <input
           className="project-field"
           placeholder="Title"
-          defaultValue={currentData?.title_i18n?.[selectedLanguage] || ''}
-          id="title"
-          {...register('title', {
-            minLength: { value: 2, message: 'Minimum 2 characters' },
-          })}
+          value={titleValue}
+          onChange={(e) => onTitleChange?.(e.target.value)}
         />
-        {errors.title?.message && typeof errors.title.message === 'string' && (
-          <p className="project-error-message">{errors.title.message}</p>
-        )}
       </div>
 
-      {isEditProject && !httpCallLoading && (
+      {isEditProject && onHiddenChange && (
+        <label className="project-hidden-toggle">
+          <input
+            type="checkbox"
+            checked={!!hidden}
+            onChange={(e) => onHiddenChange(e.target.checked)}
+          />
+          <span>{t('PRIVATE.HIDDEN')}</span>
+        </label>
+      )}
+
+      {isEditProject && (
         <div className="project-form-markdown-editor-container">
           <MarkdownEditor
-            onChange={handleMarkdownChange}
-            className=""
-            colorMode="light"
+            value={markdownValue}
+            onChange={onMarkdownChange || (() => {})}
             height={500}
-            initialValue={currentData?.content_i18n?.[selectedLanguage]?.md || ''}
           />
         </div>
       )}
 
-      <div className="project-images-section">
-        {!!existingImages && existingImages?.length > 0 && (
-          <>
-            <h4>Existing Images</h4>
-            <div className="project-existing-images-section">
-              {existingImages.map((img: any) => (
-                <div key={img.id} className="project-image-item">
-                  <img src={`${img?.image_url}`} alt={img.caption} width={100} />
-                  <button
-                    className="project-image-remove"
-                    type="button"
-                    onClick={() => handleRemoveExistingImage(img.id)}
-                  >
-                    X
-                  </button>
-                  <button
-                    className="project-image-copy-link"
-                    type="button"
-                    onClick={() => handleCopyImageLink(img.id)}
-                  >
-                    Copy link
-                  </button>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        <h4>New Images</h4>
-        <div className="project-field-container">
-          <input type="file" multiple onChange={handleNewImages} />
-        </div>
-      </div>
+      {onImagesChange && (
+        <ImageManager
+          existingImages={existingImages}
+          onImagesChange={onImagesChange}
+          onCopyImageLink={onCopyImageLink}
+          onNewFilesAdded={onNewFilesAdded}
+          onExistingImageRemoved={onExistingImageRemoved}
+        />
+      )}
 
       <button className="project-submit-button" type="submit">
-        {loading ? <Spinner size={24} /> : t('PRIVATE.SAVE')}
+        {t('PRIVATE.SAVE')}
       </button>
     </form>
   );

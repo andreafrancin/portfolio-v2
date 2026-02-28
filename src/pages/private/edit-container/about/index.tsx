@@ -1,132 +1,266 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import LangSelector from '../../../../components/lang-selector';
 import './index.scss';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   fetchAboutFromAPI,
   fetchCreateAboutFromAPI,
   fetchEditAboutFromAPI,
+  fetchPatchAboutFromAPI,
 } from '../../../../services/about/api-request';
 import MarkdownEditor from '../../../../components/markdown';
+import ImageManager, { ExistingImage, ImageChangePayload } from '../../../../components/image-manager';
+import { useToast } from '../../../../components/toast';
+import { useLoading } from '../../../../context/loading-context';
 
-interface EditAboutContainerProps {}
-
-function EditAboutContainer({}: EditAboutContainerProps) {
-  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'es' | 'ca'>('en');
+function EditAboutContainer() {
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const [currentData, setCurrentData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [markdownContent, setMarkdownContent] = useState('');
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
+
+  const [titleByLang, setTitleByLang] = useState<Record<string, string>>({});
+  const [contentByLang, setContentByLang] = useState<Record<string, string>>({});
 
   const { t } = useTranslation();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    defaultValues: {
-      title: '',
-    },
+  const toast = useToast();
+  const { showLoading, hideLoading } = useLoading();
+
+  const imagePayloadRef = useRef<ImageChangePayload>({
+    existingImages: [],
+    newFiles: [],
+    removedIds: [],
   });
 
   const fetchAboutData = useCallback(async () => {
-    setLoading(true);
     const response = await fetchAboutFromAPI();
     setCurrentData(response);
-    setLoading(false);
-  }, []);
 
-  useEffect(() => {
-    fetchAboutData();
-  }, []);
-
-  useEffect(() => {
-    const record = currentData?.[0];
-    const title = record?.title_i18n?.[selectedLanguage] ?? '';
-    reset({ title });
-  }, [currentData, selectedLanguage, reset]);
-
-  const onSubmit = useCallback(
-    async (data: any) => {
-      const record = currentData?.[0];
-
-      const payload = {
-        title_i18n: { [selectedLanguage]: data.title ?? '' },
-        content_i18n: {
-          [selectedLanguage]: {
-            md: markdownContent,
-          },
-        },
-      };
-
-      if (record?.id) {
-        await fetchEditAboutFromAPI(record.id, payload);
-      } else {
-        await fetchCreateAboutFromAPI(payload);
-        await fetchAboutData();
+    const record = response?.[0];
+    if (record) {
+      const titles: Record<string, string> = {};
+      const contents: Record<string, string> = {};
+      if (record.title_i18n) {
+        Object.entries(record.title_i18n).forEach(([lang, val]) => {
+          titles[lang] = val as string;
+        });
       }
+      if (record.content_i18n) {
+        Object.entries(record.content_i18n).forEach(([lang, val]: [string, any]) => {
+          contents[lang] = val?.md || '';
+        });
+      }
+      setTitleByLang(titles);
+      setContentByLang(contents);
+
+      if (record.images) {
+        setExistingImages(record.images);
+      }
+
+      imagePayloadRef.current = {
+        existingImages: record.images || [],
+        newFiles: [],
+        removedIds: [],
+      };
+    }
+    return response;
+  }, []);
+
+  useEffect(() => {
+    showLoading();
+    fetchAboutData().finally(() => hideLoading());
+  }, []);
+
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitleByLang((prev) => ({ ...prev, [selectedLanguage]: e.target.value }));
     },
-    [currentData, selectedLanguage, fetchAboutData, markdownContent]
+    [selectedLanguage]
   );
 
-  const handleLanguageSelect = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setSelectedLanguage(event.currentTarget.value as 'en' | 'es' | 'ca');
+  const handleMarkdownChange = useCallback(
+    (value: string) => {
+      setContentByLang((prev) => ({ ...prev, [selectedLanguage]: value }));
+    },
+    [selectedLanguage]
+  );
+
+  const handleLanguageChange = useCallback((lang: string) => {
+    setSelectedLanguage(lang);
   }, []);
 
-  const handleMarkdownChange = useCallback((value: any) => {
-    setMarkdownContent(value);
+  const handleImagesChange = useCallback((payload: ImageChangePayload) => {
+    imagePayloadRef.current = payload;
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, [selectedLanguage]);
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  // Auto-save: immediately upload new files
+  const handleNewFilesAdded = useCallback(
+    async (files: File[]) => {
+      const record = currentData?.[0];
+      if (!record?.id) return;
+
+      showLoading();
+      try {
+        const newPayload = await Promise.all(
+          files.map(async (file, idx) => ({
+            caption: file.name,
+            image: await fileToBase64(file),
+            order: existingImages.length + idx + 1,
+            is_cover: existingImages.length === 0 && idx === 0,
+          }))
+        );
+
+        await fetchPatchAboutFromAPI(record.id, { images: newPayload });
+        await fetchAboutData();
+        toast.success('Images uploaded');
+      } catch {
+        toast.error('Failed to upload images');
+      } finally {
+        hideLoading();
+      }
+    },
+    [currentData, existingImages, fetchAboutData, toast]
+  );
+
+  // Auto-save: immediately remove existing image
+  const handleExistingImageRemoved = useCallback(
+    async (imageId: number) => {
+      const record = currentData?.[0];
+      if (!record?.id) return;
+
+      showLoading();
+      try {
+        await fetchPatchAboutFromAPI(record.id, { images_to_remove: [imageId] });
+        await fetchAboutData();
+        toast.success('Image removed');
+      } catch {
+        toast.error('Failed to remove image');
+      } finally {
+        hideLoading();
+      }
+    },
+    [currentData, fetchAboutData, toast]
+  );
+
+  const handleCopyImageLink = useCallback(
+    (imageId: number) => {
+      const record = currentData?.[0];
+      const imageLink = record?.images?.find((img: any) => img.id === imageId)?.image_url;
+      if (imageLink) {
+        navigator.clipboard.writeText(imageLink);
+        toast.success('Image link copied to clipboard');
+      }
+    },
+    [currentData, toast]
+  );
+
+  const onSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      showLoading();
+
+      try {
+        const record = currentData?.[0];
+
+        const titleI18n: Record<string, string> = {};
+        const contentI18n: Record<string, { md: string }> = {};
+
+        Object.entries(titleByLang).forEach(([lang, val]) => {
+          if (val.trim()) titleI18n[lang] = val;
+        });
+        Object.entries(contentByLang).forEach(([lang, val]) => {
+          if (val.trim()) contentI18n[lang] = { md: val };
+        });
+
+        const { existingImages: imgPayloadExisting, newFiles, removedIds } =
+          imagePayloadRef.current;
+
+        const existingPayload = imgPayloadExisting.map((img) => ({
+          id: img.id,
+          caption: img.caption,
+          order: img.order,
+          is_cover: !!img.is_cover,
+        }));
+
+        const newPayload = await Promise.all(
+          newFiles.map(async (nf) => ({
+            caption: nf.caption,
+            image: await fileToBase64(nf.file),
+            order: nf.order,
+            is_cover: nf.is_cover,
+          }))
+        );
+
+        const payload = {
+          title_i18n: titleI18n,
+          content_i18n: contentI18n,
+          images: [...existingPayload, ...newPayload],
+          images_to_remove: removedIds,
+        };
+
+        if (record?.id) {
+          await fetchEditAboutFromAPI(record.id, payload);
+        } else {
+          await fetchCreateAboutFromAPI(payload);
+        }
+
+        await fetchAboutData();
+        toast.success('About page saved');
+      } catch {
+        toast.error('Something went wrong. Please try again later');
+      } finally {
+        hideLoading();
+      }
+    },
+    [currentData, titleByLang, contentByLang, fetchAboutData, toast]
+  );
 
   return (
     <div className="edit-about-container">
-      <LangSelector handleLanguageSelect={handleLanguageSelect} />
-      {!loading && (
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="about-form-field-container">
-            <input
-              className="about-form-field"
-              placeholder="Page title"
-              id="title"
-              defaultValue={currentData?.[0]?.title_i18n?.[selectedLanguage] || ''}
-              {...register('title', {
-                minLength: { value: 2, message: 'Minimum 2 characters' },
-              })}
-            />
-            {errors.title?.message && typeof errors.title.message === 'string' && (
-              <p className="project-error-message">{errors.title.message}</p>
-            )}
-          </div>
+      <LangSelector
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={handleLanguageChange}
+        contentByLang={contentByLang}
+      />
+      <form onSubmit={onSubmit} noValidate>
+        <div className="about-form-field-container">
+          <input
+            className="about-form-field"
+            placeholder="Page title"
+            value={titleByLang[selectedLanguage] || ''}
+            onChange={handleTitleChange}
+          />
+        </div>
 
-          {!loading && (
-            <div className="about-form-markdown-editor-container">
-              <MarkdownEditor
-                onChange={handleMarkdownChange}
-                className=""
-                colorMode="light"
-                height={400}
-                initialValue={currentData?.[0]?.content_i18n?.[selectedLanguage]?.md || ''}
-              />
-            </div>
-          )}
+        <div className="about-form-markdown-editor-container">
+          <MarkdownEditor
+            value={contentByLang[selectedLanguage] || ''}
+            onChange={handleMarkdownChange}
+            height={400}
+          />
+        </div>
 
-          <button
-            id="submit"
-            className="about-submit-button"
-            type="submit"
-            disabled={selectedLanguage.length === 0 || isSubmitting}
-          >
-            {isSubmitting ? '...' : t('PRIVATE.SAVE')}
-          </button>
-        </form>
-      )}
+        <div className="about-image-manager-container">
+          <ImageManager
+            existingImages={existingImages}
+            onImagesChange={handleImagesChange}
+            onCopyImageLink={handleCopyImageLink}
+            onNewFilesAdded={handleNewFilesAdded}
+            onExistingImageRemoved={handleExistingImageRemoved}
+          />
+        </div>
+
+        <button className="about-submit-button" type="submit">
+          {t('PRIVATE.SAVE')}
+        </button>
+      </form>
     </div>
   );
 }

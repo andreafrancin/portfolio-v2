@@ -1,14 +1,48 @@
 @use '../../styles/variables' as *;
 
-.lang-selector-container {
+.lang-tabs {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-bottom: 20px;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid $border-color;
+  padding-bottom: 0;
+}
 
-  label {
-    font-size: 16px;
-    margin-bottom: 5px;
+.lang-tab {
+  position: relative;
+  padding: 8px 20px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    color: $text-color;
   }
+
+  &--active {
+    color: $secondary-color;
+    border-bottom-color: $secondary-color;
+  }
+
+  &--has-content:not(.lang-tab--active) {
+    color: $text-color;
+  }
+}
+
+.lang-tab-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: $submit-color;
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
 }

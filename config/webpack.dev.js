@@ -1,5 +1,5 @@
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const { HotModuleReplacementPlugin } = require('webpack');
+const { HotModuleReplacementPlugin, DefinePlugin } = require('webpack');
 const { default: merge } = require('webpack-merge');
 const path = require('path');
 const common = require('./webpack.common');
@@ -29,7 +29,13 @@ const devConfig = {
       },
     ],
   },
-  plugins: [new HotModuleReplacementPlugin(), new ReactRefreshWebpackPlugin()],
+  plugins: [
+    new HotModuleReplacementPlugin(),
+    new ReactRefreshWebpackPlugin(),
+    new DefinePlugin({
+      __API_BASE_URL__: JSON.stringify('http://localhost:8000/api/'),
+    }),
+  ],
   devtool: 'eval-source-map',
 };
 

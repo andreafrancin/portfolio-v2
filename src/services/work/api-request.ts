@@ -1,16 +1,4 @@
-import { del, get, post, put } from '../../api-client/api-client';
-
-const API_BASE_URL = 'http://localhost:8000/api/';
-const PROD_API_BASE_URL = 'https://back.andreafrancin.com/api/';
-
-async function fetchProjectsFromAPI(): Promise<any> {
-  const response = await fetch(PROD_API_BASE_URL);
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
-  const data = await response.json();
-  return data;
-}
+import { del, get, patch, post, put } from '../../api-client/api-client';
 
 async function fetchProjectsFromNewAPI(): Promise<any> {
   const response = await get('projects/', false);
@@ -42,12 +30,17 @@ async function fetchEditProjectFromAPI(id: number, body: any): Promise<any> {
   return response;
 }
 
+async function fetchPatchProjectFromAPI(id: number, body: any): Promise<any> {
+  const response = await patch(`projects/${id}/`, body, true);
+  return response;
+}
+
 export {
-  fetchProjectsFromAPI,
   fetchProjectsFromNewAPI,
   fetchReorderProjectsFromNewAPI,
   fetchRemoveProjectFromAPI,
   fetchAddProjectFromAPI,
   fetchEditProjectFromAPI,
+  fetchPatchProjectFromAPI,
   fetchProjectFromNewAPI,
 };

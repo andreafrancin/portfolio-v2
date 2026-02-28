@@ -1,15 +1,28 @@
 import { fetchAddProjectFromAPI } from '../../../../../services/work/api-request';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import FormProject from '../form-project';
+import { ImageChangePayload } from '../../../../../components/image-manager';
 import { useNavigate } from 'react-router-dom';
 import './index.scss';
+import { useToast } from '../../../../../components/toast';
+import { useLoading } from '../../../../../context/loading-context';
 
 function AddProject() {
   const navigate = useNavigate();
+  const toast = useToast();
+  const { showLoading, hideLoading } = useLoading();
 
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [title, setTitle] = useState('');
+
+  const imagePayloadRef = useRef<ImageChangePayload>({
+    existingImages: [],
+    newFiles: [],
+    removedIds: [],
+  });
+
+  const handleImagesChange = useCallback((payload: ImageChangePayload) => {
+    imagePayloadRef.current = payload;
+  }, []);
 
   const fileToBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -19,61 +32,47 @@ function AddProject() {
       reader.onerror = (error) => reject(error);
     });
 
-  const handleNewImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewImages([...newImages, ...Array.from(e.target.files)]);
+  const onFormSubmit = useCallback(async () => {
+    showLoading();
+
+    try {
+      const { newFiles } = imagePayloadRef.current;
+
+      const imagesPayload = await Promise.all(
+        newFiles.map(async (nf) => ({
+          caption: nf.caption,
+          image: await fileToBase64(nf.file),
+          order: nf.order,
+          is_cover: nf.is_cover,
+        }))
+      );
+
+      const payload = {
+        title,
+        title_i18n: { en: title },
+        content_i18n: { en: { md: '' } },
+        images: imagesPayload,
+      };
+
+      await fetchAddProjectFromAPI(payload);
+      toast.success('Project created');
+      navigate('/private', { replace: true });
+    } catch {
+      toast.error('Something went wrong. Please try again later');
+    } finally {
+      hideLoading();
     }
-  };
-
-  const onFormSubmit = useCallback(
-    async (data: any) => {
-      setLoading(true);
-      setError('');
-
-      try {
-        const imagesPayload = await Promise.all(
-          newImages.map(async (file) => ({
-            caption: file.name,
-            image: await fileToBase64(file),
-            order: 0,
-          }))
-        );
-
-        const payload = {
-          ...data,
-          title_i18n: {
-            en: data.title,
-          },
-          content_i18n: {
-            en: {
-              md: '',
-            },
-          },
-          images: imagesPayload,
-        };
-
-        await fetchAddProjectFromAPI(payload);
-        navigate('/private', {
-          replace: true,
-        });
-      } catch (error) {
-        setError('Something went wrong. Please, try again later');
-      }
-
-      setLoading(false);
-    },
-    [newImages]
-  );
+  }, [title, navigate, toast, showLoading, hideLoading]);
 
   return (
     <div className="add-project-container">
       <h1>Add project</h1>
       <FormProject
         onFormSubmit={onFormSubmit}
-        handleNewImages={handleNewImages}
-        loading={loading}
+        onImagesChange={handleImagesChange}
+        titleValue={title}
+        onTitleChange={setTitle}
       />
-      <div className="add-project-message-space">{error && <p>Error: {error}</p>}</div>
     </div>
   );
 }

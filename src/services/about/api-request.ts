@@ -1,4 +1,4 @@
-import { get, post, put } from '../../api-client/api-client';
+import { get, patch, post, put } from '../../api-client/api-client';
 
 async function fetchAboutFromAPI(): Promise<any> {
   const response = await get('about/', false);
@@ -15,4 +15,9 @@ async function fetchEditAboutFromAPI(id: number, body: any): Promise<any> {
   return response;
 }
 
-export { fetchAboutFromAPI, fetchCreateAboutFromAPI, fetchEditAboutFromAPI };
+async function fetchPatchAboutFromAPI(id: number, body: any): Promise<any> {
+  const response = await patch(`about/${id}/`, body, true);
+  return response;
+}
+
+export { fetchAboutFromAPI, fetchCreateAboutFromAPI, fetchEditAboutFromAPI, fetchPatchAboutFromAPI };

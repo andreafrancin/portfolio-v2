@@ -1,23 +1,36 @@
-import React from 'react';
 import './index.scss';
-import { useTranslation } from 'react-i18next';
+
+const LANGUAGES = [
+  { code: 'en', label: 'EN' },
+  { code: 'es', label: 'ES' },
+  { code: 'ca', label: 'CA' },
+] as const;
 
 interface LangSelectorProps {
-  handleLanguageSelect: any;
+  selectedLanguage: string;
+  onLanguageChange: (lang: string) => void;
+  contentByLang?: Record<string, string>;
 }
 
-function LangSelector({ handleLanguageSelect }: LangSelectorProps) {
-  const { t } = useTranslation();
-
+function LangSelector({ selectedLanguage, onLanguageChange, contentByLang }: LangSelectorProps) {
   return (
-    <div className="lang-selector-container">
-      <label>{t('PRIVATE.CHOOSE_LANGUAGE')}</label>
-      <select defaultValue={'en'} name="languages" id="lang-select" onChange={handleLanguageSelect}>
-        <option value="">--Please choose a language--</option>
-        <option value="en">English</option>
-        <option value="es">Spanish</option>
-        <option value="ca">Catalan</option>
-      </select>
+    <div className="lang-tabs">
+      {LANGUAGES.map(({ code, label }) => {
+        const hasContent = contentByLang ? !!contentByLang[code]?.trim() : false;
+        const isActive = selectedLanguage === code;
+
+        return (
+          <button
+            key={code}
+            type="button"
+            className={`lang-tab ${isActive ? 'lang-tab--active' : ''} ${hasContent ? 'lang-tab--has-content' : ''}`}
+            onClick={() => onLanguageChange(code)}
+          >
+            {label}
+            {hasContent && !isActive && <span className="lang-tab-dot" />}
+          </button>
+        );
+      })}
     </div>
   );
 }

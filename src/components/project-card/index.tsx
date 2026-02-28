@@ -9,9 +9,11 @@ interface ProjectCardProps {
 
 function ProjectCard({ item }: ProjectCardProps) {
   const navigate = useNavigate();
+  const coverImage =
+    item?.images?.find((img: any) => img.is_cover) || item?.images?.[0];
   const [src, { blur }] = useProgressiveImg(
-    item?.images?.[0]?.image_low_url,
-    item?.images?.[0]?.image_url
+    coverImage?.image_low_url,
+    coverImage?.image_url
   );
 
   const handleNavigateToProject = (id: number) => {

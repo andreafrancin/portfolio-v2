@@ -49,12 +49,35 @@
   }
 }
 
+.about-images-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 80%;
+
+  @media screen and (max-width: $header-breakpoint) {
+    width: 100%;
+  }
+}
+
 .about-img {
   max-height: 100%;
   width: 80%;
   object-fit: cover;
   border-radius: 10px;
   overflow: hidden;
+
+  .about-images-stack & {
+    width: 100%;
+  }
+}
+
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 50vh;
 }
 
 .about-content-container {
