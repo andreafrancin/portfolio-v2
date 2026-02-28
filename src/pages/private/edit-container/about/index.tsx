@@ -100,7 +100,6 @@ function EditAboutContainer() {
       reader.onerror = (error) => reject(error);
     });
 
-  // Auto-save: immediately upload new files
   const handleNewFilesAdded = useCallback(
     async (files: File[]) => {
       const record = currentData?.[0];
@@ -129,7 +128,6 @@ function EditAboutContainer() {
     [currentData, existingImages, fetchAboutData, toast]
   );
 
-  // Auto-save: immediately remove existing image
   const handleExistingImageRemoved = useCallback(
     async (imageId: number) => {
       const record = currentData?.[0];

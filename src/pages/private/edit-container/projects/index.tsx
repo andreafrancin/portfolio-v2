@@ -37,7 +37,6 @@ const EditProjectsContainer = () => {
   const toast = useToast();
   const { showLoading, hideLoading } = useLoading();
 
-  // DnD refs
   const itemEls = useRef<Map<number, HTMLDivElement>>(new Map());
   const dragSourceIndex = useRef<number | null>(null);
   const dragHoverIndex = useRef<number | null>(null);
@@ -48,7 +47,6 @@ const EditProjectsContainer = () => {
   const listOriginY = useRef(0);
   const dragOverHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
 
-  // Keep a ref to data so closures always read the latest value
   const dataRef = useRef<ProjectData[] | null>(null);
   dataRef.current = data;
 
@@ -56,7 +54,6 @@ const EditProjectsContainer = () => {
     fetchProjects();
   }, []);
 
-  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (scrollRafId.current !== null) {
@@ -81,8 +78,6 @@ const EditProjectsContainer = () => {
       hideLoading();
     }
   };
-
-  // --- Displacement algorithm ---
 
   const computeTranslateY = (
     itemIndex: number,
@@ -112,8 +107,6 @@ const EditProjectsContainer = () => {
     });
   };
 
-  // --- Hover index from mouse Y position ---
-
   const getHoverIndexFromY = (clientY: number): number => {
     const currentData = dataRef.current;
     if (!currentData || currentData.length === 0) return 0;
@@ -123,8 +116,6 @@ const EditProjectsContainer = () => {
     );
     return Math.max(0, Math.min(currentData.length - 1, rawIndex));
   };
-
-  // --- Auto-scroll ---
 
   const startAutoScroll = () => {
     const tick = () => {
@@ -153,8 +144,6 @@ const EditProjectsContainer = () => {
     }
   };
 
-  // --- Auto-save ---
-
   const fireAutoSave = async (
     reordered: ProjectData[],
     previousData: ProjectData[],
@@ -174,8 +163,6 @@ const EditProjectsContainer = () => {
     }
   };
 
-  // --- Event handlers ---
-
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     index: number,
@@ -185,7 +172,6 @@ const EditProjectsContainer = () => {
     dragHoverIndex.current = index;
     isDragging.current = true;
 
-    // Record the page-Y of the first item's top edge (before any transforms)
     if (currentData && currentData.length > 0) {
       const firstEl = itemEls.current.get(currentData[0].id);
       if (firstEl) {
@@ -194,7 +180,6 @@ const EditProjectsContainer = () => {
       }
     }
 
-    // Hide native drag ghost (1x1 offscreen so all browsers accept it)
     const ghost = document.createElement('div');
     ghost.style.position = 'fixed';
     ghost.style.top = '-9999px';
@@ -206,13 +191,11 @@ const EditProjectsContainer = () => {
     e.dataTransfer.setDragImage(ghost, 0, 0);
     requestAnimationFrame(() => ghost.remove());
 
-    // Add dragging class
     if (currentData) {
       const el = itemEls.current.get(currentData[index].id);
       el?.classList.add('edit-project-list-item--dragging');
     }
 
-    // Single document-level handler for hover detection + mouse tracking
     const handler = (ev: DragEvent) => {
       ev.preventDefault();
       lastMouseY.current = ev.clientY;
@@ -234,7 +217,6 @@ const EditProjectsContainer = () => {
     isDragging.current = false;
     stopAutoScroll();
 
-    // Remove document handler
     if (dragOverHandlerRef.current) {
       document.removeEventListener('dragover', dragOverHandlerRef.current);
       dragOverHandlerRef.current = null;
@@ -244,7 +226,6 @@ const EditProjectsContainer = () => {
     const source = dragSourceIndex.current;
     const hover = dragHoverIndex.current;
 
-    // Remove dragging class
     if (currentData && source !== null) {
       const el = itemEls.current.get(currentData[source].id);
       el?.classList.remove('edit-project-list-item--dragging');
@@ -256,7 +237,6 @@ const EditProjectsContainer = () => {
       source === hover ||
       !currentData
     ) {
-      // Reset transforms
       currentData?.forEach((item) => {
         const el = itemEls.current.get(item.id);
         if (el) el.style.transform = '';
@@ -266,10 +246,8 @@ const EditProjectsContainer = () => {
       return;
     }
 
-    // Snapshot previous data for rollback on save failure
     const previousData = currentData;
 
-    // 1. Disable transitions + clear transforms (prevents visual jump on commit)
     currentData.forEach((item) => {
       const el = itemEls.current.get(item.id);
       if (el) {
@@ -278,7 +256,6 @@ const EditProjectsContainer = () => {
       }
     });
 
-    // 2. Commit reordered array to React state
     const updatedData = [...currentData];
     const draggedItem = updatedData.splice(source, 1)[0];
     updatedData.splice(hover, 0, draggedItem);
@@ -288,7 +265,6 @@ const EditProjectsContainer = () => {
     }));
     setData(reordered);
 
-    // 3. Re-enable transitions next frame
     requestAnimationFrame(() => {
       reordered.forEach((item) => {
         const el = itemEls.current.get(item.id);
@@ -296,14 +272,11 @@ const EditProjectsContainer = () => {
       });
     });
 
-    // 4. Auto-save (with previous data for rollback)
     fireAutoSave(reordered, previousData);
 
     dragSourceIndex.current = null;
     dragHoverIndex.current = null;
   };
-
-  // --- Other handlers ---
 
   const handleRemoveProject = (project: ProjectData) => {
     setDeleteTarget(project);
@@ -333,8 +306,6 @@ const EditProjectsContainer = () => {
       state: { id },
     });
   };
-
-  // --- Ref callback ---
 
   const setItemRef = (id: number) => (el: HTMLDivElement | null) => {
     if (el) {

@@ -21,11 +21,9 @@ function EditProject() {
   const [language, setLanguage] = useState('en');
   const [hidden, setHidden] = useState(false);
 
-  // Per-language content maps
   const [titleByLang, setTitleByLang] = useState<Record<string, string>>({});
   const [contentByLang, setContentByLang] = useState<Record<string, string>>({});
 
-  // Image state managed by ImageManager
   const imagePayloadRef = useRef<ImageChangePayload>({
     existingImages: [],
     newFiles: [],
@@ -45,7 +43,6 @@ function EditProject() {
     };
   }, [id]);
 
-  // Fetch project data on mount
   useEffect(() => {
     if (!id) return;
     showLoading();
@@ -114,7 +111,6 @@ function EditProject() {
       reader.onerror = (error) => reject(error);
     });
 
-  // Auto-save: immediately upload new files
   const handleNewFilesAdded = useCallback(
     async (files: File[]) => {
       if (!id) return;
@@ -141,7 +137,6 @@ function EditProject() {
     [id, existingImages, refreshProjectData, toast]
   );
 
-  // Auto-save: immediately remove existing image
   const handleExistingImageRemoved = useCallback(
     async (imageId: number) => {
       if (!id) return;
@@ -166,7 +161,6 @@ function EditProject() {
       const { existingImages: imgPayloadExisting, newFiles, removedIds } =
         imagePayloadRef.current;
 
-      // Use order and is_cover values computed by ImageManager
       const existingPayload = imgPayloadExisting.map((img) => ({
         id: img.id,
         caption: img.caption,
@@ -183,7 +177,6 @@ function EditProject() {
         }))
       );
 
-      // Build i18n objects from accumulated per-language maps
       const titleI18n: Record<string, string> = {};
       const contentI18n: Record<string, { md: string }> = {};
 
