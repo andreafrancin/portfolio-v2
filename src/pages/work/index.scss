@@ -70,19 +70,15 @@
 
 .work-filters__group {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
   padding: 5px;
-  max-width: 100%;
-  border-radius: var(--r-pill);
+  max-width: min(100%, 1040px);
+  border-radius: 26px;
   background: #fff;
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
-  overflow-x: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   @media (max-width: $bp-md) {
     flex-wrap: wrap;
