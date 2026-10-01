@@ -35,7 +35,16 @@ async function fetchPatchProjectFromAPI(id: number, body: any): Promise<any> {
   return response;
 }
 
+async function bulkProjectCategories(body: {
+  ids: number[];
+  add: string[];
+  remove: string[];
+}): Promise<Record<string, string[]>> {
+  return post('projects/bulk_categories/', body, true);
+}
+
 export {
+  bulkProjectCategories,
   fetchProjectsFromNewAPI,
   fetchReorderProjectsFromNewAPI,
   fetchRemoveProjectFromAPI,

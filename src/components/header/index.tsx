@@ -6,7 +6,7 @@ import { useLang } from '../../context/lang-context';
 import { AuthContext } from '../../context/auth-context';
 import useScrollDirection from '../../hooks/useScrollDirection';
 import useHtmlScrollLock from '../../hooks/useHtmlScrollLock';
-import { useTouchPress } from '../../hooks/useTouchSpotlight';
+import { useTouchPress } from '../../hooks/useTouchPress';
 import LogoIcon from '../icons/icon-logo';
 import Vine from '../storybook/vine';
 import { IconClose, IconInstagram, IconLinkedin, IconMenu, IconMail } from '../icons';

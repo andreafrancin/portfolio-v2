@@ -370,7 +370,7 @@
     --color-fg-default: var(--text);
     --color-border-default: var(--line);
     font-family: $font;
-    --md-editor-font-family: #{$font};
+    --md-editor-font-family: #{$font-editor};
   }
 
   .w-md-editor-focus,
@@ -399,12 +399,35 @@
     }
   }
 
-  .w-md-editor-text-pre > code,
-  .w-md-editor-text-input,
-  .w-md-editor-text {
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace !important;
+  .w-md-editor-text,
+  .w-md-editor-text-pre,
+  .w-md-editor-text-pre *,
+  .w-md-editor-text-input {
+    font-family: $font-editor !important;
     font-size: 14px !important;
-    line-height: 1.65 !important;
+    line-height: 23px !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+    font-kerning: none !important;
+    font-variant-ligatures: none !important;
+    font-feature-settings: normal !important;
+    tab-size: 4;
+  }
+
+  .w-md-editor-text-pre * {
+    display: inline !important;
+    vertical-align: baseline !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+
+  .w-md-editor-text-input::selection {
+    background: rgba(188, 14, 77, 0.18);
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
 
   .w-md-editor-bar {

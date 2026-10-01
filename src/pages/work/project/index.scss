@@ -252,7 +252,7 @@
   }
 
   &.prose img {
-    box-shadow: var(--shadow-card);
+    box-shadow: none;
   }
 
   .wmde-markdown > p:has(img) {

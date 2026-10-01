@@ -26,6 +26,7 @@ import { coverImage, padNumber, Project, projectTitle } from '../../../../lib/pr
 import { invalidateProjects } from '../../../../lib/projects-cache';
 import { useLang } from '../../../../context/lang-context';
 import useSortable, { moveItem } from '../../../../hooks/useSortable';
+import BulkCategoriesDialog from './bulk-categories';
 import './index.scss';
 
 type Filter = string;
@@ -47,6 +48,23 @@ const EditProjectsContainer = () => {
   const [deleting, setDeleting] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
   const [pendingVisibility, setPendingVisibility] = useState<number | null>(null);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [selecting, setSelecting] = useState(false);
+
+  const stopSelecting = useCallback(() => {
+    setSelecting(false);
+    setSelected(new Set());
+  }, []);
+
+  useEffect(() => {
+    if (!selecting) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !bulkOpen) stopSelecting();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selecting, bulkOpen, stopSelecting]);
 
   const dataRef = useRef<Project[]>([]);
   dataRef.current = data;
@@ -93,6 +111,44 @@ const EditProjectsContainer = () => {
       return titles.includes(q);
     });
   }, [data, query, filter]);
+
+  useEffect(() => {
+    setSelected((current) => {
+      const ids = new Set(data.map((p) => p.id));
+      const next = new Set(Array.from(current).filter((id) => ids.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [data]);
+
+  const selectedProjects = useMemo(() => data.filter((p) => selected.has(p.id)), [data, selected]);
+  const visibleSelected = visible.filter((p) => selected.has(p.id)).length;
+  const allVisibleSelected = visible.length > 0 && visibleSelected === visible.length;
+
+  const toggleSelected = (id: number) =>
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleAllVisible = () =>
+    setSelected((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) visible.forEach((p) => next.delete(p.id));
+      else visible.forEach((p) => next.add(p.id));
+      return next;
+    });
+
+  const onBulkApplied = (result: Record<string, string[]>) => {
+    setData((list) => list.map((p) => (result[p.id] ? { ...p, categories: result[p.id] } : p)));
+    committedOrder.current = committedOrder.current.map((p) =>
+      result[p.id] ? { ...p, categories: result[p.id] } : p
+    );
+    invalidateProjects();
+    setBulkOpen(false);
+    stopSelecting();
+  };
 
   const saveOrder = async () => {
     const next = dataRef.current;
@@ -204,6 +260,15 @@ const EditProjectsContainer = () => {
             </button>
           )}
         </label>
+        <button
+          type="button"
+          className="btn btn--quiet"
+          aria-pressed={selecting}
+          onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
+          disabled={status !== 'ready' || data.length === 0}
+        >
+          {selecting ? t('PRIVATE.SELECT_MODE_DONE') : t('PRIVATE.SELECT_MODE')}
+        </button>
         <button type="button" className="btn" onClick={() => navigate('/private/add-project')}>
           <IconPlus size={18} /> {t('PRIVATE.ADD_PROJECT')}
         </button>
@@ -231,9 +296,24 @@ const EditProjectsContainer = () => {
       </div>
 
       <div className="projects-admin__meta">
-        <p className="tabular">
-          {status === 'ready' && t('PRIVATE.COUNT', { count: visible.length })}
-        </p>
+        <div className="projects-admin__count">
+          {selecting && status === 'ready' && visible.length > 0 && (
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                ref={(el) => {
+                  if (el) el.indeterminate = visibleSelected > 0 && !allVisibleSelected;
+                }}
+                onChange={toggleAllVisible}
+              />
+              <span className="visually-hidden">{t('PRIVATE.SELECT_ALL')}</span>
+            </label>
+          )}
+          <p className="tabular">
+            {status === 'ready' && t('PRIVATE.COUNT', { count: visible.length })}
+          </p>
+        </div>
         <p className="projects-admin__hint">
           {savingOrder ? (
             <>
@@ -283,7 +363,9 @@ const EditProjectsContainer = () => {
 
       {status === 'ready' && visible.length > 0 && (
         <ul
-          className={`project-rows${filtering ? ' is-locked' : ''}`}
+          className={`project-rows${filtering ? ' is-locked' : ''}${
+            selecting ? ' project-rows--selecting' : ''
+          }`}
           ref={sortable.containerRef as React.RefObject<HTMLUListElement>}
         >
           {visible.map((item, index) => {
@@ -294,9 +376,23 @@ const EditProjectsContainer = () => {
             return (
               <li
                 key={item.id}
-                className={`project-row${item.hidden ? ' is-hidden' : ''}`}
+                className={`project-row${item.hidden ? ' is-hidden' : ''}${
+                  selected.has(item.id) ? ' is-selected' : ''
+                }`}
                 {...sortable.getItemProps(String(item.id))}
               >
+                {selecting && (
+                  <label className="check project-row__select">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(item.id)}
+                      onChange={() => toggleSelected(item.id)}
+                    />
+                    <span className="visually-hidden">
+                      {t('PRIVATE.SELECT_PROJECT', { title })}
+                    </span>
+                  </label>
+                )}
                 <button
                   type="button"
                   className="project-row__handle"
@@ -387,6 +483,35 @@ const EditProjectsContainer = () => {
           })}
         </ul>
       )}
+
+      {selecting && (
+        <div className="bulk-bar" role="region" aria-label={t('PRIVATE.SELECTION')}>
+          <span className="bulk-bar__count tabular">
+            {selected.size > 0
+              ? t('PRIVATE.SELECTED_COUNT', { count: selected.size })
+              : t('PRIVATE.SELECT_PROMPT')}
+          </span>
+          <button
+            type="button"
+            className="btn btn--sm"
+            onClick={() => setBulkOpen(true)}
+            disabled={selected.size === 0}
+          >
+            {t('PRIVATE.BULK_OPEN')}
+          </button>
+          <button type="button" className="btn btn--quiet btn--sm" onClick={stopSelecting}>
+            {t('PRIVATE.SELECT_MODE_DONE')}
+          </button>
+        </div>
+      )}
+
+      <BulkCategoriesDialog
+        open={bulkOpen}
+        projects={selectedProjects}
+        categories={categories}
+        onClose={() => setBulkOpen(false)}
+        onApplied={onBulkApplied}
+      />
 
       <p id="reorder-hint" className="visually-hidden">
         {t('PRIVATE.REORDER_HINT')}

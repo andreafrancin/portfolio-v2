@@ -168,7 +168,6 @@
   }
 }
 
-.plate.is-lit,
 .plate:active {
   @include plate-lit;
 }

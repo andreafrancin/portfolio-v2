@@ -4,7 +4,7 @@ const path = require('path');
 
 console.log('>>> Creating build...');
 
-const STATIC_FILES = ['favicon.ico', 'og-image.png', 'robots.txt', '.well-known/tdmrep.json'];
+const STATIC_FILES = ['_headers', 'favicon.ico', 'og-image.png', 'robots.txt', '.well-known/tdmrep.json'];
 
 class CopyStaticFiles {
   apply(compiler) {

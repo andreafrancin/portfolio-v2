@@ -1,0 +1,11 @@
+/login
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/login/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/private
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/private/*
+  X-Robots-Tag: noindex, nofollow, noarchive

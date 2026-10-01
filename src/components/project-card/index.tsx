@@ -1,11 +1,9 @@
-import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLang } from '../../context/lang-context';
 import { projectCategories, useCategories } from '../../config/categories';
 import { coverImage, Project, projectTitle } from '../../lib/project';
 import ProgressiveImage from '../progressive-image';
-import useTouchSpotlight from '../../hooks/useTouchSpotlight';
 import { IconArrowRight, IconSparkle } from '../icons';
 import './index.scss';
 
@@ -22,14 +20,12 @@ function ProjectCard({ item }: ProjectCardProps) {
   useCategories();
   const cats = projectCategories(item);
   const lead = cats[0];
-  const ref = useRef<HTMLAnchorElement>(null);
-  const lit = useTouchSpotlight(ref);
 
   return (
     <Link
-      ref={ref}
       to={`/work/${item.id}`}
-      className={`plate${lit ? ' is-lit' : ''}`}
+      className="plate"
+      onTouchStart={() => {}}
       aria-label={title}
       style={
         {

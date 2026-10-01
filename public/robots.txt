@@ -5,8 +5,6 @@
 
 User-agent: *
 Allow: /
-Disallow: /private
-Disallow: /login
 
 # AI training and dataset crawlers
 User-agent: GPTBot
