@@ -5,7 +5,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 console.log('>>> Running production mode...');
 
-/** @type {import('webpack').Configuration} */
 const prodConfig = {
   mode: 'production',
   devtool: 'source-map',

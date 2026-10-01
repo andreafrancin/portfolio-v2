@@ -30,23 +30,21 @@ export default function MarkdownEditor({
       keyCommand: 'copy-md',
       buttonProps: { 'aria-label': 'Copy Markdown' },
       icon: (
-        <span style={{ fontSize: 12, padding: '0 6px' }} title="Copy Markdown">
+        <span style={{ fontSize: 12, fontWeight: 600 }} title="Copy Markdown">
           Copy
         </span>
       ),
       execute: async (state: any) => {
         try {
           await navigator.clipboard.writeText(state?.text || value || '');
-        } catch (_) {
-          // noop
-        }
+        } catch (_) {}
       },
     }),
     [value]
   );
 
   return (
-    <div className={className} data-color-mode="light">
+    <div className={`md-editor ${className}`} data-color-mode="light">
       <MDEditor
         value={value}
         onChange={handleChange}

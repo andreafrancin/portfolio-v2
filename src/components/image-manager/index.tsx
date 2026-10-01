@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useToast } from '../toast';
+import useSortable, { moveItem } from '../../hooks/useSortable';
+import { IconClose, IconGrip, IconLink, IconSparkle, IconUpload, IconAlert } from '../icons';
 import './index.scss';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export interface ExistingImage {
   id: number;
   image_url: string;
-  image_low_url?: string;
+  image_low_url?: string | null;
   caption: string;
   order: number;
   is_cover?: boolean;
@@ -28,7 +31,6 @@ export interface ImageItem {
   file?: File;
   previewUrl: string;
   caption: string;
-  isCover: boolean;
 }
 
 export interface ImageChangePayload {
@@ -43,7 +45,11 @@ interface ImageManagerProps {
   onCopyImageLink?: (id: number) => void;
   onNewFilesAdded?: (files: File[]) => void;
   onExistingImageRemoved?: (id: number) => void;
+  onDirty?: () => void;
 }
+
+const hasFiles = (e: DragEvent | React.DragEvent) =>
+  Array.from(e.dataTransfer?.types || []).includes('Files');
 
 function ImageManager({
   existingImages,
@@ -51,36 +57,33 @@ function ImageManager({
   onCopyImageLink,
   onNewFilesAdded,
   onExistingImageRemoved,
+  onDirty,
 }: ImageManagerProps) {
+  const { t } = useTranslation();
+  const toast = useToast();
   const [items, setItems] = useState<ImageItem[]>([]);
   const [coverKey, setCoverKey] = useState<string | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [validationError, setValidationError] = useState('');
+  const [fileDragActive, setFileDragActive] = useState(false);
+  const [overZone, setOverZone] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragItemKey = useRef<string | null>(null);
-  const dragOverKey = useRef<string | null>(null);
-  const toast = useToast();
 
-  // Initialize from existing images on first load or refresh
+  const state = useRef({ items, coverKey, removedIds });
+  state.current = { items, coverKey, removedIds };
+
   useEffect(() => {
-    const mapped: ImageItem[] = existingImages.map((img) => ({
-      key: `existing-${img.id}`,
-      type: 'existing' as const,
-      id: img.id,
-      previewUrl: img.image_url,
-      caption: img.caption,
-      isCover: !!img.is_cover,
-    }));
-
-    // Restore cover from backend data, or default to first image
-    const existingCover = mapped.find((i) => i.isCover);
-    if (existingCover) {
-      setCoverKey(existingCover.key);
-    } else if (mapped.length > 0) {
-      mapped[0].isCover = true;
-      setCoverKey(mapped[0].key);
-    }
+    const mapped: ImageItem[] = [...existingImages]
+      .sort((a, b) => a.order - b.order)
+      .map((img) => ({
+        key: `existing-${img.id}`,
+        type: 'existing' as const,
+        id: img.id,
+        previewUrl: img.image_low_url || img.image_url,
+        caption: img.caption,
+      }));
+    const cover = existingImages.find((i) => i.is_cover);
+    setCoverKey(cover ? `existing-${cover.id}` : mapped[0]?.key || null);
     setItems(mapped);
     setRemovedIds([]);
   }, [existingImages]);
@@ -90,32 +93,23 @@ function ImageManager({
       let orderCounter = 1;
       const withOrder = nextItems.map((item) => ({
         ...item,
-        computedOrder: item.key === nextCoverKey ? 0 : orderCounter++,
-        computedIsCover: item.key === nextCoverKey,
+        order: item.key === nextCoverKey ? 0 : orderCounter++,
+        isCover: item.key === nextCoverKey,
       }));
 
-      const existing = withOrder
-        .filter((i) => i.type === 'existing')
-        .map((i) => ({
-          id: i.id!,
-          image_url: i.previewUrl,
-          caption: i.caption,
-          order: i.computedOrder,
-          is_cover: i.computedIsCover,
-        }));
-
-      const newFiles = withOrder
-        .filter((i) => i.type === 'new')
-        .map((i) => ({
-          file: i.file!,
-          order: i.computedOrder,
-          caption: i.caption,
-          is_cover: i.computedIsCover,
-        }));
-
       onImagesChange({
-        existingImages: existing,
-        newFiles,
+        existingImages: withOrder
+          .filter((i) => i.type === 'existing')
+          .map((i) => ({
+            id: i.id!,
+            image_url: i.previewUrl,
+            caption: i.caption,
+            order: i.order,
+            is_cover: i.isCover,
+          })),
+        newFiles: withOrder
+          .filter((i) => i.type === 'new')
+          .map((i) => ({ file: i.file!, order: i.order, caption: i.caption, is_cover: i.isCover })),
         removedIds: nextRemovedIds,
       });
     },
@@ -124,58 +118,42 @@ function ImageManager({
 
   const validateFiles = (files: File[]): File[] => {
     const valid: File[] = [];
-    const errors: string[] = [];
-
+    const problems: string[] = [];
     for (const file of files) {
       if (!ALLOWED_TYPES.includes(file.type)) {
-        errors.push(`"${file.name}" is not a supported format (JPEG, PNG, WebP, GIF)`);
-        continue;
+        problems.push(t('IMAGES.INVALID_TYPE', { name: file.name }));
+      } else if (file.size > MAX_FILE_SIZE) {
+        problems.push(t('IMAGES.TOO_BIG', { name: file.name }));
+      } else {
+        valid.push(file);
       }
-      if (file.size > MAX_FILE_SIZE) {
-        errors.push(`"${file.name}" exceeds 10MB`);
-        continue;
-      }
-      valid.push(file);
     }
-
-    if (errors.length > 0) {
-      setValidationError(errors.join('. '));
-      setTimeout(() => setValidationError(''), 5000);
-    }
-
+    setErrors(problems);
     return valid;
   };
 
-  const addFiles = useCallback(
-    (files: File[]) => {
-      const valid = validateFiles(files);
-      if (valid.length === 0) return;
+  const addFiles = (files: File[]) => {
+    const valid = validateFiles(files);
+    if (valid.length === 0) return;
 
-      const newItems: ImageItem[] = valid.map((file, idx) => ({
-        key: `new-${Date.now()}-${idx}-${file.name}`,
-        type: 'new' as const,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        caption: file.name,
-        isCover: false,
-      }));
+    const stamp = Date.now();
+    const newItems: ImageItem[] = valid.map((file, idx) => ({
+      key: `new-${stamp}-${idx}-${file.name}`,
+      type: 'new' as const,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      caption: file.name,
+    }));
 
-      setItems((prev) => {
-        const next = [...prev, ...newItems];
-        if (next.length > 0 && !coverKey) {
-          next[0].isCover = true;
-          setCoverKey(next[0].key);
-        }
-        notifyChange(next, coverKey || next[0]?.key || null, removedIds);
-        return next;
-      });
+    const { items: current, coverKey: currentCover, removedIds: removed } = state.current;
+    const next = [...current, ...newItems];
+    const nextCover = currentCover || next[0]?.key || null;
+    setItems(next);
+    setCoverKey(nextCover);
+    notifyChange(next, nextCover, removed);
 
-      if (onNewFilesAdded) {
-        onNewFilesAdded(valid);
-      }
-    },
-    [coverKey, removedIds, notifyChange, onNewFilesAdded]
-  );
+    onNewFilesAdded?.(valid);
+  };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -184,193 +162,252 @@ function ImageManager({
     }
   };
 
+  useEffect(() => {
+    let depth = 0;
+    const onEnter = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      depth++;
+      setFileDragActive(true);
+    };
+    const onLeave = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setFileDragActive(false);
+    };
+    const onEnd = () => {
+      depth = 0;
+      setFileDragActive(false);
+      setOverZone(false);
+    };
+    const onOver = (e: DragEvent) => hasFiles(e) && e.preventDefault();
+    window.addEventListener('dragenter', onEnter);
+    window.addEventListener('dragleave', onLeave);
+    window.addEventListener('dragover', onOver);
+    window.addEventListener('drop', onEnd);
+    window.addEventListener('dragend', onEnd);
+    return () => {
+      window.removeEventListener('dragenter', onEnter);
+      window.removeEventListener('dragleave', onLeave);
+      window.removeEventListener('dragover', onOver);
+      window.removeEventListener('drop', onEnd);
+      window.removeEventListener('dragend', onEnd);
+    };
+  }, []);
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
-    if (e.dataTransfer.files) {
-      addFiles(Array.from(e.dataTransfer.files));
+    setOverZone(false);
+    setFileDragActive(false);
+    if (e.dataTransfer.files?.length) addFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const handleRemove = (key: string) => {
+    const { items: current, coverKey: currentCover, removedIds: removed } = state.current;
+    const item = current.find((i) => i.key === key);
+    if (!item) return;
+
+    let nextRemoved = removed;
+    if (item.type === 'existing' && item.id) {
+      nextRemoved = [...removed, item.id];
+      setRemovedIds(nextRemoved);
+      onExistingImageRemoved?.(item.id);
+    }
+    if (item.type === 'new') URL.revokeObjectURL(item.previewUrl);
+
+    const next = current.filter((i) => i.key !== key);
+    const nextCover = currentCover === key ? next[0]?.key || null : currentCover;
+    setItems(next);
+    setCoverKey(nextCover);
+    notifyChange(next, nextCover, nextRemoved);
+
+    if (!onExistingImageRemoved) {
+      onDirty?.();
+      toast.neutral(t('IMAGES.REMOVED_PENDING'));
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
+  const handleSetCover = (key: string) => {
+    setCoverKey(key);
+    notifyChange(state.current.items, key, state.current.removedIds);
+    onDirty?.();
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleRemove = useCallback(
-    (key: string) => {
-      setItems((prev) => {
-        const item = prev.find((i) => i.key === key);
-        let nextRemovedIds = removedIds;
-
-        if (item?.type === 'existing' && item.id) {
-          nextRemovedIds = [...removedIds, item.id];
-          setRemovedIds(nextRemovedIds);
-
-          if (onExistingImageRemoved) {
-            onExistingImageRemoved(item.id);
-          }
-        }
-
-        if (item?.type === 'new' && item.previewUrl) {
-          URL.revokeObjectURL(item.previewUrl);
-        }
-
-        const next = prev.filter((i) => i.key !== key);
-
-        let nextCoverKey = coverKey;
-        if (coverKey === key) {
-          nextCoverKey = next.length > 0 ? next[0].key : null;
-          setCoverKey(nextCoverKey);
-          if (next.length > 0) next[0].isCover = true;
-        }
-
-        notifyChange(next, nextCoverKey, nextRemovedIds);
-        return next;
-      });
-
-      if (!onExistingImageRemoved) {
-        toast.neutral('Image removed', 'Save to confirm changes.');
-      }
+  const sortable = useSortable<ImageItem>({
+    items,
+    axis: 'grid',
+    getKey: (i) => i.key,
+    getLabel: (i) => i.caption,
+    onReorder: (from, to) => {
+      const next = moveItem(state.current.items, from, to);
+      state.current.items = next;
+      setItems(next);
+      notifyChange(next, state.current.coverKey, state.current.removedIds);
     },
-    [coverKey, removedIds, notifyChange, toast, onExistingImageRemoved]
-  );
-
-  const handleSetCover = useCallback(
-    (key: string) => {
-      setCoverKey(key);
-      setItems((prev) => {
-        const next = prev.map((item) => ({
-          ...item,
-          isCover: item.key === key,
-        }));
-        notifyChange(next, key, removedIds);
-        return next;
-      });
+    onCommit: () => onDirty?.(),
+    messages: {
+      lifted: (_l, pos) => t('IMAGES.LIFTED', { pos }),
+      moved: (_l, pos, total) => t('IMAGES.MOVED', { pos, total }),
+      dropped: (_l, pos, total) => t('IMAGES.DROPPED', { pos, total }),
+      cancelled: () => t('IMAGES.CANCELLED'),
     },
-    [removedIds, notifyChange]
-  );
-
-  // Drag reorder handlers
-  const handleItemDragStart = (key: string) => {
-    dragItemKey.current = key;
-  };
-
-  const handleItemDragEnter = (key: string) => {
-    dragOverKey.current = key;
-  };
-
-  const handleItemDragEnd = () => {
-    const fromKey = dragItemKey.current;
-    const toKey = dragOverKey.current;
-
-    dragItemKey.current = null;
-    dragOverKey.current = null;
-
-    if (!fromKey || !toKey || fromKey === toKey) return;
-
-    setItems((prev) => {
-      const fromIdx = prev.findIndex((i) => i.key === fromKey);
-      const toIdx = prev.findIndex((i) => i.key === toKey);
-      if (fromIdx === -1 || toIdx === -1) return prev;
-
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      notifyChange(next, coverKey, removedIds);
-      return next;
-    });
-  };
+  });
 
   return (
     <div className="image-manager">
-      {/* Drop zone */}
       <div
-        className={`image-drop-zone ${isDragOver ? 'image-drop-zone--active' : ''}`}
+        className={`drop-zone${fileDragActive ? ' is-armed' : ''}${overZone ? ' is-over' : ''}`}
+        onDragEnter={(e) => hasFiles(e) && setOverZone(true)}
+        onDragOver={(e) => {
+          if (!hasFiles(e)) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+          setOverZone(true);
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) setOverZone(false);
+        }}
         onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onClick={() => fileInputRef.current?.click()}
       >
-        <div className="image-drop-zone-content">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <p>Drop images here or click to browse</p>
-          <span className="image-drop-zone-hint">JPEG, PNG, WebP, GIF — max 10MB each</span>
-        </div>
+        <IconUpload size={28} className="drop-zone__icon" />
+        <p className="drop-zone__title">
+          {fileDragActive ? (
+            t('IMAGES.DROP_ACTIVE')
+          ) : (
+            <Trans
+              i18nKey="IMAGES.DROP"
+              components={{
+                1: (
+                  <button
+                    type="button"
+                    className="drop-zone__browse"
+                    onClick={() => fileInputRef.current?.click()}
+                  />
+                ),
+              }}
+            />
+          )}
+        </p>
+        <p className="drop-zone__hint">{t('IMAGES.HINT')}</p>
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={ALLOWED_TYPES.join(',')}
           onChange={handleFileInput}
-          style={{ display: 'none' }}
+          className="visually-hidden"
+          tabIndex={-1}
         />
       </div>
 
-      {validationError && <p className="image-manager-error">{validationError}</p>}
-
-      {/* Image grid */}
-      {items.length > 0 && (
-        <div className="image-grid">
-          {items.map((item) => (
-            <div
-              key={item.key}
-              className={`image-grid-item ${item.isCover ? 'image-grid-item--cover' : ''}`}
-              draggable
-              onDragStart={() => handleItemDragStart(item.key)}
-              onDragEnter={() => handleItemDragEnter(item.key)}
-              onDragEnd={handleItemDragEnd}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              <img src={item.previewUrl} alt={item.caption} />
-
-              {item.isCover && <span className="image-cover-badge">Cover</span>}
-
-              <div className="image-grid-item-actions">
-                {!item.isCover && (
-                  <button
-                    type="button"
-                    className="image-action-btn image-action-cover"
-                    title="Set as cover"
-                    onClick={() => handleSetCover(item.key)}
-                  >
-                    &#9733;
-                  </button>
-                )}
-                {item.type === 'existing' && onCopyImageLink && item.id && (
-                  <button
-                    type="button"
-                    className="image-action-btn image-action-copy"
-                    title="Copy link"
-                    onClick={() => onCopyImageLink(item.id!)}
-                  >
-                    &#128279;
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="image-action-btn image-action-remove"
-                  title="Remove"
-                  onClick={() => handleRemove(item.key)}
-                >
-                  &times;
-                </button>
-              </div>
-
-              {item.type === 'new' && <span className="image-new-badge">New</span>}
-            </div>
-          ))}
+      {errors.length > 0 && (
+        <div className="image-errors" role="alert">
+          <IconAlert size={18} />
+          <ul>
+            {errors.map((err) => (
+              <li key={err}>{err}</li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            className="image-errors__close"
+            aria-label={t('TOAST.DISMISS')}
+            onClick={() => setErrors([])}
+          >
+            <IconClose size={16} />
+          </button>
         </div>
       )}
+
+      {items.length > 0 && (
+        <>
+          <p className="image-manager__hint">{t('IMAGES.REORDER_HINT')}</p>
+          <ul
+            className="image-grid"
+            ref={sortable.containerRef as React.RefObject<HTMLUListElement>}
+          >
+            {items.map((item, index) => {
+              const isCover = item.key === coverKey;
+              const label = t('IMAGES.LABEL', { n: index + 1, caption: item.caption });
+              const handleProps = sortable.getHandleProps(index);
+              return (
+                <li
+                  key={item.key}
+                  className={`image-tile${isCover ? ' is-cover' : ''}`}
+                  {...sortable.getItemProps(item.key)}
+                >
+                  <button
+                    type="button"
+                    className="image-tile__handle"
+                    aria-label={`${t('IMAGES.DRAG', { n: index + 1 })}. ${label}`}
+                    {...handleProps}
+                  >
+                    <img src={item.previewUrl} alt="" draggable={false} />
+                  </button>
+
+                  <span
+                    className="image-tile__grip"
+                    aria-hidden="true"
+                    onPointerDown={handleProps.onPointerDown}
+                  >
+                    <IconGrip size={18} />
+                  </span>
+
+                  <span className="image-tile__index tabular" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+
+                  {isCover && (
+                    <span className="image-tile__cover">
+                      <IconSparkle size={14} /> {t('IMAGES.COVER')}
+                    </span>
+                  )}
+                  {item.type === 'new' && (
+                    <span className="image-tile__new">{t('IMAGES.NEW')}</span>
+                  )}
+
+                  <div className="image-tile__actions">
+                    {!isCover && (
+                      <button
+                        type="button"
+                        className="tile-btn"
+                        title={t('IMAGES.SET_COVER')}
+                        aria-label={`${t('IMAGES.SET_COVER')}: ${label}`}
+                        onClick={() => handleSetCover(item.key)}
+                      >
+                        <IconSparkle size={16} />
+                      </button>
+                    )}
+                    {item.type === 'existing' && onCopyImageLink && item.id && (
+                      <button
+                        type="button"
+                        className="tile-btn"
+                        title={t('IMAGES.COPY_LINK')}
+                        aria-label={`${t('IMAGES.COPY_LINK')}: ${label}`}
+                        onClick={() => onCopyImageLink(item.id!)}
+                      >
+                        <IconLink size={16} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="tile-btn tile-btn--danger"
+                      title={t('IMAGES.REMOVE')}
+                      aria-label={`${t('IMAGES.REMOVE')}: ${label}`}
+                      onClick={() => handleRemove(item.key)}
+                    >
+                      <IconClose size={16} />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+
+      <div className="visually-hidden" aria-live="assertive" aria-atomic="true">
+        {sortable.announcement}
+      </div>
     </div>
   );
 }

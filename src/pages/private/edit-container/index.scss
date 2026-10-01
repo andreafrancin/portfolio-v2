@@ -1,50 +1,58 @@
 @use '../../../styles/variables' as *;
 
-.edit-container {
-  max-width: 1600px;
-  width: 100%;
-  height: 100%;
-  min-height: 800px;
-  margin: 0 10%;
+.studio-tabs__list {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: clamp(24px, 3vw, 36px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.studio-tabs__tab {
+  @include reset-button;
   position: relative;
-  display: flex;
-  flex-direction: column;
-}
+  padding: 12px 0 14px;
+  font-family: $font-serif;
+  font-size: 1.25rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: color var(--dur-1) linear;
 
-.edit-tabs-container {
-  list-style: none;
-  display: flex;
-  border-bottom: 1px solid $remove-color;
-}
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--accent);
+    box-shadow: 0 0 12px rgba(188, 14, 77, 0.35);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-3) var(--ease-out);
+  }
 
-.edit-tabs-list-element {
-  width: 150px;
-  height: 40px;
-  border-radius: 0 10px 0 0;
-}
+  @media (hover: hover) {
+    &:hover {
+      color: var(--text);
+    }
+  }
 
-.edit-tab-list-button {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  border-radius: 10px 10px 0 0;
-  font-size: 16px;
-  transition: all 0.2s ease-in-out;
+  &[aria-selected='true'] {
+    color: var(--text);
 
-  &:hover {
-    background-color: $secondary-color;
-    color: #fff;
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
   }
 }
 
-.editor-content {
-  padding-top: 25px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.edit-tab-list-button-selected {
-  background-color: $secondary-color;
-  color: #fff;
+.studio-tabs__panel {
+  animation: page-enter 520ms var(--ease-out) both;
 }

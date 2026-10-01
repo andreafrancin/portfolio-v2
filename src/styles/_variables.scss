@@ -1,13 +1,59 @@
-$font-inter: 'Inter', sans-serif;
-$font-gloss: 'Gloss', sans-serif;
+$bp-lg: 1100px;
+$bp-md: 820px;
+$bp-sm: 560px;
 
-$header-breakpoint: 1000px;
-$tablet-breakpoint: 768px;
-$mobile-breakpoint: 540px;
+$font:
+  'Inter',
+  ui-sans-serif,
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  sans-serif;
+$font-serif: $font;
+$font-brush: 'Gloss', 'Brush Script MT', cursive;
 
-$text-color: #131415;
-$secondary-color: #bc0e4d;
-$submit-color: #86dc3c;
-$edit-color: #3399bb;
-$remove-color: #bf0000;
-$border-color: #d8dee4;
+$ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+$ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+@mixin display {
+  font-family: $font-brush;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+@mixin label {
+  font-family: $font;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+@mixin container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@mixin focus-ring {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@mixin reset-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@mixin arch($ratio: 1.25, $radius: 20px) {
+  border-radius: $radius;
+}

@@ -5,7 +5,10 @@
       {
         "corejs": 3.41,
         "useBuiltIns": "usage",
-        "modules": "commonjs"
+        "modules": "commonjs",
+        "exclude": [
+          "transform-dynamic-import"
+        ]
       }
     ],
     [

@@ -1,30 +1,92 @@
 @use '../../styles/variables' as *;
 
-.contact-container {
-  max-width: 1600px;
-  width: 90%;
-  height: 100%;
-  min-height: 100vh;
-  margin: 0 5%;
+.contact {
+  position: relative;
+}
+
+.contact__sheet {
+  @include container;
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-}
-
-.contact-description {
-  width: 90vw;
-  max-width: 500px;
+  align-items: center;
   text-align: center;
+  padding-top: clamp(32px, 6vw, 80px);
+  padding-bottom: 24px;
 }
 
-.contact-email {
-  text-decoration: none;
-  color: $secondary-color;
-  font-weight: 400;
-  transition: all 0.2s ease-in-out;
+.contact__title {
+  font-family: $font-brush;
+  font-size: clamp(2.75rem, 6vw, 4.25rem);
+  line-height: 1.35;
+  color: var(--text);
+  animation: contact-sign 1400ms var(--ease-out) both;
+}
 
-  &:hover {
-    font-weight: 600;
+@keyframes contact-sign {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
   }
+}
+
+.contact__lead {
+  font-size: clamp(1.125rem, 1.8vw, 1.375rem);
+  font-weight: 300;
+  line-height: 1.55;
+  max-width: 40ch;
+  text-wrap: balance;
+  color: var(--text-2);
+  margin: 16px 0 clamp(36px, 5vw, 56px);
+  animation: page-enter 1100ms var(--ease-out) 500ms both;
+}
+
+.contact__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(640px, 100%);
+  padding: clamp(32px, 4vw, 44px) clamp(24px, 4vw, 48px);
+  border-radius: var(--r-lg);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(251, 211, 225, 0.55), transparent 70%), #fff;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  animation: page-enter 1100ms var(--ease-out) 700ms both;
+}
+
+.contact__label {
+  @include label;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.6875rem;
+  color: var(--text-3);
+}
+
+.contact__email {
+  font-size: clamp(1.375rem, 4.4vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  color: var(--accent);
+  background: linear-gradient(currentColor, currentColor) no-repeat 50% 100% / 0 1px;
+  padding-bottom: 4px;
+  transition: background-size var(--dur-3) var(--ease-out);
+
+  @media (hover: hover) {
+    &:hover {
+      background-size: 100% 1px;
+    }
+  }
+}
+
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
 }

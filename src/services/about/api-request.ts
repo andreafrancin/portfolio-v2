@@ -20,4 +20,9 @@ async function fetchPatchAboutFromAPI(id: number, body: any): Promise<any> {
   return response;
 }
 
-export { fetchAboutFromAPI, fetchCreateAboutFromAPI, fetchEditAboutFromAPI, fetchPatchAboutFromAPI };
+export {
+  fetchAboutFromAPI,
+  fetchCreateAboutFromAPI,
+  fetchEditAboutFromAPI,
+  fetchPatchAboutFromAPI,
+};

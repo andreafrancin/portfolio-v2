@@ -8,12 +8,11 @@ console.log('>>> Running development mode...');
 console.log('>>> Port: 8080');
 console.log('>>> Open: chrome');
 
-/** @type {import('webpack').Configuration} */
 const devConfig = {
   mode: 'development',
   devServer: {
     historyApiFallback: true,
-    port: 3000,
+    port: 8081,
     hot: true,
     open: {
       app: {

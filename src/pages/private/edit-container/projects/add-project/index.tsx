@@ -1,18 +1,28 @@
-import { fetchAddProjectFromAPI } from '../../../../../services/work/api-request';
 import { useCallback, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { fetchAddProjectFromAPI } from '../../../../../services/work/api-request';
 import FormProject from '../form-project';
 import { ImageChangePayload } from '../../../../../components/image-manager';
-import { useNavigate } from 'react-router-dom';
-import './index.scss';
+import { StudioPageHeader } from '../../../../../components/studio';
+import { IconArrowLeft } from '../../../../../components/icons';
 import { useToast } from '../../../../../components/toast';
 import { useLoading } from '../../../../../context/loading-context';
+import { fileToBase64 } from '../../../../../lib/project';
+import { invalidateProjects } from '../../../../../lib/projects-cache';
+import type { CategorySlug } from '../../../../../config/categories';
+import useUnsavedWarning from '../../../../../hooks/useUnsavedWarning';
 
 function AddProject() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation();
   const { showLoading, hideLoading } = useLoading();
 
   const [title, setTitle] = useState('');
+  const [categories, setCategories] = useState<CategorySlug[]>([]);
+  const [imageCount, setImageCount] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   const imagePayloadRef = useRef<ImageChangePayload>({
     existingImages: [],
@@ -22,24 +32,18 @@ function AddProject() {
 
   const handleImagesChange = useCallback((payload: ImageChangePayload) => {
     imagePayloadRef.current = payload;
+    setImageCount(payload.newFiles.length);
   }, []);
 
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
+  const dirty = !!title.trim() || categories.length > 0 || imageCount > 0;
+  useUnsavedWarning(dirty && !saving);
 
   const onFormSubmit = useCallback(async () => {
+    setSaving(true);
     showLoading();
-
     try {
-      const { newFiles } = imagePayloadRef.current;
-
       const imagesPayload = await Promise.all(
-        newFiles.map(async (nf) => ({
+        imagePayloadRef.current.newFiles.map(async (nf) => ({
           caption: nf.caption,
           image: await fileToBase64(nf.file),
           order: nf.order,
@@ -47,31 +51,44 @@ function AddProject() {
         }))
       );
 
-      const payload = {
-        title,
-        title_i18n: { en: title },
+      await fetchAddProjectFromAPI({
+        title: title.trim(),
+        title_i18n: { en: title.trim() },
         content_i18n: { en: { md: '' } },
+        categories,
         images: imagesPayload,
-      };
-
-      await fetchAddProjectFromAPI(payload);
-      toast.success('Project created');
+      });
+      invalidateProjects();
+      toast.success(t('PRIVATE.PROJECT_CREATED'));
       navigate('/private', { replace: true });
     } catch {
-      toast.error('Something went wrong. Please try again later');
+      toast.error(t('PRIVATE.SAVE_FAILED'));
+      setSaving(false);
     } finally {
       hideLoading();
     }
-  }, [title, navigate, toast, showLoading, hideLoading]);
+  }, [title, categories, navigate, toast, t, showLoading, hideLoading]);
 
   return (
-    <div className="add-project-container">
-      <h1>Add project</h1>
+    <div className="studio">
+      <StudioPageHeader
+        back={
+          <Link to="/private" className="text-link">
+            <IconArrowLeft size={18} /> {t('PRIVATE.BACK')}
+          </Link>
+        }
+        title={t('PRIVATE.NEW_PROJECT')}
+      />
       <FormProject
         onFormSubmit={onFormSubmit}
         onImagesChange={handleImagesChange}
         titleValue={title}
         onTitleChange={setTitle}
+        categories={categories}
+        onCategoriesChange={setCategories}
+        dirty={dirty}
+        saving={saving}
+        titleMissing={!title.trim()}
       />
     </div>
   );

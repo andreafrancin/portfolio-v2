@@ -1,0 +1,97 @@
+@property --vine-grow {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+.vine {
+  position: relative;
+  --vine: var(--accent);
+  --vine-grow: 1;
+  width: min(560px, 92%);
+  margin-inline: auto;
+  color: var(--vine);
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    fill: currentColor;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 0,
+      #000 calc(var(--vine-grow) * 100%),
+      transparent calc(var(--vine-grow) * 100% + 12%)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      #000 0,
+      #000 calc(var(--vine-grow) * 100%),
+      transparent calc(var(--vine-grow) * 100% + 12%)
+    );
+  }
+}
+
+.vine__piece {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.vine--armed {
+  --vine-grow: -0.15;
+
+  .vine__piece {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -18deg;
+  }
+}
+
+.vine--grown {
+  --vine-grow: 1;
+  transition: --vine-grow 2600ms cubic-bezier(0.45, 0.05, 0.4, 1);
+
+  .vine__piece {
+    transition:
+      opacity 700ms var(--ease-out),
+      scale 900ms var(--ease-out),
+      rotate 1100ms var(--ease-out);
+    transition-delay: calc(250ms + var(--at) * 2300ms);
+  }
+}
+
+.vine__falling {
+  position: absolute;
+  overflow: visible;
+  fill: currentColor;
+  pointer-events: none;
+  transform-origin: center;
+  animation: leaf-fall var(--dur, 8s) cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+@keyframes leaf-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(var(--sway), calc(var(--fall) * 0.22)) rotate(calc(var(--turn) * 0.3));
+  }
+  50% {
+    transform: translate(calc(var(--sway) * -0.6), calc(var(--fall) * 0.5))
+      rotate(calc(var(--turn) * 0.55));
+    opacity: 0.85;
+  }
+  75% {
+    transform: translate(var(--sway), calc(var(--fall) * 0.76)) rotate(calc(var(--turn) * 0.8));
+  }
+  100% {
+    transform: translate(calc(var(--sway) * -0.3), var(--fall)) rotate(var(--turn));
+    opacity: 0;
+  }
+}

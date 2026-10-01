@@ -1,31 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-
-function isTokenValid(token: string | null) {
-  if (!token) return false;
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const exp = payload.exp;
-    const now = Math.floor(Date.now() / 1000);
-    return exp > now;
-  } catch {
-    return false;
-  }
-}
+import { ensureFreshToken, secondsLeft } from '../../api-client/api-client';
+import Spinner from '../spinner';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const accessToken = localStorage.getItem('access_token');
+  const [state, setState] = useState<'checking' | 'ok' | 'out'>(() =>
+    secondsLeft(localStorage.getItem('access_token')) > 60 ? 'ok' : 'checking'
+  );
 
-  if (!isTokenValid(accessToken)) {
-    // Redirect to login if no valid token
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    if (state !== 'checking') return;
+    let alive = true;
+    ensureFreshToken().then((token) => {
+      if (alive) setState(token ? 'ok' : 'out');
+    });
+    return () => {
+      alive = false;
+    };
+  }, [state]);
+
+  if (state === 'out') return <Navigate to="/login" replace />;
+  if (state === 'checking') {
+    return (
+      <div className="admin-state" aria-busy="true">
+        <Spinner size={24} />
+      </div>
+    );
   }
-
   return children;
 };
 

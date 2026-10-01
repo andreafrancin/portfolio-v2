@@ -1,0 +1,34 @@
+.pimg {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--surface-2);
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: inherit;
+    object-position: inherit;
+  }
+}
+
+.pimg__low {
+  filter: blur(16px);
+  transform: scale(1.08);
+}
+
+.pimg__full {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out);
+}
+
+.pimg.is-loaded .pimg__full {
+  opacity: 1;
+}
+
+.pimg.is-loaded .pimg__low {
+  transition: opacity 0s 700ms;
+  opacity: 0;
+}

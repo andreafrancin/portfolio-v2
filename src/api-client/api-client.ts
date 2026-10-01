@@ -11,8 +11,24 @@ function getRefreshToken(): string | null {
 
 let refreshPromise: Promise<string | null> | null = null;
 
+export function secondsLeft(token: string | null): number {
+  if (!token) return -Infinity;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return payload.exp - Date.now() / 1000;
+  } catch {
+    return -Infinity;
+  }
+}
+
+export async function ensureFreshToken(): Promise<string | null> {
+  const token = getToken();
+  if (secondsLeft(token) > 60) return token;
+  if (secondsLeft(getRefreshToken()) <= 0) return secondsLeft(token) > 0 ? token : null;
+  return (await refreshAccessToken()) || (secondsLeft(token) > 0 ? token : null);
+}
+
 async function refreshAccessToken(): Promise<string | null> {
-  // Deduplicate concurrent refresh attempts
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
@@ -45,7 +61,7 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 async function request(endpoint: string, options: RequestInit = {}, isAuth?: boolean) {
-  const token = getToken();
+  const token = isAuth ? await ensureFreshToken() : getToken();
 
   if (!token && isAuth) {
     throw new Error('No auth token.');
@@ -62,7 +78,6 @@ async function request(endpoint: string, options: RequestInit = {}, isAuth?: boo
     headers: buildHeaders(token),
   });
 
-  // On 401, attempt a silent token refresh and retry once
   if (res.status === 401 && isAuth) {
     const newToken = await refreshAccessToken();
     if (newToken) {
@@ -83,7 +98,6 @@ async function request(endpoint: string, options: RequestInit = {}, isAuth?: boo
       return retryRes.json();
     }
 
-    // Refresh failed — clear tokens and redirect to login
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     window.location.href = '/login';

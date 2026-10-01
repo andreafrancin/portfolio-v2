@@ -1,5 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react';
-import Spinner from '../components/spinner';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import './loading-context.scss';
 
 interface LoadingContextValue {
@@ -14,13 +13,14 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
   const showLoading = useCallback(() => setCount((c) => c + 1), []);
   const hideLoading = useCallback(() => setCount((c) => Math.max(0, c - 1)), []);
+  const value = useMemo(() => ({ showLoading, hideLoading }), [showLoading, hideLoading]);
 
   return (
-    <LoadingContext.Provider value={{ showLoading, hideLoading }}>
+    <LoadingContext.Provider value={value}>
       {children}
       {count > 0 && (
-        <div className="loading-overlay">
-          <Spinner />
+        <div className="busy" role="progressbar" aria-busy="true" aria-label="Loading">
+          <span className="busy__bar" />
         </div>
       )}
     </LoadingContext.Provider>

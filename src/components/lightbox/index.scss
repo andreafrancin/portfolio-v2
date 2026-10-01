@@ -1,0 +1,158 @@
+@use '../../styles/variables' as *;
+
+.lightbox {
+  --pad-y: clamp(56px, 7vw, 88px);
+  --pad-x: clamp(16px, 7vw, 104px);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text);
+  animation: lightbox-in 360ms var(--ease-out) both;
+
+  &::backdrop {
+    background: transparent;
+  }
+
+  &.is-closing {
+    animation: lightbox-out 260ms var(--ease-in-out) forwards;
+  }
+}
+
+@keyframes lightbox-in {
+  from {
+    background: rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes lightbox-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.lightbox__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pad-y) var(--pad-x);
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: zoom-out;
+}
+
+.lightbox__img {
+  display: block;
+  max-width: calc(100vw - var(--pad-x) * 2);
+  max-height: calc(100vh - var(--pad-y) * 2);
+  max-height: calc(100dvh - var(--pad-y) * 2);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  user-select: none;
+  cursor: default;
+  animation: lightbox-img-in 420ms var(--ease-out) both;
+}
+
+@keyframes lightbox-img-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.lightbox__btn {
+  @include reset-button;
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
+  transition:
+    color var(--dur-1) linear,
+    background-color var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+  }
+}
+
+.lightbox__close {
+  top: 16px;
+  right: 16px;
+}
+
+.lightbox__nav {
+  top: 50%;
+  margin-top: -24px;
+
+  &--prev {
+    left: 16px;
+  }
+
+  &--next {
+    right: 16px;
+  }
+
+  @media (max-width: $bp-sm) {
+    top: auto;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    margin-top: 0;
+  }
+}
+
+.lightbox__count {
+  position: absolute;
+  left: 50%;
+  bottom: max(26px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+
+.zoomable {
+  @include reset-button;
+  display: block;
+  justify-self: center;
+  max-width: 100%;
+  cursor: zoom-in;
+  border-radius: var(--r-lg);
+
+  img {
+    transition:
+      transform var(--dur-3) var(--ease-out),
+      box-shadow var(--dur-3) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    &:hover img {
+      transform: scale(1.01);
+      box-shadow: var(--shadow-md);
+    }
+  }
+
+  &:focus-visible {
+    outline-offset: 4px;
+  }
+}

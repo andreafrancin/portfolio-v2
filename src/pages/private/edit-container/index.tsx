@@ -1,47 +1,99 @@
-import { useCallback, useState } from 'react';
-import './index.scss';
-import EditProjectsContainer from './projects';
+import { useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import EditProjectsContainer from './projects';
 import EditContactContainer from './contact';
 import EditAboutContainer from './about';
+import EditCategoriesContainer from './categories';
+import BillingList from '../billing/list';
+import ClientsTab from '../billing/clients';
+import ConditionsTab from '../billing/conditions';
+import IssuerSettings from '../billing/issuer';
+import './index.scss';
 
-type Tab = 'PRIVATE.TABS.WORK' | 'PRIVATE.TABS.ABOUT' | 'PRIVATE.TABS.CONTACT';
+const TABS = [
+  { id: 'work', label: 'PRIVATE.TABS.WORK' },
+  { id: 'about', label: 'PRIVATE.TABS.ABOUT' },
+  { id: 'contact', label: 'PRIVATE.TABS.CONTACT' },
+  { id: 'categories', label: 'PRIVATE.TABS.CATEGORIES' },
+  { id: 'quotes', label: 'BILLING.TABS_QUOTES' },
+  { id: 'invoices', label: 'BILLING.TABS_INVOICES' },
+  { id: 'clients', label: 'BILLING.TABS_CLIENTS' },
+  { id: 'conditions', label: 'BILLING.TABS_CONDITIONS' },
+  { id: 'issuer', label: 'BILLING.TABS_ISSUER' },
+] as const;
+
+type TabId = (typeof TABS)[number]['id'];
 
 const EditContainer = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('PRIVATE.TABS.WORK');
-
   const { t } = useTranslation();
+  const [params, setParams] = useSearchParams();
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const raw = params.get('tab');
+  const active: TabId = TABS.some((tab) => tab.id === raw) ? (raw as TabId) : 'work';
 
-  const tabs: Tab[] = ['PRIVATE.TABS.WORK', 'PRIVATE.TABS.ABOUT', 'PRIVATE.TABS.CONTACT'];
+  const select = (id: TabId) => {
+    const next = new URLSearchParams(params);
+    if (id === 'work') next.delete('tab');
+    else next.set('tab', id);
+    setParams(next, { replace: true, preventScrollReset: true });
+  };
 
-  const ActiveTab = useCallback(() => {
-    switch (activeTab) {
-      case tabs[0]:
-        return <EditProjectsContainer />;
-      case tabs[1]:
-        return <EditAboutContainer />;
-      case tabs[2]:
-        return <EditContactContainer />;
-      default:
-        return <div />;
+  const onKeyDown = (e: React.KeyboardEvent, index: number) => {
+    let next = -1;
+    if (e.key === 'ArrowRight') next = (index + 1) % TABS.length;
+    if (e.key === 'ArrowLeft') next = (index - 1 + TABS.length) % TABS.length;
+    if (next >= 0) {
+      e.preventDefault();
+      select(TABS[next].id);
+      tabRefs.current[next]?.focus();
     }
-  }, [activeTab]);
+  };
 
   return (
-    <div className="edit-container">
-      <ul className="edit-tabs-container">
-        {tabs.map((tab) => (
-          <li key={tab} className="edit-tabs-list-element">
-            <button
-              className={`edit-tab-list-button ${activeTab === tab ? 'edit-tab-list-button-selected' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {t(tab)}
-            </button>
-          </li>
+    <div className="studio-tabs">
+      <div
+        className="studio-tabs__list"
+        role="tablist"
+        aria-label={t('PRIVATE.PRIVATE_AREA_TITLE')}
+      >
+        {TABS.map((tab, i) => (
+          <button
+            key={tab.id}
+            ref={(el) => {
+              tabRefs.current[i] = el;
+            }}
+            id={`tab-${tab.id}`}
+            role="tab"
+            type="button"
+            aria-selected={active === tab.id}
+            aria-controls={`panel-${tab.id}`}
+            tabIndex={active === tab.id ? 0 : -1}
+            className="studio-tabs__tab"
+            onClick={() => select(tab.id)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+          >
+            {t(tab.label)}
+          </button>
         ))}
-      </ul>
-      <ActiveTab />
+      </div>
+      <div
+        key={active}
+        id={`panel-${active}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${active}`}
+        className="studio-tabs__panel"
+      >
+        {active === 'work' && <EditProjectsContainer />}
+        {active === 'about' && <EditAboutContainer />}
+        {active === 'contact' && <EditContactContainer />}
+        {active === 'categories' && <EditCategoriesContainer />}
+        {active === 'quotes' && <BillingList kind="quote" />}
+        {active === 'invoices' && <BillingList kind="invoice" />}
+        {active === 'clients' && <ClientsTab />}
+        {active === 'conditions' && <ConditionsTab />}
+        {active === 'issuer' && <IssuerSettings />}
+      </div>
     </div>
   );
 };

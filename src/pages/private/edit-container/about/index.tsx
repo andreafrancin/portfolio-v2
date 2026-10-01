@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import LangSelector from '../../../../components/lang-selector';
-import './index.scss';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import LangSelector from '../../../../components/lang-selector';
 import {
   fetchAboutFromAPI,
   fetchCreateAboutFromAPI,
@@ -9,21 +8,32 @@ import {
   fetchPatchAboutFromAPI,
 } from '../../../../services/about/api-request';
 import MarkdownEditor from '../../../../components/markdown';
-import ImageManager, { ExistingImage, ImageChangePayload } from '../../../../components/image-manager';
+import ImageManager, {
+  ExistingImage,
+  ImageChangePayload,
+} from '../../../../components/image-manager';
+import { Panel, SaveBar } from '../../../../components/studio';
 import { useToast } from '../../../../components/toast';
 import { useLoading } from '../../../../context/loading-context';
+import { fileToBase64 } from '../../../../lib/project';
+import useUnsavedWarning from '../../../../hooks/useUnsavedWarning';
+
+const serialize = (a: Record<string, string>, b: Record<string, string>) => JSON.stringify([a, b]);
 
 function EditAboutContainer() {
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
-  const [currentData, setCurrentData] = useState<any>(null);
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
-
-  const [titleByLang, setTitleByLang] = useState<Record<string, string>>({});
-  const [contentByLang, setContentByLang] = useState<Record<string, string>>({});
-
   const { t } = useTranslation();
   const toast = useToast();
   const { showLoading, hideLoading } = useLoading();
+
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [selectedLanguage, setSelectedLanguage] = useState('es');
+  const [record, setRecord] = useState<any>(null);
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
+  const [titleByLang, setTitleByLang] = useState<Record<string, string>>({});
+  const [contentByLang, setContentByLang] = useState<Record<string, string>>({});
+  const [imagesDirty, setImagesDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const saved = useRef('');
 
   const imagePayloadRef = useRef<ImageChangePayload>({
     existingImages: [],
@@ -31,235 +41,231 @@ function EditAboutContainer() {
     removedIds: [],
   });
 
-  const fetchAboutData = useCallback(async () => {
+  const fetchAboutData = useCallback(async (resetText = true) => {
     const response = await fetchAboutFromAPI();
-    setCurrentData(response);
-
-    const record = response?.[0];
-    if (record) {
-      const titles: Record<string, string> = {};
-      const contents: Record<string, string> = {};
-      if (record.title_i18n) {
-        Object.entries(record.title_i18n).forEach(([lang, val]) => {
-          titles[lang] = val as string;
-        });
-      }
-      if (record.content_i18n) {
-        Object.entries(record.content_i18n).forEach(([lang, val]: [string, any]) => {
+    const rec = response?.[0] || null;
+    setRecord(rec);
+    if (rec) {
+      if (resetText) {
+        const titles: Record<string, string> = { ...(rec.title_i18n || {}) };
+        const contents: Record<string, string> = {};
+        Object.entries(rec.content_i18n || {}).forEach(([lang, val]: [string, any]) => {
           contents[lang] = val?.md || '';
         });
+        setTitleByLang(titles);
+        setContentByLang(contents);
+        saved.current = serialize(titles, contents);
       }
-      setTitleByLang(titles);
-      setContentByLang(contents);
-
-      if (record.images) {
-        setExistingImages(record.images);
-      }
-
-      imagePayloadRef.current = {
-        existingImages: record.images || [],
-        newFiles: [],
-        removedIds: [],
-      };
+      setExistingImages(rec.images || []);
+      imagePayloadRef.current = { existingImages: rec.images || [], newFiles: [], removedIds: [] };
     }
-    return response;
   }, []);
+
+  const load = useCallback(() => {
+    setStatus('loading');
+    fetchAboutData()
+      .then(() => setStatus('ready'))
+      .catch(() => setStatus('error'));
+  }, [fetchAboutData]);
 
   useEffect(() => {
-    showLoading();
-    fetchAboutData().finally(() => hideLoading());
-  }, []);
+    load();
+  }, [load]);
 
-  const handleTitleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTitleByLang((prev) => ({ ...prev, [selectedLanguage]: e.target.value }));
-    },
-    [selectedLanguage]
-  );
+  const dirty =
+    status === 'ready' && (imagesDirty || serialize(titleByLang, contentByLang) !== saved.current);
+  useUnsavedWarning(dirty && !saving);
 
-  const handleMarkdownChange = useCallback(
-    (value: string) => {
-      setContentByLang((prev) => ({ ...prev, [selectedLanguage]: value }));
-    },
-    [selectedLanguage]
-  );
-
-  const handleLanguageChange = useCallback((lang: string) => {
-    setSelectedLanguage(lang);
-  }, []);
-
-  const handleImagesChange = useCallback((payload: ImageChangePayload) => {
-    imagePayloadRef.current = payload;
-  }, []);
-
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
+  const filled = useMemo(() => {
+    const out: Record<string, boolean> = {};
+    ['es', 'ca', 'en'].forEach(
+      (l) => (out[l] = !!(titleByLang[l]?.trim() || contentByLang[l]?.trim()))
+    );
+    return out;
+  }, [titleByLang, contentByLang]);
 
   const handleNewFilesAdded = useCallback(
     async (files: File[]) => {
-      const record = currentData?.[0];
       if (!record?.id) return;
-
       showLoading();
       try {
-        const newPayload = await Promise.all(
+        const base = existingImages.length;
+        const images = await Promise.all(
           files.map(async (file, idx) => ({
             caption: file.name,
             image: await fileToBase64(file),
-            order: existingImages.length + idx + 1,
-            is_cover: existingImages.length === 0 && idx === 0,
+            order: base + idx + 1,
+            is_cover: base === 0 && idx === 0,
           }))
         );
-
-        await fetchPatchAboutFromAPI(record.id, { images: newPayload });
-        await fetchAboutData();
-        toast.success('Images uploaded');
+        await fetchPatchAboutFromAPI(record.id, { images });
+        await fetchAboutData(false);
+        toast.success(t('IMAGES.UPLOADED'));
       } catch {
-        toast.error('Failed to upload images');
+        toast.error(t('IMAGES.UPLOAD_FAILED'));
       } finally {
         hideLoading();
       }
     },
-    [currentData, existingImages, fetchAboutData, toast]
+    [record, existingImages, fetchAboutData, toast, t, showLoading, hideLoading]
   );
 
   const handleExistingImageRemoved = useCallback(
     async (imageId: number) => {
-      const record = currentData?.[0];
       if (!record?.id) return;
-
       showLoading();
       try {
         await fetchPatchAboutFromAPI(record.id, { images_to_remove: [imageId] });
-        await fetchAboutData();
-        toast.success('Image removed');
+        await fetchAboutData(false);
+        toast.success(t('IMAGES.REMOVED'));
       } catch {
-        toast.error('Failed to remove image');
+        toast.error(t('IMAGES.REMOVE_FAILED'));
       } finally {
         hideLoading();
       }
     },
-    [currentData, fetchAboutData, toast]
+    [record, fetchAboutData, toast, t, showLoading, hideLoading]
   );
 
   const handleCopyImageLink = useCallback(
     (imageId: number) => {
-      const record = currentData?.[0];
-      const imageLink = record?.images?.find((img: any) => img.id === imageId)?.image_url;
-      if (imageLink) {
-        navigator.clipboard.writeText(imageLink);
-        toast.success('Image link copied to clipboard');
-      }
-    },
-    [currentData, toast]
-  );
-
-  const onSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      showLoading();
-
-      try {
-        const record = currentData?.[0];
-
-        const titleI18n: Record<string, string> = {};
-        const contentI18n: Record<string, { md: string }> = {};
-
-        Object.entries(titleByLang).forEach(([lang, val]) => {
-          if (val.trim()) titleI18n[lang] = val;
-        });
-        Object.entries(contentByLang).forEach(([lang, val]) => {
-          if (val.trim()) contentI18n[lang] = { md: val };
-        });
-
-        const { existingImages: imgPayloadExisting, newFiles, removedIds } =
-          imagePayloadRef.current;
-
-        const existingPayload = imgPayloadExisting.map((img) => ({
-          id: img.id,
-          caption: img.caption,
-          order: img.order,
-          is_cover: !!img.is_cover,
-        }));
-
-        const newPayload = await Promise.all(
-          newFiles.map(async (nf) => ({
-            caption: nf.caption,
-            image: await fileToBase64(nf.file),
-            order: nf.order,
-            is_cover: nf.is_cover,
-          }))
+      const link = record?.images?.find((img: any) => img.id === imageId)?.image_url;
+      if (link) {
+        navigator.clipboard.writeText(link).then(
+          () => toast.success(t('IMAGES.LINK_COPIED')),
+          () => {}
         );
-
-        const payload = {
-          title_i18n: titleI18n,
-          content_i18n: contentI18n,
-          images: [...existingPayload, ...newPayload],
-          images_to_remove: removedIds,
-        };
-
-        if (record?.id) {
-          await fetchEditAboutFromAPI(record.id, payload);
-        } else {
-          await fetchCreateAboutFromAPI(payload);
-        }
-
-        await fetchAboutData();
-        toast.success('About page saved');
-      } catch {
-        toast.error('Something went wrong. Please try again later');
-      } finally {
-        hideLoading();
       }
     },
-    [currentData, titleByLang, contentByLang, fetchAboutData, toast]
+    [record, toast, t]
   );
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    showLoading();
+    try {
+      const titleI18n: Record<string, string> = {};
+      const contentI18n: Record<string, { md: string }> = {};
+      Object.entries(titleByLang).forEach(([lang, val]) => {
+        if (val?.trim()) titleI18n[lang] = val;
+      });
+      Object.entries(contentByLang).forEach(([lang, val]) => {
+        if (val?.trim()) contentI18n[lang] = { md: val };
+      });
+
+      const { existingImages: imgs, newFiles, removedIds } = imagePayloadRef.current;
+      const newPayload = await Promise.all(
+        newFiles.map(async (nf) => ({
+          caption: nf.caption,
+          image: await fileToBase64(nf.file),
+          order: nf.order,
+          is_cover: nf.is_cover,
+        }))
+      );
+
+      const payload = {
+        title_i18n: titleI18n,
+        content_i18n: contentI18n,
+        images: [
+          ...imgs.map((img) => ({
+            id: img.id,
+            caption: img.caption,
+            order: img.order,
+            is_cover: !!img.is_cover,
+          })),
+          ...newPayload,
+        ],
+        images_to_remove: removedIds,
+      };
+
+      if (record?.id) await fetchEditAboutFromAPI(record.id, payload);
+      else await fetchCreateAboutFromAPI(payload);
+
+      await fetchAboutData();
+      setImagesDirty(false);
+      toast.success(t('PRIVATE.ABOUT_SAVED'));
+    } catch {
+      toast.error(t('PRIVATE.SAVE_FAILED'));
+    } finally {
+      setSaving(false);
+      hideLoading();
+    }
+  };
+
+  if (status === 'loading') {
+    return (
+      <div className="editor">
+        <div className="editor__main">
+          <div className="skeleton" style={{ height: 160 }} />
+          <div className="skeleton" style={{ height: 420 }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="admin-state">
+        <p>{t('PRIVATE.LOAD_FAILED')}</p>
+        <button type="button" className="btn btn--ghost" onClick={load}>
+          {t('PRIVATE.RETRY')}
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="edit-about-container">
-      <LangSelector
-        selectedLanguage={selectedLanguage}
-        onLanguageChange={handleLanguageChange}
-        contentByLang={contentByLang}
-      />
-      <form onSubmit={onSubmit} noValidate>
-        <div className="about-form-field-container">
+    <form className="editor" onSubmit={onSubmit} noValidate>
+      <div className="editor__main">
+        <Panel
+          title={t('PRIVATE.PAGE_TITLE')}
+          hint={t('PRIVATE.LANG_HINT')}
+          aside={
+            <LangSelector
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+              filled={filled}
+            />
+          }
+        >
+          <label className="visually-hidden" htmlFor="about-title">
+            {t('PRIVATE.PAGE_TITLE')}
+          </label>
           <input
-            className="about-form-field"
-            placeholder="Page title"
+            id="about-title"
+            className="input input--lg"
+            lang={selectedLanguage}
             value={titleByLang[selectedLanguage] || ''}
-            onChange={handleTitleChange}
+            onChange={(e) => setTitleByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))}
           />
-        </div>
+        </Panel>
 
-        <div className="about-form-markdown-editor-container">
+        <Panel title={`${t('PRIVATE.CONTENT')} · ${selectedLanguage.toUpperCase()}`}>
           <MarkdownEditor
             value={contentByLang[selectedLanguage] || ''}
-            onChange={handleMarkdownChange}
-            height={400}
+            onChange={(value) => setContentByLang((p) => ({ ...p, [selectedLanguage]: value }))}
+            height={520}
           />
-        </div>
+        </Panel>
+      </div>
 
-        <div className="about-image-manager-container">
+      <aside className="editor__side">
+        <Panel title={t('PRIVATE.IMAGES')}>
           <ImageManager
             existingImages={existingImages}
-            onImagesChange={handleImagesChange}
+            onImagesChange={(payload) => {
+              imagePayloadRef.current = payload;
+            }}
+            onDirty={() => setImagesDirty(true)}
             onCopyImageLink={handleCopyImageLink}
-            onNewFilesAdded={handleNewFilesAdded}
-            onExistingImageRemoved={handleExistingImageRemoved}
+            onNewFilesAdded={record?.id ? handleNewFilesAdded : undefined}
+            onExistingImageRemoved={record?.id ? handleExistingImageRemoved : undefined}
           />
-        </div>
-
-        <button className="about-submit-button" type="submit">
-          {t('PRIVATE.SAVE')}
-        </button>
-      </form>
-    </div>
+        </Panel>
+        <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
+      </aside>
+    </form>
   );
 }
 

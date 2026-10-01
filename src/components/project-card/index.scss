@@ -1,51 +1,181 @@
 @use '../../styles/variables' as *;
 
-.work-link {
-  position: absolute;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.plate {
+  display: block;
+  color: inherit;
+  text-decoration: none;
 
-  &:hover {
-    img {
-      transform: scale(1.03) rotateZ(2deg);
+  &:focus-visible {
+    outline: none;
+
+    .plate__media {
+      @include focus-ring;
+      outline-offset: 5px;
     }
   }
 }
 
-.work-link-image {
+.plate__frame {
+  position: relative;
+  transition: transform 900ms var(--ease-out);
+}
+
+.plate__media {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--surface-2);
+  @include arch(1.25, 24px);
+  box-shadow: var(--shadow-sm);
+  isolation: isolate;
+  transition: box-shadow 900ms var(--ease-out);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(20, 21, 22, 0.06);
+    pointer-events: none;
+  }
+}
+
+.plate__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /*  transition:
-    transform 0.2s ease-in-out,
-    filter 0.2s ease-in-out; */
+  transform: scale(1.001);
+  transition: transform 1400ms var(--ease-out);
 }
 
-.work-link-title {
+.plate__empty {
   position: absolute;
-  width: 100%;
-  height: 80%;
-  bottom: 0;
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, var(--surface-3), var(--surface-2));
+}
+
+.plate__veil {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 20px;
-  color: #fff;
-  opacity: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 20px 26px;
+  text-align: center;
+  color: var(--plate-on, #fff);
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(188, 14, 77, 1) 81%,
-    rgba(188, 14, 77, 1) 100%
+    transparent 30%,
+    color-mix(in srgb, var(--plate-ink) 55%, transparent) 62%,
+    color-mix(in srgb, var(--plate-ink) 92%, transparent) 100%
   );
-  pointer-events: all;
-  z-index: 2;
-  transition: opacity 0.2s ease-in-out;
-  text-align: center;
-  font-size: 21px;
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out);
+}
+
+.plate__veil-title {
+  font-family: $font;
+  font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  text-wrap: balance;
+  transform: translateY(16px);
+  transition: transform 800ms var(--ease-out);
+}
+
+.plate__veil-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+  transform: translateY(16px);
+  transition: transform 900ms var(--ease-out) 60ms;
+}
+
+.plate__stars {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
+  color: var(--plate-ink);
+
+  svg {
+    position: absolute;
+    opacity: 0;
+    transform: scale(0.2) rotate(-40deg);
+    transition:
+      opacity 400ms var(--ease-out),
+      transform 700ms var(--ease-out);
+  }
+
+  svg:nth-child(1) {
+    top: -10px;
+    right: 14%;
+  }
+
+  svg:nth-child(2) {
+    top: 8%;
+    left: 6%;
+    transition-delay: 90ms;
+  }
+
+  svg:nth-child(3) {
+    top: 18%;
+    right: -8px;
+    transition-delay: 180ms;
+  }
+}
+
+@mixin plate-lit {
+  .plate__frame {
+    transform: translateY(-8px);
+  }
+
+  .plate__media {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .plate__img {
+    transform: scale(1.05) rotate(1.5deg);
+  }
+
+  .plate__veil {
+    opacity: 1;
+  }
+
+  .plate__veil-title,
+  .plate__veil-cta {
+    transform: none;
+  }
+
+  .plate__stars svg {
+    opacity: 1;
+    transform: none;
+    animation: star-twinkle 2.4s ease-in-out 700ms infinite;
+  }
+}
+
+@media (hover: hover) {
+  .plate:hover,
+  .plate:focus-visible {
+    @include plate-lit;
+  }
+}
+
+.plate.is-lit,
+.plate:active {
+  @include plate-lit;
+}
+
+@keyframes star-twinkle {
+  50% {
+    transform: scale(0.7) rotate(20deg);
+    opacity: 0.6;
+  }
 }

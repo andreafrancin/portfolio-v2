@@ -1,48 +1,59 @@
 @use '../../styles/variables' as *;
 
-.lang-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  border-bottom: 2px solid $border-color;
-  padding-bottom: 0;
+.lang-tabs__list {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 
-.lang-tab {
+.lang-tabs__tab {
+  @include reset-button;
   position: relative;
-  padding: 8px 20px;
-  border: none;
-  background: none;
-  font-size: 14px;
-  font-weight: 500;
-  color: #888;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 58px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  padding: 0 14px;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 620;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
   transition:
-    color 0.15s ease,
-    border-color 0.15s ease;
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
 
-  &:hover {
-    color: $text-color;
+  @media (hover: hover) {
+    &:hover:not([aria-selected='true']) {
+      background: var(--surface-2);
+      color: var(--text);
+    }
   }
 
-  &--active {
-    color: $secondary-color;
-    border-bottom-color: $secondary-color;
+  &[aria-selected='true'] {
+    background: var(--text);
+    color: #fff;
+
+    .lang-tabs__dot {
+      background: var(--bg);
+      box-shadow: none;
+    }
   }
 
-  &--has-content:not(.lang-tab--active) {
-    color: $text-color;
+  &:focus-visible {
+    outline-offset: 2px;
   }
 }
 
-.lang-tab-dot {
-  display: inline-block;
+.lang-tabs__dot {
   width: 6px;
   height: 6px;
-  background-color: $submit-color;
   border-radius: 50%;
-  margin-left: 6px;
-  vertical-align: middle;
+  background: var(--glow-illustration);
+  box-shadow: 0 0 8px var(--glow-illustration);
 }

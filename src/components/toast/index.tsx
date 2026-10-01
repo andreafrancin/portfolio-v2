@@ -1,4 +1,6 @@
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { IconAlert, IconCheck, IconClose, IconInfo } from '../icons';
 import './index.scss';
 
 type ToastVariant = 'success' | 'error' | 'neutral';
@@ -19,8 +21,9 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-const TOAST_DURATION = 3500;
-const EXIT_DURATION = 300;
+const TOAST_DURATION = 4000;
+const ERROR_DURATION = 7000;
+const EXIT_DURATION = 280;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -36,43 +39,66 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const addToast = useCallback(
     (message: string, variant: ToastVariant, description?: string) => {
       const id = ++idRef.current;
-      setToasts((prev) => [...prev, { id, message, description, variant }]);
-      setTimeout(() => removeToast(id), TOAST_DURATION);
+      setToasts((prev) => [...prev.slice(-3), { id, message, description, variant }]);
+      setTimeout(() => removeToast(id), variant === 'error' ? ERROR_DURATION : TOAST_DURATION);
     },
     [removeToast]
   );
 
-  const value: ToastContextValue = {
-    success: useCallback((msg: string) => addToast(msg, 'success'), [addToast]),
-    error: useCallback((msg: string) => addToast(msg, 'error'), [addToast]),
-    neutral: useCallback((msg: string, desc?: string) => addToast(msg, 'neutral', desc), [addToast]),
-  };
+  const success = useCallback((msg: string) => addToast(msg, 'success'), [addToast]);
+  const error = useCallback((msg: string) => addToast(msg, 'error'), [addToast]);
+  const neutral = useCallback(
+    (msg: string, desc?: string) => addToast(msg, 'neutral', desc),
+    [addToast]
+  );
+  const value = useMemo(() => ({ success, error, neutral }), [success, error, neutral]);
 
   return (
     <ToastContext.Provider value={value}>
       {children}
-      {toasts.length > 0 && (
-        <div className="toast-container">
-          {toasts.map((t) => (
-            <div
-              key={t.id}
-              className={`toast toast--${t.variant}${t.exiting ? ' toast--exit' : ''}`}
-              onClick={() => removeToast(t.id)}
-            >
-              <span className="toast-icon">
-                {t.variant === 'success' && '✓'}
-                {t.variant === 'error' && '✕'}
-                {t.variant === 'neutral' && 'ℹ'}
-              </span>
-              <div className="toast-text">
-                <p className="toast-message">{t.message}</p>
-                {t.description && <p className="toast-description">{t.description}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <ToastRegion toasts={toasts} onDismiss={removeToast} />
     </ToastContext.Provider>
+  );
+}
+
+function ToastRegion({
+  toasts,
+  onDismiss,
+}: {
+  toasts: ToastItem[];
+  onDismiss: (id: number) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="toast-region" role="region" aria-label="Notifications">
+      <div aria-live="polite" className="toast-stack">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`toast toast--${toast.variant}${toast.exiting ? ' toast--exit' : ''}`}
+            role={toast.variant === 'error' ? 'alert' : 'status'}
+          >
+            <span className="toast__mark" aria-hidden="true">
+              {toast.variant === 'success' && <IconCheck size={16} />}
+              {toast.variant === 'error' && <IconAlert size={16} />}
+              {toast.variant === 'neutral' && <IconInfo size={16} />}
+            </span>
+            <div className="toast__text">
+              <p className="toast__message">{toast.message}</p>
+              {toast.description && <p className="toast__description">{toast.description}</p>}
+            </div>
+            <button
+              type="button"
+              className="toast__close"
+              aria-label={t('TOAST.DISMISS')}
+              onClick={() => onDismiss(toast.id)}
+            >
+              <IconClose size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
