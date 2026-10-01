@@ -424,10 +424,22 @@
     border: 0 !important;
   }
 
+  .w-md-editor-area,
+  .w-md-editor-text {
+    height: 100%;
+  }
+
+  .w-md-editor-text-input {
+    overflow-y: auto !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: currentColor !important;
+    caret-color: var(--accent);
+  }
+
   .w-md-editor-text-input::selection {
     background: rgba(188, 14, 77, 0.18);
-    color: transparent;
-    -webkit-text-fill-color: transparent;
+    color: var(--text);
+    -webkit-text-fill-color: var(--text);
   }
 
   .w-md-editor-bar {

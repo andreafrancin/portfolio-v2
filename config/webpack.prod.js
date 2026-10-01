@@ -14,7 +14,10 @@ const prodConfig = {
     },
   },
   plugins: [
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css',
+      chunkFilename: '[id].[contenthash].css',
+    }),
     new DefinePlugin({
       __API_BASE_URL__: JSON.stringify('https://back.andreafrancin.com/api/'),
     }),

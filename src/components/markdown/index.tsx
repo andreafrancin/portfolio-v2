@@ -50,6 +50,7 @@ export default function MarkdownEditor({
         onChange={handleChange}
         height={height}
         preview="edit"
+        highlightEnable={false}
         commands={[
           commands.bold,
           commands.italic,

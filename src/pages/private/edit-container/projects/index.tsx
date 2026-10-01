@@ -298,7 +298,7 @@ const EditProjectsContainer = () => {
       <div className="projects-admin__meta">
         <div className="projects-admin__count">
           {selecting && status === 'ready' && visible.length > 0 && (
-            <label className="check">
+            <label className="select-check">
               <input
                 type="checkbox"
                 checked={allVisibleSelected}
@@ -382,7 +382,7 @@ const EditProjectsContainer = () => {
                 {...sortable.getItemProps(String(item.id))}
               >
                 {selecting && (
-                  <label className="check project-row__select">
+                  <label className="select-check project-row__select">
                     <input
                       type="checkbox"
                       checked={selected.has(item.id)}
