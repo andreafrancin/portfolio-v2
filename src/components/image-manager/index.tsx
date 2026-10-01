@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useToast } from '../toast';
+import ProgressiveImage from '../progressive-image';
 import useSortable, { moveItem } from '../../hooks/useSortable';
 import { IconClose, IconGrip, IconLink, IconSparkle, IconUpload, IconAlert } from '../icons';
 import './index.scss';
@@ -30,6 +31,7 @@ export interface ImageItem {
   id?: number;
   file?: File;
   previewUrl: string;
+  lowUrl?: string | null;
   caption: string;
 }
 
@@ -79,7 +81,8 @@ function ImageManager({
         key: `existing-${img.id}`,
         type: 'existing' as const,
         id: img.id,
-        previewUrl: img.image_low_url || img.image_url,
+        previewUrl: img.image_url,
+        lowUrl: img.image_low_url,
         caption: img.caption,
       }));
     const cover = existingImages.find((i) => i.is_cover);
@@ -341,7 +344,11 @@ function ImageManager({
                     aria-label={`${t('IMAGES.DRAG', { n: index + 1 })}. ${label}`}
                     {...handleProps}
                   >
-                    <img src={item.previewUrl} alt="" draggable={false} />
+                    {item.lowUrl ? (
+                      <ProgressiveImage src={item.previewUrl} low={item.lowUrl} alt="" />
+                    ) : (
+                      <img src={item.previewUrl} alt="" draggable={false} />
+                    )}
                   </button>
 
                   <span
