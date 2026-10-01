@@ -5,6 +5,7 @@ import ProjectCard from '../../components/project-card';
 import {
   CategorySlug,
   isCategorySlug,
+  useCategoriesStatus,
   useCategories,
   useCategoryLabel,
 } from '../../config/categories';
@@ -34,7 +35,13 @@ function Work() {
   const [status, setStatus] = useState<Status>(() => (getCachedProjects() ? 'ready' : 'loading'));
 
   const param = searchParams.get('d');
-  const active: CategorySlug | null = isCategorySlug(param) ? param : null;
+  const categoriesStatus = useCategoriesStatus();
+  const categoriesReady = categoriesStatus === 'ready' || categoriesStatus === 'error';
+  const active: CategorySlug | null = categoriesReady
+    ? isCategorySlug(param)
+      ? param
+      : null
+    : param || null;
 
   const load = useCallback(async () => {
     setStatus((s) => (s === 'ready' ? s : 'loading'));
@@ -127,6 +134,15 @@ function Work() {
               <span className="ink-filter__label">{t('WORK.ALL')}</span>
               <span className="ink-filter__count tabular">{projects.length || ''}</span>
             </button>
+            {!categoriesReady &&
+              [92, 118, 104, 136].map((width, i) => (
+                <span
+                  key={i}
+                  className="ink-filter ink-filter--placeholder"
+                  style={{ width } as React.CSSProperties}
+                  aria-hidden="true"
+                />
+              ))}
             {categories.map((c) => {
               const count = counts.get(c.slug) || 0;
               return (

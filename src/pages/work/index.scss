@@ -148,7 +148,26 @@
       box-shadow: var(--shadow-md);
       transform: translateY(-1px);
 
-      .ink-filter__swatch {
+      .ink-filter--placeholder {
+  pointer-events: none;
+  background: linear-gradient(90deg, #fff 0%, var(--surface-2) 50%, #fff 100%) 0 0 / 200% 100%;
+  animation: placeholder-pulse 1.4s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes placeholder-pulse {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.ink-filter__swatch {
         transform: scale(1.3) rotate(45deg);
       }
     }

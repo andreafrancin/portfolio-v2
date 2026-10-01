@@ -42,36 +42,11 @@ export const fromApi = (c: ApiCategory): Category => ({
   onInk: readableOn(c.color),
 });
 
-const FALLBACK: Category[] = [
-  {
-    slug: 'illustration',
-    name_i18n: { es: 'Ilustración', ca: 'Il·lustració', en: 'Illustration' },
-    order: 0,
-    color: '#3fcfc6',
-  },
-  {
-    slug: 'branding',
-    name_i18n: { es: 'Branding', ca: 'Branding', en: 'Branding' },
-    order: 1,
-    color: '#bc0e4d',
-  },
-  {
-    slug: 'campaigns',
-    name_i18n: { es: 'Campañas', ca: 'Campanyes', en: 'Campaigns' },
-    order: 2,
-    color: '#e98e47',
-  },
-  {
-    slug: 'editorial',
-    name_i18n: { es: 'Editorial y digital', ca: 'Editorial i digital', en: 'Editorial & Digital' },
-    order: 3,
-    color: '#8265a8',
-  },
-].map((c) => fromApi({ id: 0, ...c }));
+export type CategoriesStatus = 'idle' | 'loading' | 'ready' | 'error';
 
-let store: Category[] = FALLBACK;
+let store: Category[] = [];
+let status: CategoriesStatus = 'idle';
 let loading: Promise<void> | null = null;
-let loaded = false;
 const listeners = new Set<() => void>();
 
 const subscribe = (fn: () => void) => {
@@ -79,22 +54,37 @@ const subscribe = (fn: () => void) => {
   return () => listeners.delete(fn);
 };
 
+const notify = () => listeners.forEach((fn) => fn());
+
 export function setCategories(list: Category[]) {
   store = [...list].sort((a, b) => a.order - b.order);
-  loaded = true;
-  listeners.forEach((fn) => fn());
+  status = 'ready';
+  notify();
 }
 
 export function loadCategories(force = false): Promise<void> {
-  if (loaded && !force) return Promise.resolve();
+  if (status === 'ready' && !force) return Promise.resolve();
   if (loading) return loading;
+  if (status !== 'ready') {
+    status = 'loading';
+    notify();
+  }
   loading = get('categories/', false)
     .then((list: ApiCategory[]) => setCategories((list || []).map(fromApi)))
-    .catch(() => {})
+    .catch(() => {
+      if (status !== 'ready') {
+        status = 'error';
+        notify();
+      }
+    })
     .finally(() => {
       loading = null;
     });
   return loading;
+}
+
+export function useCategoriesStatus(): CategoriesStatus {
+  return useSyncExternalStore(subscribe, () => status);
 }
 
 export function useCategories(): Category[] {
