@@ -4,7 +4,7 @@ const path = require('path');
 
 console.log('>>> Creating build...');
 
-const STATIC_FILES = ['robots.txt', '.well-known/tdmrep.json'];
+const STATIC_FILES = ['favicon.ico', 'og-image.png', 'robots.txt', '.well-known/tdmrep.json'];
 
 class CopyStaticFiles {
   apply(compiler) {
@@ -64,7 +64,6 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './public/index.html',
-      favicon: './public/favicon.ico',
     }),
     new CopyStaticFiles(),
   ],

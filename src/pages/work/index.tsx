@@ -13,12 +13,20 @@ import type { Project } from '../../lib/project';
 import useFlip from '../../hooks/useFlip';
 import { IconGrid, IconRows } from '../../components/icons';
 import Vine from '../../components/storybook/vine';
+import useSeo from '../../seo/useSeo';
+import { PAGE_META } from '../../seo/meta';
+import { useLang } from '../../context/lang-context';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error';
 
 function Work() {
   const { t } = useTranslation();
+  const { lang: seoLang } = useLang();
+  useSeo({
+    title: PAGE_META.work.title[seoLang],
+    description: PAGE_META.work.description[seoLang],
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const categories = useCategories();
   const catLabel = useCategoryLabel();

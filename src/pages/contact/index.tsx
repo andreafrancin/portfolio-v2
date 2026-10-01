@@ -5,6 +5,8 @@ import { useLang } from '../../context/lang-context';
 import { useToast } from '../../components/toast';
 import { CONTACT_EMAIL, INSTAGRAM_URL, LINKEDIN_URL } from '../../config/site';
 import { IconArrowUpRight, IconCopy, IconInstagram, IconLinkedin } from '../../components/icons';
+import useSeo from '../../seo/useSeo';
+import { PAGE_META } from '../../seo/meta';
 import './index.scss';
 
 let contactCache: any = null;
@@ -14,6 +16,10 @@ function Contact() {
   const { lang } = useLang();
   const toast = useToast();
   const [record, setRecord] = useState<any>(contactCache);
+  useSeo({
+    title: PAGE_META.contact.title[lang],
+    description: PAGE_META.contact.description[lang],
+  });
 
   const load = useCallback(async () => {
     try {

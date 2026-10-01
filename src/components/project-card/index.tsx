@@ -49,7 +49,7 @@ function ProjectCard({ item }: ProjectCardProps) {
             <ProgressiveImage
               low={cover.image_low_url}
               src={cover.image_url}
-              alt=""
+              alt={title}
               className="plate__img"
             />
           ) : (

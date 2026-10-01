@@ -1,11 +1,14 @@
 import { useLang } from '../../context/lang-context';
 import { LEGAL_UPDATED } from '../../config/site';
 import { LEGAL_COPY } from './content';
+import useSeo from '../../seo/useSeo';
+import { PAGE_META } from '../../seo/meta';
 import './index.scss';
 
 function Legal() {
   const { lang } = useLang();
   const copy = LEGAL_COPY[lang] || LEGAL_COPY.es;
+  useSeo({ title: PAGE_META.legal.title[lang], description: PAGE_META.legal.description[lang] });
   const updated = new Date(`${LEGAL_UPDATED}T12:00:00`).toLocaleDateString(lang, {
     day: 'numeric',
     month: 'long',

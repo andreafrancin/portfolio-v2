@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IconArrowLeft } from '../../components/icons';
 import InkStrip from '../../components/ink-strip';
+import useSeo from '../../seo/useSeo';
+import { SITE_NAME } from '../../seo/meta';
 import './index.scss';
 
 function NotFound() {
   const { t } = useTranslation();
+  useSeo({ title: `404 — ${SITE_NAME}`, description: '', noindex: true });
   return (
     <section className="not-found">
       <InkStrip className="not-found__strip" />

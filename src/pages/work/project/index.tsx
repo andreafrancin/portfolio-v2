@@ -10,6 +10,14 @@ import MarkdownView from '../../../components/markdown-view';
 import Lightbox, { LightboxImage } from '../../../components/lightbox';
 import ProgressiveImage from '../../../components/progressive-image';
 import { IconArrowLeft, IconArrowRight } from '../../../components/icons';
+import useSeo from '../../../seo/useSeo';
+import {
+  artworkJsonLd,
+  pageUrl,
+  plainExcerpt,
+  PROJECT_FALLBACK,
+  SITE_NAME,
+} from '../../../seo/meta';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error' | 'missing';
@@ -103,6 +111,31 @@ function ProjectDetail() {
         ? list.find((p) => p.id === data.suggested_project && p.id !== projectId) || null
         : null,
     [data, list, projectId]
+  );
+
+  const seoTitle = data ? projectTitle(data, lang) : '';
+  const seoDescription =
+    plainExcerpt(data?.content_i18n?.[lang]?.md || data?.content_i18n?.es?.md) ||
+    PROJECT_FALLBACK[lang];
+  const seoImage = coverImage(data)?.image_url || null;
+  useSeo(
+    status === 'ready' && data
+      ? {
+          title: `${seoTitle} — ${SITE_NAME}`,
+          description: seoDescription,
+          image: seoImage,
+          type: 'article',
+          jsonLd: artworkJsonLd({
+            title: seoTitle,
+            description: seoDescription,
+            url: pageUrl(`/work/${projectId}`, lang),
+            image: seoImage,
+            lang,
+          }),
+        }
+      : status === 'missing'
+        ? { title: `404 — ${SITE_NAME}`, description: PROJECT_FALLBACK[lang], noindex: true }
+        : null
   );
 
   if (status === 'loading') {

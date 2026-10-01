@@ -16,6 +16,9 @@ import PrivateArea from './pages/private';
 import AddProject from './pages/private/edit-container/projects/add-project';
 import EditProject from './pages/private/edit-container/projects/edit-project';
 import DocumentEditor from './pages/private/billing/editor';
+import { syncUrl, useLang } from './context/lang-context';
+import useSeo from './seo/useSeo';
+import { SITE_NAME } from './seo/meta';
 import './styles/main.scss';
 
 const isPrivatePath = (path: string) => path.startsWith('/private') || path === '/login';
@@ -29,6 +32,12 @@ function Main() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   }, [location.pathname]);
+
+  const { lang } = useLang();
+  useSeo(isPrivate ? { title: SITE_NAME, description: '', noindex: true } : null);
+  useEffect(() => {
+    if (!isPrivate) syncUrl(lang);
+  }, [location.pathname, lang, isPrivate]);
 
   return (
     <div className="app">

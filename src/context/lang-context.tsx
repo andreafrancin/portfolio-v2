@@ -12,16 +12,27 @@ const LangContext = createContext<LangContextValue | undefined>(undefined);
 const LANG_STORAGE_KEY = 'app.lang';
 const FALLBACK_LANG: Lang = 'es';
 
+const isLang = (value: unknown): value is Lang =>
+  value === 'es' || value === 'en' || value === 'ca';
+
 function getInitialLang(): Lang {
-  const stored = typeof window !== 'undefined' ? localStorage.getItem(LANG_STORAGE_KEY) : null;
-  if (stored === 'es' || stored === 'en' || stored === 'ca') return stored;
-
-  const nav =
-    typeof navigator !== 'undefined' ? navigator.language || navigator.languages?.[0] || '' : '';
-  const prefix = nav.slice(0, 2).toLowerCase();
-  if (prefix === 'es' || prefix === 'en' || prefix === 'ca') return prefix as Lang;
-
+  if (typeof window === 'undefined') return FALLBACK_LANG;
+  const fromUrl = new URLSearchParams(window.location.search).get('lang');
+  if (isLang(fromUrl)) return fromUrl;
+  try {
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
+    if (isLang(stored)) return stored;
+  } catch {}
   return FALLBACK_LANG;
+}
+
+export function syncUrl(lang: Lang) {
+  const url = new URL(window.location.href);
+  if (lang === FALLBACK_LANG) url.searchParams.delete('lang');
+  else url.searchParams.set('lang', lang);
+  if (url.href !== window.location.href) {
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+  }
 }
 
 export const LangProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -29,6 +40,7 @@ export const LangProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   const setLang = (value: Lang) => {
     setLangState(value);
+    syncUrl(value);
     try {
       localStorage.setItem(LANG_STORAGE_KEY, value);
     } catch {}

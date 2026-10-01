@@ -4,6 +4,8 @@ import { fetchAboutFromAPI } from '../../services/about/api-request';
 import { useLang } from '../../context/lang-context';
 import MarkdownView from '../../components/markdown-view';
 import ProgressiveImage from '../../components/progressive-image';
+import useSeo from '../../seo/useSeo';
+import { PAGE_META } from '../../seo/meta';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error';
@@ -81,6 +83,11 @@ function About() {
   const { lang } = useLang();
   const [record, setRecord] = useState<any>(aboutCache);
   const [status, setStatus] = useState<Status>(aboutCache ? 'ready' : 'loading');
+  useSeo({
+    title: PAGE_META.about.title[lang],
+    description: PAGE_META.about.description[lang],
+    type: 'profile',
+  });
 
   const load = useCallback(async () => {
     try {

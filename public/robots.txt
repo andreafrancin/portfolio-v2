@@ -40,3 +40,5 @@ User-agent: img2dataset
 User-agent: DeepSeekBot
 User-agent: PanguBot
 Disallow: /
+
+Sitemap: https://andreafrancin.com/sitemap.xml
