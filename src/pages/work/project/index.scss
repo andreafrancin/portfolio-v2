@@ -251,6 +251,10 @@
     object-fit: contain;
   }
 
+  &.prose img {
+    box-shadow: var(--shadow-card);
+  }
+
   .wmde-markdown > p:has(img) {
     justify-items: center;
   }

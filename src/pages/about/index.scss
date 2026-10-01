@@ -67,7 +67,7 @@
   overflow: hidden;
   background: var(--surface-2);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-card-hover);
   animation: portrait-in 1400ms var(--ease-out) both;
 
   &::after {
@@ -115,7 +115,9 @@
 
   .is-pinned & {
     height: min(calc(100vh - var(--header-h) - 120px), 760px);
-    overflow: clip;
+    overflow-y: clip;
+    padding-inline: 24px;
+    margin-inline: -24px;
     --fade-top: 0px;
     --fade-bottom: 0px;
     mask-image: linear-gradient(
@@ -188,7 +190,7 @@
     text-align: center;
     color: #141516;
     margin: 0 0 16px;
-    padding-bottom: 0.3em;
+    padding: 0.4em 0 0.3em;
     border-bottom: 1px solid #d8dee4;
   }
 
@@ -224,6 +226,7 @@
     object-fit: cover;
     border-radius: 10px;
     aspect-ratio: auto;
+    box-shadow: var(--shadow-card);
   }
 }
 

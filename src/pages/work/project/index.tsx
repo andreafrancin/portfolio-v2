@@ -170,7 +170,7 @@ function ProjectDetail() {
           )}
           {cats.length > 0 && (
             <div className="colophon__cell colophon__cell--wide">
-              <dt>{t('PROJECT.DISCIPLINE')}</dt>
+              <dt>{t('PROJECT.CATEGORY')}</dt>
               <dd className="colophon__inks">
                 {cats.map((c) => (
                   <Link

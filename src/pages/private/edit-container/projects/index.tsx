@@ -20,6 +20,7 @@ import {
   IconClose,
 } from '../../../../components/icons';
 import Spinner from '../../../../components/spinner';
+import ProgressiveImage from '../../../../components/progressive-image';
 import { projectCategories, useCategories, useCategoryLabel } from '../../../../config/categories';
 import { coverImage, padNumber, Project, projectTitle } from '../../../../lib/project';
 import { invalidateProjects } from '../../../../lib/projects-cache';
@@ -311,7 +312,7 @@ const EditProjectsContainer = () => {
 
                 <div className="project-row__thumb">
                   {cover && (
-                    <img src={cover.image_low_url || cover.image_url} alt="" loading="lazy" />
+                    <ProgressiveImage src={cover.image_url} low={cover.image_low_url} alt="" />
                   )}
                 </div>
 
