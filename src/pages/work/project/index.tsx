@@ -5,7 +5,12 @@ import { useLang } from '../../../context/lang-context';
 import { fetchProjectFromNewAPI } from '../../../services/work/api-request';
 import { getCachedProjects, loadPublicProjects } from '../../../lib/projects-cache';
 import { coverImage, padNumber, Project, projectTitle } from '../../../lib/project';
-import { projectCategories, useCategories, useCategoryLabel } from '../../../config/categories';
+import {
+  projectCategories,
+  useCategories,
+  useCategoriesStatus,
+  useCategoryLabel,
+} from '../../../config/categories';
 import MarkdownView from '../../../components/markdown-view';
 import Lightbox, { LightboxImage } from '../../../components/lightbox';
 import ProgressiveImage from '../../../components/progressive-image';
@@ -54,6 +59,7 @@ function ProjectDetail() {
   const { t } = useTranslation();
   const { lang } = useLang();
   useCategories();
+  const categoriesStatus = useCategoriesStatus();
   const catLabel = useCategoryLabel();
   const { id } = useParams();
   const projectId = Number(id);
@@ -176,6 +182,10 @@ function ProjectDetail() {
 
   const title = projectTitle(data, lang);
   const cats = projectCategories(data);
+  const pendingCats =
+    categoriesStatus === 'idle' || categoriesStatus === 'loading'
+      ? (Array.isArray(data?.categories) ? data.categories : []).length
+      : 0;
   const md = data?.content_i18n?.[lang]?.md || data?.content_i18n?.es?.md || '';
   const suggestedCover = coverImage(suggested);
 
@@ -201,10 +211,17 @@ function ProjectDetail() {
               </dd>
             </div>
           )}
-          {cats.length > 0 && (
+          {(cats.length > 0 || pendingCats > 0) && (
             <div className="colophon__cell colophon__cell--wide">
               <dt>{t('PROJECT.CATEGORY')}</dt>
               <dd className="colophon__inks">
+                {Array.from({ length: pendingCats }).map((_, i) => (
+                  <span
+                    key={`placeholder-${i}`}
+                    className="ink-chip ink-chip--placeholder"
+                    aria-hidden="true"
+                  />
+                ))}
                 {cats.map((c) => (
                   <Link
                     key={c.slug}

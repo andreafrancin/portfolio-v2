@@ -91,6 +91,30 @@
   }
 }
 
+.ink-chip--placeholder {
+  width: 96px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--surface-2) 0%, #fff 50%, var(--surface-2) 100%) 0 0 / 200% 100%;
+  animation: chip-pulse 1.4s ease-in-out infinite;
+
+  & + & {
+    width: 124px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes chip-pulse {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
 .colophon__inks {
   display: flex;
   flex-wrap: wrap;
