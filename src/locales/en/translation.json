@@ -41,7 +41,10 @@
     "IMAGES": "Images",
     "NOT_FOUND": "This project doesn't exist or is no longer published.",
     "ERROR": "This project couldn't be loaded. Check your connection and try again.",
-    "SUGGESTED": "You might also like"
+    "SUGGESTED": "You might also like",
+    "SHARE": "Share",
+    "LINK_COPIED": "Link copied",
+    "SHARE_FAILED": "Couldn’t share"
   },
   "ABOUT": {
     "PORTRAIT": "Portrait of Andrea Francín",

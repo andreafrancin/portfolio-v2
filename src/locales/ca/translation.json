@@ -41,7 +41,10 @@
     "IMAGES": "Imatges",
     "NOT_FOUND": "Aquest projecte no existeix o ja no està publicat.",
     "ERROR": "No s'ha pogut carregar el projecte. Revisa la connexió i torna-ho a provar.",
-    "SUGGESTED": "També et pot agradar"
+    "SUGGESTED": "També et pot agradar",
+    "SHARE": "Comparteix",
+    "LINK_COPIED": "Enllaç copiat",
+    "SHARE_FAILED": "No s’ha pogut compartir"
   },
   "ABOUT": {
     "PORTRAIT": "Retrat de l'Andrea Francín",

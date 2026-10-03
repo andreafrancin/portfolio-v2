@@ -34,6 +34,12 @@ export const IconArrowLeft = (p: IconProps) => (
   </Svg>
 );
 
+export const IconShare = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3v12M8 7l4-4 4 4M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1" />
+  </Svg>
+);
+
 export const IconArrowUpRight = (p: IconProps) => (
   <Svg {...p} className={`arrow-forward ${p.className || ''}`}>
     <path d="M7 17 17 7M8 7h9v9" />

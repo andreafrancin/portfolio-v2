@@ -14,7 +14,7 @@ import {
 import MarkdownView from '../../../components/markdown-view';
 import Lightbox, { LightboxImage } from '../../../components/lightbox';
 import ProgressiveImage from '../../../components/progressive-image';
-import { IconArrowLeft, IconArrowRight } from '../../../components/icons';
+import { IconArrowLeft, IconArrowRight, IconShare } from '../../../components/icons';
 import useSeo from '../../../seo/useSeo';
 import {
   artworkJsonLd,
@@ -23,6 +23,7 @@ import {
   PROJECT_FALLBACK,
   SITE_NAME,
 } from '../../../seo/meta';
+import { useToast } from '../../../components/toast';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error' | 'missing';
@@ -58,6 +59,7 @@ function ReadingProgress() {
 function ProjectDetail() {
   const { t } = useTranslation();
   const { lang } = useLang();
+  const toast = useToast();
   useCategories();
   const categoriesStatus = useCategoriesStatus();
   const catLabel = useCategoryLabel();
@@ -181,6 +183,22 @@ function ProjectDetail() {
   }
 
   const title = projectTitle(data, lang);
+
+  const shareProject = async () => {
+    const url = pageUrl(`/work/${projectId}`, lang);
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${title} — ${SITE_NAME}`, url });
+      } catch {}
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t('PROJECT.LINK_COPIED'));
+    } catch {
+      toast.error(t('PROJECT.SHARE_FAILED'));
+    }
+  };
   const cats = projectCategories(data);
   const pendingCats =
     categoriesStatus === 'idle' || categoriesStatus === 'loading'
@@ -198,6 +216,15 @@ function ProjectDetail() {
           <Link to="/work" className="text-link">
             <IconArrowLeft size={18} /> {t('PROJECT.BACK')}
           </Link>
+          <button
+            type="button"
+            className="project__share"
+            onClick={shareProject}
+            aria-label={t('PROJECT.SHARE')}
+            title={t('PROJECT.SHARE')}
+          >
+            <IconShare size={20} />
+          </button>
         </nav>
 
         <h1 className="project__title">{title}</h1>

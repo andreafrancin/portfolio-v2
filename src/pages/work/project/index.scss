@@ -24,6 +24,28 @@
   text-align: center;
 }
 
+.project__share {
+  @include reset-button;
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border-radius: 50%;
+  color: var(--text-2);
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: $bp-md) {
+    display: grid;
+  }
+}
+
 .project__nav {
   display: flex;
   align-items: center;

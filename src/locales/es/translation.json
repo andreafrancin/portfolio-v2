@@ -41,7 +41,10 @@
     "IMAGES": "Imágenes",
     "NOT_FOUND": "Este proyecto no existe o ya no está publicado.",
     "ERROR": "No se ha podido cargar el proyecto. Revisa tu conexión y vuelve a intentarlo.",
-    "SUGGESTED": "También te puede gustar"
+    "SUGGESTED": "También te puede gustar",
+    "SHARE": "Compartir",
+    "LINK_COPIED": "Enlace copiado",
+    "SHARE_FAILED": "No se ha podido compartir"
   },
   "ABOUT": {
     "PORTRAIT": "Retrato de Andrea Francín",
