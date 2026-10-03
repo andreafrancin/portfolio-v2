@@ -1,4 +1,5 @@
 import { MEDIA_HOST } from '../config/site';
+import logoUrl from '../assets/images/logo/logo-document.png';
 
 export type CardFormat = 'story' | 'post';
 
@@ -104,10 +105,13 @@ export interface CardInput {
 export async function renderShareCard(format: CardFormat, input: CardInput): Promise<Blob> {
   const { width, height } = SIZES[format];
   const story = format === 'story';
+  const titleSize = story ? 54 : 44;
+  const metaSize = story ? 28 : 24;
+  const siteSize = story ? 36 : 30;
   await Promise.all([
-    document.fonts.load(`${story ? 92 : 78}px Gloss`),
-    document.fonts.load('500 36px Inter'),
-    document.fonts.load('600 30px Inter'),
+    document.fonts.load(`600 ${titleSize}px Inter`),
+    document.fonts.load(`600 ${metaSize}px Inter`),
+    document.fonts.load(`500 ${siteSize}px Inter`),
   ]).catch(() => {});
 
   const canvas = document.createElement('canvas');
@@ -115,25 +119,19 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
   canvas.height = height;
   const ctx = canvas.getContext('2d')!;
   paintBackground(ctx, width, height);
-
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
 
-  let img: HTMLImageElement | null = null;
-  if (input.imageUrl) {
-    try {
-      img = await loadImage(sameOriginImage(input.imageUrl));
-    } catch {
-      img = null;
-    }
-  }
+  const [logo, img] = await Promise.all([
+    loadImage(logoUrl).catch(() => null),
+    input.imageUrl ? loadImage(sameOriginImage(input.imageUrl)).catch(() => null) : null,
+  ]);
 
-  const brandSize = story ? 64 : 52;
-  const titleSize = story ? 92 : 78;
-  const titleLine = titleSize * 1.18;
-  const metaSize = story ? 30 : 26;
-  const siteSize = story ? 38 : 32;
-  const maxImage = story ? { w: 900, h: 980 } : { w: 860, h: 720 };
+  const logoWidth = story ? 470 : 340;
+  const logoSize = logo
+    ? { w: logoWidth, h: Math.round((logo.height / logo.width) * logoWidth) }
+    : null;
+  const maxImage = story ? { w: 900, h: 860 } : { w: 820, h: 640 };
   const imageSize = img
     ? (() => {
         const scale = Math.min(maxImage.w / img.width, maxImage.h / img.height);
@@ -141,30 +139,50 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
       })()
     : null;
 
-  ctx.font = `${titleSize}px Gloss, cursive`;
-  const lines = wrapLines(ctx, input.title, width - 160, 2);
+  ctx.font = `600 ${titleSize}px Inter, sans-serif`;
+  const titleLine = Math.round(titleSize * 1.25);
+  const lines = wrapLines(ctx, input.title, width - 180, 2);
 
-  const gaps = story
-    ? { brand: 70, title: 140, meta: 96, site: 104 }
-    : { brand: 50, title: 115, meta: 80, site: 84 };
+  const gap = story
+    ? { meta: 44, image: 64, title: 96, site: 84 }
+    : { meta: 30, image: 44, title: 74, site: 64 };
+  const hasMeta = input.categories.length > 0;
   const total =
-    brandSize +
-    gaps.brand +
-    (imageSize ? imageSize.h : 0) +
-    gaps.title +
+    (logoSize ? logoSize.h : 0) +
+    (hasMeta ? gap.meta + metaSize : 0) +
+    (imageSize ? gap.image + imageSize.h : 0) +
+    gap.title +
     titleLine * (lines.length - 1) +
-    (input.categories.length ? gaps.meta : 0) +
-    gaps.site;
-  const safeTop = story ? 260 : 60;
-  const safeBottom = story ? height - 260 : height - 50;
-  let y = safeTop + Math.max(0, (safeBottom - safeTop - total) / 2) + brandSize;
+    gap.site;
+  const safeTop = story ? 250 : 50;
+  const safeBottom = story ? height - 250 : height - 50;
+  let y = safeTop + Math.max(0, (safeBottom - safeTop - total) / 2);
 
-  ctx.fillStyle = INK;
-  ctx.font = `${brandSize}px Gloss, cursive`;
-  ctx.fillText('Andrea Francín', width / 2, y);
-  y += gaps.brand;
+  if (logo && logoSize) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(
+      logo,
+      Math.round((width - logoSize.w) / 2),
+      Math.round(y),
+      logoSize.w,
+      logoSize.h
+    );
+    ctx.restore();
+    y += logoSize.h;
+  }
+
+  if (hasMeta) {
+    y += gap.meta + metaSize * 0.75;
+    ctx.fillStyle = MUTED;
+    ctx.font = `600 ${metaSize}px Inter, sans-serif`;
+    const label = input.categories.join('  ·  ').toUpperCase();
+    ctx.fillText(label.split('').join('\u200A'), width / 2, y);
+    y += metaSize * 0.25;
+  }
 
   if (img && imageSize) {
+    y += gap.image;
     const x = Math.round((width - imageSize.w) / 2);
     const top = Math.round(y);
     ctx.save();
@@ -183,21 +201,13 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
     y += imageSize.h;
   }
 
-  y += gaps.title;
+  y += gap.title;
   ctx.fillStyle = INK;
-  ctx.font = `${titleSize}px Gloss, cursive`;
+  ctx.font = `600 ${titleSize}px Inter, sans-serif`;
   lines.forEach((line, i) => ctx.fillText(line, width / 2, y + i * titleLine));
   y += titleLine * (lines.length - 1);
 
-  if (input.categories.length) {
-    y += gaps.meta;
-    ctx.fillStyle = MUTED;
-    ctx.font = `600 ${metaSize}px Inter, sans-serif`;
-    const label = input.categories.join('  ·  ').toUpperCase();
-    ctx.fillText(label.split('').join('\u200A'), width / 2, y);
-  }
-
-  y += gaps.site;
+  y += gap.site;
   ctx.fillStyle = ACCENT;
   ctx.font = `500 ${siteSize}px Inter, sans-serif`;
   ctx.fillText(input.site, width / 2, y);
