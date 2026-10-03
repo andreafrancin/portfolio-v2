@@ -26,7 +26,7 @@
 
 .project__share {
   @include reset-button;
-  display: none;
+  display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
@@ -41,8 +41,11 @@
     transform: scale(0.97);
   }
 
-  @media (max-width: $bp-md) {
-    display: grid;
+  @media (hover: hover) {
+    &:hover {
+      color: var(--accent);
+      background: var(--surface-2);
+    }
   }
 }
 
@@ -434,6 +437,16 @@
 
   &[open] .share-sheet__panel {
     animation: sheet-up 380ms var(--ease-out) both;
+  }
+
+  @media (min-width: #{$bp-md + 1}) {
+    margin: auto;
+
+    .share-sheet__panel {
+      padding: 22px;
+      border-radius: 26px;
+      box-shadow: var(--shadow-card-hover);
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DOC_LANGUAGES, DocLanguage } from '../../../lib/billing';
 import { IconChevronDown, IconDownload } from '../../../components/icons';
 import Spinner from '../../../components/spinner';
+import { langLabel } from '../../../config/site';
 
 interface Props {
   current: DocLanguage;
@@ -75,7 +76,7 @@ function DownloadMenu({ current, onDownload, disabled, busy, compact, label }: P
                 onDownload(lang);
               }}
             >
-              <span className="download-menu__code">{lang.toUpperCase()}</span>
+              <span className="download-menu__code">{langLabel(lang)}</span>
               {t(`BILLING.LANG_${lang}`)}
               {lang === current && <span className="download-menu__dot" aria-hidden="true" />}
             </button>
