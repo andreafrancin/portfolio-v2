@@ -17,7 +17,6 @@ import { useToast } from '../../../../components/toast';
 import { useLoading } from '../../../../context/loading-context';
 import { fileToBase64 } from '../../../../lib/project';
 import useUnsavedWarning from '../../../../hooks/useUnsavedWarning';
-import { langLabel } from '../../../../config/site';
 
 const serialize = (a: Record<string, string>, b: Record<string, string>) => JSON.stringify([a, b]);
 
@@ -242,7 +241,7 @@ function EditAboutContainer() {
           />
         </Panel>
 
-        <Panel title={`${t('PRIVATE.CONTENT')} · ${langLabel(selectedLanguage)}`}>
+        <Panel title={`${t('PRIVATE.CONTENT')} · ${selectedLanguage.toUpperCase()}`}>
           <MarkdownEditor
             value={contentByLang[selectedLanguage] || ''}
             onChange={(value) => setContentByLang((p) => ({ ...p, [selectedLanguage]: value }))}

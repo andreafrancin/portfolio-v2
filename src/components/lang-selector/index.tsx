@@ -3,7 +3,7 @@ import './index.scss';
 
 const LANGUAGES = [
   { code: 'es', label: 'ES', name: 'Español' },
-  { code: 'ca', label: 'CAT', name: 'Català' },
+  { code: 'ca', label: 'CA', name: 'Català' },
   { code: 'en', label: 'EN', name: 'English' },
 ] as const;
 

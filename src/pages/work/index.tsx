@@ -17,6 +17,7 @@ import Vine from '../../components/storybook/vine';
 import useSeo from '../../seo/useSeo';
 import { PAGE_META } from '../../seo/meta';
 import { useLang } from '../../context/lang-context';
+import nameLettering from '../../assets/images/logo/name-lettering.webp';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error';
@@ -113,7 +114,7 @@ function Work() {
       <section className="work-hero" aria-labelledby="work-title">
         <div className="work-hero__inner">
           <h1 id="work-title" className="work-hero__name">
-            Andrea Francín
+            <img src={nameLettering} alt="Andrea Francín" width={1400} height={223} />
           </h1>
           <p className="work-hero__role">{t('WORK.ROLE')}</p>
           <Vine className="work-hero__vine" />

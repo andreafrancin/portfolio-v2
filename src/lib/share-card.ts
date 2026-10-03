@@ -131,7 +131,7 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
   const logoSize = logo
     ? { w: logoWidth, h: Math.round((logo.height / logo.width) * logoWidth) }
     : null;
-  const maxImage = story ? { w: 900, h: 860 } : { w: 820, h: 640 };
+  const maxImage = story ? { w: 900, h: 860 } : { w: 900, h: 720 };
   const imageSize = img
     ? (() => {
         const scale = Math.min(maxImage.w / img.width, maxImage.h / img.height);
@@ -144,15 +144,15 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
   const lines = wrapLines(ctx, input.title, width - 180, 2);
 
   const gap = story
-    ? { meta: 44, image: 64, title: 96, site: 84 }
-    : { meta: 30, image: 44, title: 74, site: 64 };
+    ? { image: 60, title: 96, meta: 52, site: 72 }
+    : { image: 34, title: 70, meta: 40, site: 54 };
   const hasMeta = input.categories.length > 0;
   const total =
     (logoSize ? logoSize.h : 0) +
-    (hasMeta ? gap.meta + metaSize : 0) +
     (imageSize ? gap.image + imageSize.h : 0) +
     gap.title +
     titleLine * (lines.length - 1) +
+    (hasMeta ? gap.meta : 0) +
     gap.site;
   const safeTop = story ? 250 : 50;
   const safeBottom = story ? height - 250 : height - 50;
@@ -170,15 +170,6 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
     );
     ctx.restore();
     y += logoSize.h;
-  }
-
-  if (hasMeta) {
-    y += gap.meta + metaSize * 0.75;
-    ctx.fillStyle = MUTED;
-    ctx.font = `600 ${metaSize}px Inter, sans-serif`;
-    const label = input.categories.join('  ·  ').toUpperCase();
-    ctx.fillText(label.split('').join('\u200A'), width / 2, y);
-    y += metaSize * 0.25;
   }
 
   if (img && imageSize) {
@@ -206,6 +197,14 @@ export async function renderShareCard(format: CardFormat, input: CardInput): Pro
   ctx.font = `600 ${titleSize}px Inter, sans-serif`;
   lines.forEach((line, i) => ctx.fillText(line, width / 2, y + i * titleLine));
   y += titleLine * (lines.length - 1);
+
+  if (hasMeta) {
+    y += gap.meta;
+    ctx.fillStyle = MUTED;
+    ctx.font = `600 ${metaSize}px Inter, sans-serif`;
+    const label = input.categories.join('  ·  ').toUpperCase();
+    ctx.fillText(label.split('').join('\u200A'), width / 2, y);
+  }
 
   y += gap.site;
   ctx.fillStyle = ACCENT;

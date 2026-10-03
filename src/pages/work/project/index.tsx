@@ -248,10 +248,6 @@ function ProjectDetail() {
               </dd>
             </div>
           )}
-          <div className="colophon__cell">
-            <dt>{t('PROJECT.IMAGES')}</dt>
-            <dd className="tabular">{padNumber(data?.images?.length || 0)}</dd>
-          </div>
         </dl>
       </header>
 

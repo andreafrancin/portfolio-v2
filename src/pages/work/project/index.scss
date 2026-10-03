@@ -140,6 +140,46 @@
   }
 }
 
+@media (max-width: $bp-md) {
+  .colophon__cell--wide {
+    flex-basis: 100%;
+    justify-content: center;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+
+    dt {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .colophon__inks {
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .ink-chip {
+      height: 38px;
+      padding: 0 14px 0 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ink-chip--placeholder {
+      width: 104px;
+      background: linear-gradient(90deg, #fff 0%, var(--surface-2) 50%, #fff 100%) 0 0 / 200% 100%;
+    }
+  }
+}
+
 .colophon__inks {
   display: flex;
   flex-wrap: wrap;

@@ -8,7 +8,6 @@ import ImageManager, {
 import LangSelector from '../../../../../components/lang-selector';
 import { CategoryPicker, Panel, SaveBar, VisibilitySwitch } from '../../../../../components/studio';
 import type { CategorySlug } from '../../../../../config/categories';
-import { langLabel } from '../../../../../config/site';
 
 interface FormProjectProps {
   onFormSubmit: () => void;
@@ -109,7 +108,7 @@ function FormProject({
         </Panel>
 
         {isEditProject && (
-          <Panel title={`${t('PRIVATE.CONTENT')} · ${langLabel(selectedLanguage)}`}>
+          <Panel title={`${t('PRIVATE.CONTENT')} · ${selectedLanguage.toUpperCase()}`}>
             <MarkdownEditor
               value={markdownValue}
               onChange={onMarkdownChange || (() => {})}
