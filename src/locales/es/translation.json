@@ -44,7 +44,16 @@
     "SUGGESTED": "También te puede gustar",
     "SHARE": "Compartir",
     "LINK_COPIED": "Enlace copiado",
-    "SHARE_FAILED": "No se ha podido compartir"
+    "SHARE_FAILED": "No se ha podido compartir",
+    "SHARE_TITLE": "Compartir proyecto",
+    "SHARE_STORY": "Historia",
+    "SHARE_STORY_HINT": "Instagram, TikTok, WhatsApp",
+    "SHARE_POST": "Publicación",
+    "SHARE_POST_HINT": "Feed, mensajes, correo",
+    "SHARE_LINK": "Solo el enlace",
+    "SHARE_LINK_HINT": "Instagram Direct, WhatsApp, Gmail…",
+    "SHARE_COPY": "Copiar enlace",
+    "SHARE_DOWNLOADED": "Imagen descargada"
   },
   "ABOUT": {
     "PORTRAIT": "Retrato de Andrea Francín",

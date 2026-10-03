@@ -13,6 +13,15 @@ const devConfig = {
   devServer: {
     historyApiFallback: true,
     port: 8081,
+    proxy: [
+      {
+        context: ['/media'],
+        target: 'https://andreafrancin-images-bucket-2025.s3.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+        pathRewrite: { '^/media': '' },
+      },
+    ],
     hot: true,
     open: {
       app: {

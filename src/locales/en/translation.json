@@ -44,7 +44,16 @@
     "SUGGESTED": "You might also like",
     "SHARE": "Share",
     "LINK_COPIED": "Link copied",
-    "SHARE_FAILED": "Couldn’t share"
+    "SHARE_FAILED": "Couldn’t share",
+    "SHARE_TITLE": "Share project",
+    "SHARE_STORY": "Story",
+    "SHARE_STORY_HINT": "Instagram, TikTok, WhatsApp",
+    "SHARE_POST": "Post",
+    "SHARE_POST_HINT": "Feed, messages, email",
+    "SHARE_LINK": "Just the link",
+    "SHARE_LINK_HINT": "Instagram Direct, WhatsApp, Gmail…",
+    "SHARE_COPY": "Copy link",
+    "SHARE_DOWNLOADED": "Image downloaded"
   },
   "ABOUT": {
     "PORTRAIT": "Portrait of Andrea Francín",

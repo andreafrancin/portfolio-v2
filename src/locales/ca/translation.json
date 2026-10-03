@@ -44,7 +44,16 @@
     "SUGGESTED": "També et pot agradar",
     "SHARE": "Comparteix",
     "LINK_COPIED": "Enllaç copiat",
-    "SHARE_FAILED": "No s’ha pogut compartir"
+    "SHARE_FAILED": "No s’ha pogut compartir",
+    "SHARE_TITLE": "Comparteix el projecte",
+    "SHARE_STORY": "Història",
+    "SHARE_STORY_HINT": "Instagram, TikTok, WhatsApp",
+    "SHARE_POST": "Publicació",
+    "SHARE_POST_HINT": "Feed, missatges, correu",
+    "SHARE_LINK": "Només l’enllaç",
+    "SHARE_LINK_HINT": "Instagram Direct, WhatsApp, Gmail…",
+    "SHARE_COPY": "Copia l’enllaç",
+    "SHARE_DOWNLOADED": "Imatge descarregada"
   },
   "ABOUT": {
     "PORTRAIT": "Retrat de l'Andrea Francín",

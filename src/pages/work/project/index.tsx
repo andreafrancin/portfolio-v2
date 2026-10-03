@@ -23,7 +23,7 @@ import {
   PROJECT_FALLBACK,
   SITE_NAME,
 } from '../../../seo/meta';
-import { useToast } from '../../../components/toast';
+import ShareSheet from './share-sheet';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error' | 'missing';
@@ -59,7 +59,6 @@ function ReadingProgress() {
 function ProjectDetail() {
   const { t } = useTranslation();
   const { lang } = useLang();
-  const toast = useToast();
   useCategories();
   const categoriesStatus = useCategoriesStatus();
   const catLabel = useCategoryLabel();
@@ -67,6 +66,7 @@ function ProjectDetail() {
   const projectId = Number(id);
 
   const [data, setData] = useState<Project | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
   const [status, setStatus] = useState<Status>('loading');
   const [list, setList] = useState<Project[]>(() => getCachedProjects() || []);
   const [viewer, setViewer] = useState<{
@@ -184,21 +184,6 @@ function ProjectDetail() {
 
   const title = projectTitle(data, lang);
 
-  const shareProject = async () => {
-    const url = pageUrl(`/work/${projectId}`, lang);
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `${title} — ${SITE_NAME}`, url });
-      } catch {}
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(t('PROJECT.LINK_COPIED'));
-    } catch {
-      toast.error(t('PROJECT.SHARE_FAILED'));
-    }
-  };
   const cats = projectCategories(data);
   const pendingCats =
     categoriesStatus === 'idle' || categoriesStatus === 'loading'
@@ -219,7 +204,7 @@ function ProjectDetail() {
           <button
             type="button"
             className="project__share"
-            onClick={shareProject}
+            onClick={() => setShareOpen(true)}
             aria-label={t('PROJECT.SHARE')}
             title={t('PROJECT.SHARE')}
           >
@@ -292,6 +277,26 @@ function ProjectDetail() {
           </Link>
         </aside>
       )}
+      <ShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title={`${title} — ${SITE_NAME}`}
+        url={pageUrl(`/work/${projectId}`, lang)}
+        fileName={
+          title
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '') || 'andrea-francin'
+        }
+        card={{
+          title,
+          categories: cats.map((c) => catLabel(c)),
+          imageUrl: coverImage(data)?.image_url || null,
+          site: 'andreafrancin.com',
+        }}
+      />
       {viewer && (
         <Lightbox
           images={viewer.images}
