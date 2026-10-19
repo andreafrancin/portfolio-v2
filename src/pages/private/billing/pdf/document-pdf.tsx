@@ -120,6 +120,14 @@ type Labels = (typeof LABELS)[DocLanguage];
 const LabelsContext = createContext<Labels>(LABELS.ca);
 const useLabels = () => useContext(LabelsContext);
 
+// Compact mode tightens vertical gaps so a document that overflows by a few
+// points still fits on one page. It never widens a gap.
+const CompactContext = createContext(false);
+const useGap = () => {
+  const compact = useContext(CompactContext);
+  return (normal: number, tight: number) => (compact ? Math.min(normal, tight) : normal);
+};
+
 function SmallCaps({
   children,
   size,
@@ -572,6 +580,7 @@ function ClientRow({ doc, invoice }: { doc: BillingDocument; invoice: boolean })
 
 function ConceptBody({ doc }: { doc: BillingDocument }) {
   const { lead, concept, sections } = doc.content;
+  const gap = useGap();
   return (
     <View>
       {!isBlank(lead) ? (
@@ -605,7 +614,7 @@ function ConceptBody({ doc }: { doc: BillingDocument }) {
         return (
           <View
             key={s.id}
-            style={{ marginTop: i === 0 ? 266.4 - 239.6 - 12 : 333.0 - 305.2 - 11 }}
+            style={{ marginTop: i === 0 ? 266.4 - 239.6 - 12 : gap(333.0 - 305.2 - 11, 10) }}
             wrap={false}
           >
             <View style={{ flexDirection: 'row', marginLeft: COL - LEFT }}>
@@ -639,6 +648,7 @@ function ConceptBody({ doc }: { doc: BillingDocument }) {
 
 function NumberedBody({ doc }: { doc: BillingDocument }) {
   const { lead, concept, sections } = doc.content;
+  const gap = useGap();
   return (
     <View>
       <View
@@ -670,7 +680,7 @@ function NumberedBody({ doc }: { doc: BillingDocument }) {
         return (
           <View
             key={s.id}
-            style={{ marginTop: i === 0 ? 248.8 - 219.1 - 12 : 399.5 - 369.6 - 13.6 }}
+            style={{ marginTop: i === 0 ? 248.8 - 219.1 - 12 : gap(399.5 - 369.6 - 13.6, 10) }}
             wrap={false}
           >
             <View style={{ flexDirection: 'row', marginLeft: 133.23 - LEFT }}>
@@ -724,13 +734,14 @@ function NumberedBody({ doc }: { doc: BillingDocument }) {
 }
 
 function InvoiceBody({ doc }: { doc: BillingDocument }) {
+  const gap = useGap();
   return (
     <View>
       {doc.content.sections.map((s, i) => {
         const price = sectionPrice(s);
         const qty = sectionQuantity(s);
         return (
-          <View key={s.id} style={{ marginTop: i === 0 ? 0 : 24 }} wrap={false}>
+          <View key={s.id} style={{ marginTop: i === 0 ? 0 : gap(24, 14) }} wrap={false}>
             <View style={{ flexDirection: 'row' }}>
               <Text style={{ width: COL - LEFT, fontSize: 10, fontWeight: 700 }}>{qty}</Text>
               <View style={{ flex: 1, paddingRight: 16 }}>
@@ -791,17 +802,25 @@ export function BillingPdf({
   issuer,
   logo,
   lang,
+  compact = false,
+  onPageCount,
 }: {
   doc: BillingDocument;
   issuer: Issuer;
   logo: string;
   lang?: DocLanguage;
+  compact?: boolean;
+  onPageCount?: (pages: number) => void;
 }) {
   const L = LABELS[lang || doc.content.language || 'ca'];
   const invoice = doc.kind === 'invoice';
   const totals = computeTotals(doc);
   const table = doc.totals_style === 'table';
+  const gap = (normal: number, tight: number) => (compact ? Math.min(normal, tight) : normal);
   const contentTop = invoice ? at(160.2, 11) : at(168.6, 11);
+  // The header is only drawn on page 1, so later pages start near the top and
+  // page 1 makes room for the header with an in-flow spacer.
+  const continuationTop = 48;
   const bottomReserve = invoice ? 80 : !isBlank(doc.conditions_text) ? 150 : 60;
 
   return (
@@ -812,126 +831,142 @@ export function BillingPdf({
       producer="andreafrancin.com"
     >
       <LabelsContext.Provider value={L}>
-        <Page
-          size="A4"
-          style={{
-            fontFamily: 'Raleway',
-            fontWeight: 300,
-            color: BLACK,
-            paddingTop: contentTop,
-            paddingLeft: LEFT,
-            paddingRight: RIGHT,
-            paddingBottom: bottomReserve,
-          }}
-        >
-          {invoice ? (
-            <InvoiceHeader issuer={issuer} doc={doc} logo={logo} />
-          ) : (
-            <QuoteHeader issuer={issuer} doc={doc} logo={logo} />
-          )}
-
-          <ClientRow doc={doc} invoice={invoice} />
-
-          {invoice ? (
-            <View
-              style={{
-                marginTop:
-                  doc.client_snapshot.tax_id || doc.client_snapshot.address
-                    ? 280.9 - 222 - 10 - 2
-                    : 280.9 - 160.2 - 11 - 2,
-              }}
-            >
-              <InvoiceBody doc={doc} />
-            </View>
-          ) : doc.layout === 'numbered' ? (
-            <NumberedBody doc={doc} />
-          ) : (
-            <ConceptBody doc={doc} />
-          )}
-
-          <View wrap={false}>
-            {table ? (
-              <>
-                <Separator
-                  marginTop={invoice ? 393.1 - 355.7 - 12.7 : 456.17 - 416.2 - 11.5}
-                  marginBottom={invoice ? 420.29 - 393.1 + 0.7 : 477.8 - 456.17 + 0.7}
-                />
-                <TaxTable
-                  base={totals.base}
-                  iva={totals.iva}
-                  irpf={totals.irpf}
-                  total={totals.total}
-                  ivaRate={doc.iva_rate}
-                  irpfRate={doc.irpf_rate}
-                />
-              </>
+        <CompactContext.Provider value={compact}>
+          <Page
+            size="A4"
+            style={{
+              fontFamily: 'Raleway',
+              fontWeight: 300,
+              color: BLACK,
+              paddingTop: continuationTop,
+              paddingLeft: LEFT,
+              paddingRight: RIGHT,
+              paddingBottom: bottomReserve,
+            }}
+          >
+            {invoice ? (
+              <InvoiceHeader issuer={issuer} doc={doc} logo={logo} />
             ) : (
-              <>
-                <Separator
-                  marginTop={invoice ? 393.1 - 355.7 - 12.7 : 573.1 - 493.2 - 13}
-                  marginBottom={invoice ? 420.29 - 393.1 + 0.7 : 587 - 573.1 - 2.6}
-                />
-                <SummaryTotals
-                  base={totals.base}
-                  iva={totals.iva}
-                  total={totals.total}
-                  ivaRate={doc.iva_rate}
-                  baseOnly={doc.totals_style === 'base'}
-                />
-              </>
+              <QuoteHeader issuer={issuer} doc={doc} logo={logo} />
             )}
 
-            {invoice && !isBlank(doc.payment_text) ? (
+            <View style={{ height: contentTop - continuationTop }} />
+            <ClientRow doc={doc} invoice={invoice} />
+
+            {invoice ? (
               <View
                 style={{
-                  marginTop: 489.1 - 460.78 - 1,
-                  alignItems: 'center',
-                  marginLeft: TABLE_LEFT - LEFT,
-                  width: 400.27,
+                  marginTop:
+                    doc.client_snapshot.tax_id || doc.client_snapshot.address
+                      ? 280.9 - 222 - 10 - 2
+                      : 280.9 - 160.2 - 11 - 2,
                 }}
               >
-                <Text style={{ fontSize: 10, lineHeight: 1.4 }}>{L.payment}</Text>
-                <Rich text={trimRich(doc.payment_text)} style={{ fontSize: 10, fontWeight: 700 }} />
+                <InvoiceBody doc={doc} />
               </View>
-            ) : null}
+            ) : doc.layout === 'numbered' ? (
+              <NumberedBody doc={doc} />
+            ) : (
+              <ConceptBody doc={doc} />
+            )}
 
-            <Authorization
-              text={doc.authorization_text}
-              marginTop={table ? 540.7 - 518.29 - 1 : 646.1 - 611 - 12}
-            />
-          </View>
+            <View wrap={false}>
+              {table ? (
+                <>
+                  <Separator
+                    marginTop={gap(invoice ? 393.1 - 355.7 - 12.7 : 456.17 - 416.2 - 11.5, 18)}
+                    marginBottom={gap(invoice ? 420.29 - 393.1 + 0.7 : 477.8 - 456.17 + 0.7, 14)}
+                  />
+                  <TaxTable
+                    base={totals.base}
+                    iva={totals.iva}
+                    irpf={totals.irpf}
+                    total={totals.total}
+                    ivaRate={doc.iva_rate}
+                    irpfRate={doc.irpf_rate}
+                  />
+                </>
+              ) : (
+                <>
+                  <Separator
+                    marginTop={gap(invoice ? 393.1 - 355.7 - 12.7 : 573.1 - 493.2 - 13, 18)}
+                    marginBottom={gap(invoice ? 420.29 - 393.1 + 0.7 : 587 - 573.1 - 2.6, 14)}
+                  />
+                  <SummaryTotals
+                    base={totals.base}
+                    iva={totals.iva}
+                    total={totals.total}
+                    ivaRate={doc.iva_rate}
+                    baseOnly={doc.totals_style === 'base'}
+                  />
+                </>
+              )}
 
-          {invoice ? (
-            <View
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: at(781, 9),
-                alignItems: 'center',
-              }}
-              fixed
-            >
-              <Text style={{ fontSize: 9, fontStyle: 'italic', color: MAGENTA, lineHeight: 1.2 }}>
-                {issuer.address}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 9,
-                  fontStyle: 'italic',
-                  fontWeight: 600,
-                  color: MAGENTA,
-                  lineHeight: 1.2,
-                }}
-              >
-                {[issuer.phone, issuer.website, issuer.email].filter(Boolean).join(' · ')}
-              </Text>
+              {invoice && !isBlank(doc.payment_text) ? (
+                <View
+                  style={{
+                    marginTop: gap(489.1 - 460.78 - 1, 16),
+                    alignItems: 'center',
+                    marginLeft: TABLE_LEFT - LEFT,
+                    width: 400.27,
+                  }}
+                >
+                  <Text style={{ fontSize: 10, lineHeight: 1.4 }}>{L.payment}</Text>
+                  <Rich
+                    text={trimRich(doc.payment_text)}
+                    style={{ fontSize: 10, fontWeight: 700 }}
+                  />
+                </View>
+              ) : null}
+
+              <Authorization
+                text={doc.authorization_text}
+                marginTop={gap(table ? 540.7 - 518.29 - 1 : 646.1 - 611 - 12, 12)}
+              />
             </View>
-          ) : (
-            <Conditions text={doc.conditions_text} />
-          )}
-          <PrivacyNote issuer={issuer} />
-        </Page>
+
+            {invoice ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: at(781, 9),
+                  alignItems: 'center',
+                }}
+                fixed
+              >
+                <Text style={{ fontSize: 9, fontStyle: 'italic', color: MAGENTA, lineHeight: 1.2 }}>
+                  {issuer.address}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    fontStyle: 'italic',
+                    fontWeight: 600,
+                    color: MAGENTA,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {[issuer.phone, issuer.website, issuer.email].filter(Boolean).join(' · ')}
+                </Text>
+              </View>
+            ) : (
+              <Conditions text={doc.conditions_text} />
+            )}
+            <PrivacyNote issuer={issuer} />
+            {onPageCount ? (
+              <Text
+                style={{ position: 'absolute', top: 0, left: 0, fontSize: 1 }}
+                fixed
+                render={({ totalPages }) => {
+                  if (totalPages) onPageCount(totalPages);
+                  return '';
+                }}
+              />
+            ) : null}
+          </Page>
+        </CompactContext.Provider>
       </LabelsContext.Provider>
     </Document>
   );

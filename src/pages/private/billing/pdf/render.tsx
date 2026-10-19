@@ -18,5 +18,18 @@ export async function renderDocumentPdf(
   issuer: Issuer,
   lang?: DocLanguage
 ): Promise<Blob> {
-  return pdf(<BillingPdf doc={doc} issuer={issuer} logo={logo} lang={lang} />).toBlob();
+  let pages = 0;
+  const count = (n: number) => {
+    pages = n;
+  };
+  const props = { doc, issuer, logo, lang, onPageCount: count };
+  const normal = await pdf(<BillingPdf {...props} />).toBlob();
+  if (pages <= 1) return normal;
+
+  // The layout spilled onto another page. Retry with tighter spacing and keep
+  // it only if that removes the extra page; otherwise the original design wins.
+  const spilled = pages;
+  pages = 0;
+  const compact = await pdf(<BillingPdf {...props} compact />).toBlob();
+  return pages > 0 && pages < spilled ? compact : normal;
 }
