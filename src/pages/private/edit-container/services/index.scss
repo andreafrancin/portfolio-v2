@@ -191,3 +191,30 @@
 .service-admin__empty {
   color: var(--text-2);
 }
+
+.service-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  .confirm__title {
+    margin: 0;
+  }
+}
+
+.service-dialog__close {
+  flex: none;
+  margin: -6px -8px 0 0;
+}
+
+.service-dialog__actions {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.service-dialog__status {
+  margin-right: auto;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}

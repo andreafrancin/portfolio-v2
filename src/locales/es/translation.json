@@ -251,7 +251,6 @@
     "NEW_SERVICE": "Nuevo servicio",
     "EDIT_SERVICE": "Editar servicio",
     "ADD_SERVICE": "Añadir servicio",
-    "CREATE_SERVICE": "Crear",
     "SERVICE_NAME": "Nombre",
     "SERVICE_SAVED": "Servicio guardado",
     "SERVICE_GROUP_SAVED": "Apartado guardado",
@@ -261,7 +260,9 @@
     "DELETE_SERVICE_TEXT": "Se eliminará «{{name}}» de la página de servicios.",
     "DELETE_SERVICE_GROUP_TITLE": "¿Eliminar el apartado?",
     "DELETE_SERVICE_GROUP_TEXT_one": "Se eliminará «{{name}}» y el servicio que contiene.",
-    "DELETE_SERVICE_GROUP_TEXT_other": "Se eliminará «{{name}}» y los {{count}} servicios que contiene."
+    "DELETE_SERVICE_GROUP_TEXT_other": "Se eliminará «{{name}}» y los {{count}} servicios que contiene.",
+    "CLOSE": "Cerrar",
+    "SAVE_AND_CLOSE": "Guardar y cerrar"
   },
   "IMAGES": {
     "DROP": "Suelta imágenes aquí, o <1>búscalas</1>",

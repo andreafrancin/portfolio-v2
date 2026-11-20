@@ -25,6 +25,7 @@ import Spinner from '../../../../components/spinner';
 import {
   IconChevronDown,
   IconChevronUp,
+  IconClose,
   IconEdit,
   IconPlus,
   IconTrash,
@@ -56,7 +57,7 @@ function ServiceDialog({
 }: {
   editing: Editing | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (close: boolean) => void;
 }) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -65,6 +66,9 @@ function ServiceDialog({
   const [descriptions, setDescriptions] = useState<Record<string, string>>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [language, setLanguage] = useState<string>('es');
+  // The record being edited; set after the first save of a new one, so saving again updates it.
+  const [savedId, setSavedId] = useState<number | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState('');
   const isService = editing?.kind === 'service';
 
   useEffect(() => {
@@ -75,12 +79,18 @@ function ServiceDialog({
     if (!editing) return;
     setLanguage('es');
     const item = editing.kind === 'group' ? editing.group : editing.service;
-    setNames({ ...EMPTY, ...(item?.name_i18n || {}) });
-    setDescriptions({
+    const nextNames = { ...EMPTY, ...(item?.name_i18n || {}) };
+    const nextDescriptions = {
       ...EMPTY,
       ...(editing.kind === 'service' ? editing.service?.description_i18n || {} : {}),
-    });
+    };
+    setNames(nextNames);
+    setDescriptions(nextDescriptions);
+    setSavedId(item?.id ?? null);
+    setSavedSnapshot(item ? JSON.stringify([nextNames, nextDescriptions]) : '');
   }, [editing]);
+
+  const dirty = JSON.stringify([names, descriptions]) !== savedSnapshot;
 
   const canSave = LANGS.some((l) => names[l]?.trim());
   const hasDescriptions = LANGS.some((l) => descriptions[l]?.trim());
@@ -91,25 +101,28 @@ function ServiceDialog({
     ])
   );
 
-  const submit = async () => {
-    if (!editing) return;
+  const submit = async (close: boolean) => {
+    if (!editing || !canSave || saving) return;
     setSaving(true);
     try {
       const name_i18n = names as I18nText;
+      let id = savedId;
       if (editing.kind === 'group') {
-        if (editing.group) await updateServiceGroup(editing.group.id, { name_i18n });
-        else await createServiceGroup({ name_i18n });
+        if (id) await updateServiceGroup(id, { name_i18n });
+        else id = (await createServiceGroup({ name_i18n }))?.id ?? null;
       } else {
         const body = {
           group: editing.groupId,
           name_i18n,
           description_i18n: descriptions as I18nText,
         };
-        if (editing.service) await updateService(editing.service.id, body);
-        else await createService(body);
+        if (id) await updateService(id, body);
+        else id = (await createService(body))?.id ?? null;
       }
+      setSavedId(id);
+      setSavedSnapshot(JSON.stringify([names, descriptions]));
       toast.success(t(isService ? 'PRIVATE.SERVICE_SAVED' : 'PRIVATE.SERVICE_GROUP_SAVED'));
-      onSaved();
+      onSaved(close);
     } catch {
       toast.error(t('PRIVATE.SAVE_FAILED'));
     } finally {
@@ -117,7 +130,7 @@ function ServiceDialog({
     }
   };
 
-  const isNew = editing?.kind === 'group' ? !editing.group : !editing?.service;
+  const isNew = !savedId;
   const title = isService
     ? t(isNew ? 'PRIVATE.NEW_SERVICE' : 'PRIVATE.EDIT_SERVICE')
     : t(isNew ? 'PRIVATE.NEW_SERVICE_GROUP' : 'PRIVATE.EDIT_SERVICE_GROUP');
@@ -131,21 +144,30 @@ function ServiceDialog({
         e.preventDefault();
         if (!saving) onClose();
       }}
-      onClick={(e) => {
-        if (e.target === ref.current && !saving) onClose();
-      }}
     >
       <form
         className="confirm__sheet form-dialog__sheet"
         onSubmit={(e) => {
           e.preventDefault();
-          if (canSave && !saving) submit();
+          submit(true);
         }}
         noValidate
       >
-        <h2 id="service-dialog-title" className="confirm__title">
-          {title}
-        </h2>
+        <div className="service-dialog__head">
+          <h2 id="service-dialog-title" className="confirm__title">
+            {title}
+          </h2>
+          <button
+            type="button"
+            className="icon-btn service-dialog__close"
+            onClick={onClose}
+            disabled={saving}
+            aria-label={t('PRIVATE.CLOSE')}
+            title={t('PRIVATE.CLOSE')}
+          >
+            <IconClose size={20} />
+          </button>
+        </div>
         <div className="form-dialog__body">
           <LanguageBar
             className="language-bar--inline"
@@ -183,13 +205,21 @@ function ServiceDialog({
             </div>
           )}
         </div>
-        <div className="confirm__actions">
-          <button type="button" className="btn btn--quiet" onClick={onClose} disabled={saving}>
-            {t('PRIVATE.CANCEL')}
+        <div className="confirm__actions service-dialog__actions">
+          <p className="service-dialog__status" aria-live="polite">
+            {dirty ? t('PRIVATE.UNSAVED') : t('PRIVATE.ALL_SAVED')}
+          </p>
+          <button
+            type="button"
+            className="btn btn--quiet"
+            onClick={() => submit(false)}
+            disabled={!canSave || saving || !dirty}
+          >
+            {t('PRIVATE.SAVE')}
           </button>
           <button type="submit" className="btn" disabled={!canSave || saving}>
             {saving && <Spinner size={16} />}
-            {isNew ? t('PRIVATE.CREATE_SERVICE') : t('PRIVATE.SAVE_CHANGES')}
+            {t('PRIVATE.SAVE_AND_CLOSE')}
           </button>
         </div>
       </form>
@@ -465,8 +495,8 @@ function EditServicesContainer() {
       <ServiceDialog
         editing={editing}
         onClose={() => setEditing(null)}
-        onSaved={() => {
-          setEditing(null);
+        onSaved={(close) => {
+          if (close) setEditing(null);
           load();
         }}
       />

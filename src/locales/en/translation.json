@@ -251,7 +251,6 @@
     "NEW_SERVICE": "New service",
     "EDIT_SERVICE": "Edit service",
     "ADD_SERVICE": "Add service",
-    "CREATE_SERVICE": "Create",
     "SERVICE_NAME": "Name",
     "SERVICE_SAVED": "Service saved",
     "SERVICE_GROUP_SAVED": "Section saved",
@@ -261,7 +260,9 @@
     "DELETE_SERVICE_TEXT": "“{{name}}” will be removed from the services page.",
     "DELETE_SERVICE_GROUP_TITLE": "Delete the section?",
     "DELETE_SERVICE_GROUP_TEXT_one": "“{{name}}” and the service in it will be deleted.",
-    "DELETE_SERVICE_GROUP_TEXT_other": "“{{name}}” and the {{count}} services in it will be deleted."
+    "DELETE_SERVICE_GROUP_TEXT_other": "“{{name}}” and the {{count}} services in it will be deleted.",
+    "CLOSE": "Close",
+    "SAVE_AND_CLOSE": "Save and close"
   },
   "IMAGES": {
     "DROP": "Drop images here, or <1>browse</1>",

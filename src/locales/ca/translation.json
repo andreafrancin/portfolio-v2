@@ -251,7 +251,6 @@
     "NEW_SERVICE": "Nou servei",
     "EDIT_SERVICE": "Editar servei",
     "ADD_SERVICE": "Afegir servei",
-    "CREATE_SERVICE": "Crear",
     "SERVICE_NAME": "Nom",
     "SERVICE_SAVED": "Servei desat",
     "SERVICE_GROUP_SAVED": "Apartat desat",
@@ -261,7 +260,9 @@
     "DELETE_SERVICE_TEXT": "S’eliminarà «{{name}}» de la pàgina de serveis.",
     "DELETE_SERVICE_GROUP_TITLE": "Eliminar l’apartat?",
     "DELETE_SERVICE_GROUP_TEXT_one": "S’eliminarà «{{name}}» i el servei que conté.",
-    "DELETE_SERVICE_GROUP_TEXT_other": "S’eliminarà «{{name}}» i els {{count}} serveis que conté."
+    "DELETE_SERVICE_GROUP_TEXT_other": "S’eliminarà «{{name}}» i els {{count}} serveis que conté.",
+    "CLOSE": "Tancar",
+    "SAVE_AND_CLOSE": "Desar i tancar"
   },
   "IMAGES": {
     "DROP": "Deixa anar imatges aquí, o <1>cerca-les</1>",
