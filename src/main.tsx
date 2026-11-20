@@ -12,7 +12,17 @@ import ProjectDetail from './pages/work/project';
 import Login from './pages/login';
 import NotFound from './pages/not-found';
 import ProtectedRoute from './components/protected-route';
-import PrivateArea from './pages/private';
+import AdminLayout from './components/admin-layout';
+import { findLegacyTabPath } from './components/admin-layout/navigation';
+import SectionPage from './pages/private/section-page';
+import EditProjectsContainer from './pages/private/edit-container/projects';
+import EditAboutContainer from './pages/private/edit-container/about';
+import EditContactContainer from './pages/private/edit-container/contact';
+import EditCategoriesContainer from './pages/private/edit-container/categories';
+import BillingList from './pages/private/billing/list';
+import ClientsTab from './pages/private/billing/clients';
+import ConditionsTab from './pages/private/billing/conditions';
+import IssuerSettings from './pages/private/billing/issuer';
 import AddProject from './pages/private/edit-container/projects/add-project';
 import EditProject from './pages/private/edit-container/projects/edit-project';
 import DocumentEditor from './pages/private/billing/editor';
@@ -21,13 +31,30 @@ import useSeo from './seo/useSeo';
 import { SITE_NAME } from './seo/meta';
 import './styles/main.scss';
 
-const isPrivatePath = (path: string) => path.startsWith('/private') || path === '/login';
+const isAdminPath = (path: string) => path === '/private' || path.startsWith('/private/');
+const isPrivatePath = (path: string) => isAdminPath(path) || path === '/login';
+
+function ProjectsHome() {
+  const location = useLocation();
+  const legacyPath = findLegacyTabPath(location.search);
+
+  if (legacyPath) {
+    return <Navigate to={legacyPath} replace />;
+  }
+
+  return (
+    <SectionPage titleKey="PRIVATE.TABS.WORK" introKey="ADMIN.PROJECTS_INTRO">
+      <EditProjectsContainer />
+    </SectionPage>
+  );
+}
 
 function Main() {
   const { t } = useTranslation();
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
   const isPrivate = isPrivatePath(location.pathname);
+  const isAdmin = isAdminPath(location.pathname);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
@@ -45,9 +72,14 @@ function Main() {
         {t('HEADER.SKIP')}
       </a>
       <RevealObserver />
-      <Header variant={isPrivate ? 'studio' : 'public'} />
-      <main id="main" ref={mainRef} tabIndex={-1} className="app-main">
-        <div key={location.pathname} className="page-enter">
+      {!isAdmin && <Header variant={isPrivate ? 'studio' : 'public'} />}
+      <main
+        id="main"
+        ref={mainRef}
+        tabIndex={-1}
+        className={`app-main${isAdmin ? ' app-main--admin' : ''}`}
+      >
+        <div key={isAdmin ? 'admin' : location.pathname} className="page-enter">
           <Routes location={location}>
             <Route path="/" element={<Navigate to="/work" replace />} />
             <Route path="/work" element={<Work />} />
@@ -57,51 +89,94 @@ function Main() {
             <Route path="/legal" element={<Legal />} />
             <Route path="/login" element={<Login />} />
             <Route
-              path="/private"
               element={
                 <ProtectedRoute>
-                  <PrivateArea />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/private/add-project"
-              element={
-                <ProtectedRoute>
-                  <AddProject />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/private/edit-project/:id"
-              element={
-                <ProtectedRoute>
-                  <EditProject />
-                </ProtectedRoute>
-              }
-            />
-            {(
-              [
-                ['/private/quotes/new', 'quote'],
-                ['/private/quotes/:id', 'quote'],
-                ['/private/invoices/new', 'invoice'],
-                ['/private/invoices/:id', 'invoice'],
-              ] as const
-            ).map(([path, kind]) => (
+            >
+              <Route path="/private" element={<ProjectsHome />} />
+              <Route path="/private/add-project" element={<AddProject />} />
+              <Route path="/private/edit-project/:id" element={<EditProject />} />
               <Route
-                key={path}
-                path={path}
+                path="/private/categories"
                 element={
-                  <ProtectedRoute>
-                    <DocumentEditor key={path} kind={kind} />
-                  </ProtectedRoute>
+                  <SectionPage titleKey="PRIVATE.TABS.CATEGORIES">
+                    <EditCategoriesContainer />
+                  </SectionPage>
                 }
               />
-            ))}
-            <Route
-              path="/private/billing/issuer"
-              element={<Navigate to="/private?tab=issuer" replace />}
-            />
+              <Route
+                path="/private/about"
+                element={
+                  <SectionPage titleKey="PRIVATE.TABS.ABOUT" introKey="ADMIN.ABOUT_INTRO">
+                    <EditAboutContainer />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/contact"
+                element={
+                  <SectionPage titleKey="PRIVATE.TABS.CONTACT" introKey="ADMIN.CONTACT_INTRO">
+                    <EditContactContainer />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/quotes"
+                element={
+                  <SectionPage titleKey="BILLING.TABS_QUOTES" introKey="ADMIN.QUOTES_INTRO">
+                    <BillingList key="quote" kind="quote" />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/invoices"
+                element={
+                  <SectionPage titleKey="BILLING.TABS_INVOICES" introKey="ADMIN.INVOICES_INTRO">
+                    <BillingList key="invoice" kind="invoice" />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/clients"
+                element={
+                  <SectionPage titleKey="BILLING.TABS_CLIENTS" introKey="ADMIN.CLIENTS_INTRO">
+                    <ClientsTab />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/conditions"
+                element={
+                  <SectionPage titleKey="BILLING.TABS_CONDITIONS">
+                    <ConditionsTab />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/issuer"
+                element={
+                  <SectionPage titleKey="BILLING.TABS_ISSUER" introKey="BILLING.ISSUER_HINT">
+                    <IssuerSettings />
+                  </SectionPage>
+                }
+              />
+              {(
+                [
+                  ['/private/quotes/new', 'quote'],
+                  ['/private/quotes/:id', 'quote'],
+                  ['/private/invoices/new', 'invoice'],
+                  ['/private/invoices/:id', 'invoice'],
+                ] as const
+              ).map(([path, kind]) => (
+                <Route key={path} path={path} element={<DocumentEditor key={path} kind={kind} />} />
+              ))}
+              <Route
+                path="/private/billing/issuer"
+                element={<Navigate to="/private/issuer" replace />}
+              />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

@@ -1,25 +1,52 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CategorySlug, useCategories, useCategoryLabel } from '../../config/categories';
-import { IconCheck, IconEye, IconEyeOff } from '../icons';
+import { IconCheck, IconChevronDown, IconEye, IconEyeOff } from '../icons';
 import Spinner from '../spinner';
 import './index.scss';
 
 export function Panel({
+  id,
   title,
   hint,
   aside,
   children,
   className = '',
+  collapsible = false,
+  defaultOpen = true,
 }: {
+  id?: string;
   title: string;
   hint?: string;
   aside?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }) {
+  if (collapsible) {
+    return (
+      <details
+        id={id}
+        className={`panel panel--collapsible ${className}`}
+        open={defaultOpen}
+        onInvalidCapture={(event) => {
+          event.currentTarget.open = true;
+        }}
+      >
+        <summary className="panel__head">
+          <h2 className="panel__title">{title}</h2>
+          {aside}
+          <IconChevronDown size={20} className="panel__chevron" />
+        </summary>
+        {hint && <p className="panel__hint">{hint}</p>}
+        <div className="panel__body">{children}</div>
+      </details>
+    );
+  }
+
   return (
-    <section className={`panel ${className}`}>
+    <section id={id} className={`panel ${className}`}>
       <header className="panel__head">
         <h2 className="panel__title">{title}</h2>
         {aside}
@@ -192,11 +219,13 @@ export function ConfirmDialog({
 export function StudioPageHeader({
   back,
   title,
+  intro,
   meta,
   actions,
 }: {
   back?: React.ReactNode;
   title: string;
+  intro?: string;
   meta?: React.ReactNode;
   actions?: React.ReactNode;
 }) {
@@ -206,6 +235,7 @@ export function StudioPageHeader({
       <div className="studio-head__row">
         <div>
           <h1 className="studio-head__title">{title}</h1>
+          {intro && <p className="studio-head__intro">{intro}</p>}
           {meta && <div className="studio-head__meta">{meta}</div>}
         </div>
         {actions && <div className="studio-head__actions">{actions}</div>}

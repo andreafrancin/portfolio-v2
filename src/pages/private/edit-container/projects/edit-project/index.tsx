@@ -139,11 +139,12 @@ function EditProject() {
     return out;
   }, [titleByLang, contentByLang]);
 
-  const handleNewFilesAdded = useCallback(
-    async (files: File[]) => {
+  const uploadImages = useCallback(
+    async (files: File[]): Promise<ExistingImage[]> => {
       showLoading();
       try {
-        const base = existingImages.length;
+        const knownIds = new Set(existingImages.map((img) => img.id));
+        const base = knownIds.size;
         const newPayload = await Promise.all(
           files.map(async (file, idx) => ({
             caption: file.name,
@@ -153,17 +154,27 @@ function EditProject() {
           }))
         );
         await fetchPatchProjectFromAPI(id, { images: newPayload });
-        await refreshImages();
+        const refreshed: Project = await fetchProjectFromNewAPI(id);
+        applyImages(refreshed);
         invalidateProjects();
         toast.success(t('IMAGES.UPLOADED'));
+        return (refreshed.images || []).filter((img) => !knownIds.has(img.id));
       } catch {
         toast.error(t('IMAGES.UPLOAD_FAILED'));
         refreshImages().catch(() => {});
+        return [];
       } finally {
         hideLoading();
       }
     },
     [id, existingImages, refreshImages, toast, t, showLoading, hideLoading]
+  );
+
+  const handleNewFilesAdded = useCallback(
+    (files: File[]) => {
+      void uploadImages(files);
+    },
+    [uploadImages]
   );
 
   const handleExistingImageRemoved = useCallback(
@@ -337,6 +348,7 @@ function EditProject() {
         onImagesDirty={() => setImagesDirty(true)}
         onCopyImageLink={handleCopyImageLink}
         onNewFilesAdded={handleNewFilesAdded}
+        onUploadImages={uploadImages}
         onExistingImageRemoved={handleExistingImageRemoved}
         isEditProject
         markdownValue={contentByLang[language] || ''}

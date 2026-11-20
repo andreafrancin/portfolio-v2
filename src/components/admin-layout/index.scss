@@ -1,0 +1,232 @@
+@use '../../styles/variables' as *;
+
+$sidebar-width: 264px;
+$topbar-height: 64px;
+$edge: 12px;
+$edge-narrow: 8px;
+
+.admin {
+  --header-offset: 0px;
+  --admin-sticky-top: 0px;
+  display: grid;
+  grid-template-columns: ($sidebar-width + $edge) minmax(0, 1fr);
+  min-height: 100dvh;
+
+  @media (max-width: $bp-lg) {
+    --header-offset: #{$topbar-height + $edge-narrow};
+    --admin-sticky-top: #{$topbar-height + $edge-narrow};
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+}
+
+.admin__sidebar {
+  position: sticky;
+  top: $edge;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - #{$edge * 2});
+  margin: $edge 0 $edge $edge;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-sm);
+
+  @media (max-width: $bp-lg) {
+    top: $edge-narrow;
+    z-index: 800;
+    height: auto;
+    margin: $edge-narrow $edge-narrow 0;
+    border-color: var(--line-strong);
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.admin__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 28px 24px 20px;
+
+  @media (max-width: $bp-lg) {
+    height: $topbar-height - 2px;
+    padding: 0 9px 0 20px;
+  }
+}
+
+.admin__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+
+  svg {
+    width: 92px;
+    height: auto;
+
+    @media (max-width: $bp-lg) {
+      width: 76px;
+    }
+  }
+}
+
+.admin__brand-tag {
+  @include label;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.admin__menu-button {
+  @include reset-button;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  font-size: 0.9375rem;
+  font-weight: 600;
+
+  @media (max-width: $bp-lg) {
+    display: inline-flex;
+  }
+}
+
+.admin__navigation {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 22px;
+  min-height: 0;
+  padding: 8px 14px 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  @media (max-width: $bp-lg) {
+    // The bar's backdrop filter makes it the reference for positioned children, so the panel hangs from it.
+    position: absolute;
+    top: calc(100% + #{$edge-narrow});
+    left: 0;
+    right: 0;
+    height: calc(100dvh - 100% - #{$edge-narrow * 3});
+    display: none;
+    padding: 20px 14px max(20px, env(safe-area-inset-bottom));
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-lg);
+    background: var(--bg);
+    box-shadow: var(--shadow-lg);
+    overscroll-behavior: contain;
+
+    &[data-open='true'] {
+      display: flex;
+      animation: admin-menu-in var(--dur-2) var(--ease-out) both;
+    }
+  }
+}
+
+@keyframes admin-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.admin__group-title {
+  @include label;
+  padding: 0 12px 8px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6875rem;
+}
+
+.admin__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin__item {
+  @include reset-button;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
+
+  svg {
+    color: var(--text-3);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+  }
+
+  &[aria-current='page'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 650;
+  }
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @media (max-width: $bp-lg) {
+    min-height: 50px;
+    font-size: 1.0625rem;
+  }
+}
+
+.admin__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.admin__language {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.admin__language-label {
+  color: var(--text-3);
+  font-size: 0.75rem;
+}
+
+.admin__main {
+  min-width: 0;
+}
+
+.app-main.app-main--admin {
+  padding-top: 0;
+}

@@ -37,6 +37,25 @@ export interface Condition {
   id: number;
   title: string;
   text: string;
+  text_i18n?: Partial<Record<DocLanguage, string>>;
+}
+
+export function conditionTexts(condition: Condition): Partial<Record<DocLanguage, string>> {
+  const texts = condition.text_i18n ?? {};
+
+  return Object.keys(texts).length > 0 || !condition.text ? texts : { ca: condition.text };
+}
+
+export function conditionText(condition: Condition, language: DocLanguage): string {
+  const texts = conditionTexts(condition);
+
+  return texts[language] || texts.ca || Object.values(texts).find(Boolean) || '';
+}
+
+export function findConditionByText(conditions: Condition[], text: string): Condition | undefined {
+  if (!text) return undefined;
+
+  return conditions.find((condition) => Object.values(conditionTexts(condition)).includes(text));
 }
 
 export interface ClientSnapshot {
@@ -109,6 +128,18 @@ export function documentFileName(
   if (doc.kind === 'invoice') return `${lang === 'en' ? 'Invoice' : 'Factura'}_${n}.pdf`;
   const word = { ca: 'Pressupost', es: 'Presupuesto', en: 'Quote' }[lang];
   return `${n}_${word}_AndreaFrancín.pdf`;
+}
+
+// Text fields keep their formatting as [n]…[/n]-style tags; lists only need the words.
+export function plainText(value: string | null | undefined): string {
+  return (value || '')
+    .replace(/\[\/?[a-z]+\]/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function documentSummary(doc: BillingDocument): string {
+  return plainText(doc.content.concept) || plainText(doc.content.sections[0]?.title);
 }
 
 export function formatDocDate(iso: string): string {

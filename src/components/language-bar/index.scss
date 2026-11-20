@@ -1,0 +1,126 @@
+@use '../../styles/variables' as *;
+
+.language-bar {
+  position: sticky;
+  top: calc(var(--admin-sticky-top, 0px) + 12px);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px 20px;
+  align-self: flex-start;
+  max-width: 100%;
+  min-height: 60px;
+  padding: 6px 8px 6px 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md);
+
+  @media (max-width: $bp-md) {
+    align-self: stretch;
+    padding: 6px;
+  }
+}
+
+.language-bar__label {
+  @include label;
+  flex: none;
+  color: var(--text-3);
+
+  @media (max-width: $bp-md) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+.language-bar__tabs {
+  display: flex;
+  gap: 4px;
+
+  @media (max-width: $bp-md) {
+    flex: 1;
+  }
+}
+
+.language-bar__tab {
+  @include reset-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
+
+  @media (hover: hover) {
+    &:hover:not([aria-selected='true']) {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+  }
+
+  &[aria-selected='true'] {
+    background: var(--text);
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
+  }
+
+  @media (max-width: $bp-md) {
+    flex: 1;
+    padding: 0 8px;
+    gap: 8px;
+  }
+}
+
+.language-bar__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-3);
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  [aria-selected='true'] & {
+    color: rgba(255, 255, 255, 0.72);
+  }
+}
+
+.language-bar__dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+
+  [data-written='true'] & {
+    border-color: var(--glow-illustration);
+    background: var(--glow-illustration);
+    box-shadow: 0 0 8px var(--glow-illustration);
+  }
+}
+
+.language-bar__status-text {
+  @media (max-width: $bp-lg) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}

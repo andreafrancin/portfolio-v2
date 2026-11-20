@@ -10,7 +10,7 @@
   gap: 24px;
   align-items: start;
 
-  @media (max-width: $bp-lg) {
+  @media (max-width: $bp-xl) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -22,16 +22,130 @@
   min-width: 0;
 }
 
+// The jump menu sits above both columns; the preview fills the rest of the window height.
+.doc-editor {
+  --doc-nav-height: 58px;
+  --doc-sticky-top: calc(var(--admin-sticky-top, 0px) + 12px);
+}
+
+.doc-nav {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: var(--doc-sticky-top);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--doc-nav-height);
+  padding: 6px 6px 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: var(--shadow-md);
+}
+
+.doc-nav__links {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.doc-nav__link {
+  @include reset-button;
+  flex: none;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  color: var(--text-2);
+  font-size: 0.875rem;
+  font-weight: 560;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+  }
+
+  &[aria-current='true'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 650;
+  }
+}
+
+.doc-nav__total {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  gap: 10px;
+  height: 44px;
+  margin: 0;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: var(--text);
+  color: #fff;
+  line-height: 44px;
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+
+  strong {
+    font-size: 1.0625rem;
+    font-weight: 650;
+  }
+
+  @media (max-width: $bp-sm) {
+    span {
+      display: none;
+    }
+  }
+}
+
+.doc-nav__link--preview {
+  @media (min-width: $bp-xl) {
+    display: none;
+  }
+}
+
+.doc-form .panel,
+.doc-preview {
+  scroll-margin-top: calc(var(--doc-sticky-top) + var(--doc-nav-height) + 20px);
+}
+
+.doc-form .panel {
+  scroll-margin-top: calc(var(--doc-sticky-top) + var(--doc-nav-height) + 20px);
+}
+
 .doc-preview {
   position: sticky;
-  top: calc(var(--header-offset) + 16px);
+  top: calc(var(--doc-sticky-top) + var(--doc-nav-height) + 20px);
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: top var(--dur-3) var(--ease-out);
+  height: calc(100dvh - var(--doc-sticky-top) - var(--doc-nav-height) - 40px);
+  min-height: 420px;
 
-  @media (max-width: $bp-lg) {
+  @media (max-width: $bp-xl) {
     position: static;
+    height: auto;
+    min-height: 0;
   }
 }
 
@@ -40,6 +154,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  min-height: 24px;
+  padding: 0 4px;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-3);
@@ -52,18 +168,67 @@
   font-weight: 500;
 }
 
-.doc-preview__sheet {
+// A soft tray for the sheets; long documents scroll inside it.
+.doc-preview__scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  scrollbar-width: thin;
+
+  @media (max-width: $bp-xl) {
+    overflow: visible;
+    padding: 12px;
+  }
+}
+
+.pdf-sheets {
+  display: grid;
+}
+
+.pdf-sheets__layer {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pdf-sheets__layer--entering {
+  animation: sheet-fade var(--dur-2) var(--ease-out) both;
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdf-sheets__layer--entering {
+    animation-duration: 1ms;
+  }
+}
+
+.pdf-sheets__page {
+  display: block;
   width: 100%;
-  aspect-ratio: 210 / 297;
-  max-height: calc(100vh - var(--header-offset) - 80px);
-  border: 1px solid var(--line);
+  height: auto;
   border-radius: var(--r-md);
   background: #fff;
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 0 0 1px rgba(80, 30, 60, 0.06),
+    0 18px 36px -22px rgba(80, 30, 60, 0.35);
+  user-select: none;
+}
 
-  @media (max-width: $bp-lg) {
-    max-height: none;
-  }
+.pdf-sheets__placeholder {
+  width: 100%;
+  aspect-ratio: 210 / 297;
+  border-radius: var(--r-md);
 }
 
 .form-grid {
@@ -72,11 +237,11 @@
   gap: 14px 16px;
 
   &--3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
   &--4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
   &--item {

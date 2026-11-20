@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import LangSelector from '../../../../components/lang-selector';
+import LanguageBar from '../../../../components/language-bar';
 import {
   fetchContactFromAPI,
   fetchCreateContactFromAPI,
@@ -106,53 +106,48 @@ function EditContactContainer() {
   }
 
   return (
-    <form className="editor" onSubmit={onSubmit} noValidate>
-      <div className="editor__main">
-        <Panel
-          title={t('PRIVATE.TABS.CONTACT')}
-          hint={t('PRIVATE.LANG_HINT')}
-          aside={
-            <LangSelector
-              selectedLanguage={selectedLanguage}
-              onLanguageChange={setSelectedLanguage}
-              filled={filled}
-            />
-          }
-        >
-          <div className="field">
-            <label className="field__label" htmlFor="contact-title">
-              {t('PRIVATE.PAGE_TITLE')}
-            </label>
-            <input
-              id="contact-title"
-              className="input input--lg"
-              lang={selectedLanguage}
-              value={titleByLang[selectedLanguage] || ''}
-              onChange={(e) =>
-                setTitleByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))
-              }
-            />
-          </div>
-          <div className="field">
-            <label className="field__label" htmlFor="contact-description">
-              {t('PRIVATE.DESCRIPTION')}
-            </label>
-            <textarea
-              id="contact-description"
-              className="input"
-              rows={4}
-              lang={selectedLanguage}
-              value={descriptionByLang[selectedLanguage] || ''}
-              onChange={(e) =>
-                setDescriptionByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))
-              }
-            />
-          </div>
-        </Panel>
+    <form className="editor-form editor-form--translated" onSubmit={onSubmit} noValidate>
+      <LanguageBar
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={setSelectedLanguage}
+        written={filled}
+      />
+      <div className="editor editor--single">
+        <div className="editor__main">
+          <Panel title={t('ADMIN.SECTION_TEXT')} hint={t('ADMIN.SECTION_TEXT_HINT')}>
+            <div className="field">
+              <label className="field__label" htmlFor="contact-title">
+                {t('PRIVATE.PAGE_TITLE')}
+              </label>
+              <input
+                id="contact-title"
+                className="input input--lg"
+                lang={selectedLanguage}
+                value={titleByLang[selectedLanguage] || ''}
+                onChange={(e) =>
+                  setTitleByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))
+                }
+              />
+            </div>
+            <div className="field">
+              <label className="field__label" htmlFor="contact-description">
+                {t('PRIVATE.DESCRIPTION')}
+              </label>
+              <textarea
+                id="contact-description"
+                className="input"
+                rows={4}
+                lang={selectedLanguage}
+                value={descriptionByLang[selectedLanguage] || ''}
+                onChange={(e) =>
+                  setDescriptionByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))
+                }
+              />
+            </div>
+          </Panel>
+        </div>
       </div>
-      <aside className="editor__side">
-        <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
-      </aside>
+      <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
     </form>
   );
 }

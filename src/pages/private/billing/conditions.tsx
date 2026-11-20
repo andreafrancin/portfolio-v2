@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { conditionTexts, DOC_LANGUAGES } from '../../../lib/billing';
 import type { Condition } from '../../../lib/billing';
 import { deleteCondition, fetchConditions } from '../../../services/billing/api-request';
 import { useToast } from '../../../components/toast';
@@ -90,6 +91,17 @@ function ConditionsTab() {
               >
                 <span className="doc-row__client">{c.title}</span>
                 <span className="condition-preview">{c.text}</span>
+                <span className="condition-languages">
+                  {DOC_LANGUAGES.map((code) => (
+                    <span
+                      key={code}
+                      className="condition-languages__item"
+                      data-written={!!conditionTexts(c)[code]?.trim()}
+                    >
+                      {code.toUpperCase()}
+                    </span>
+                  ))}
+                </span>
               </button>
               <div className="doc-row__actions">
                 <button

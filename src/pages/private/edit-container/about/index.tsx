@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import LangSelector from '../../../../components/lang-selector';
+import LanguageBar from '../../../../components/language-bar';
 import {
   fetchAboutFromAPI,
   fetchCreateAboutFromAPI,
   fetchEditAboutFromAPI,
   fetchPatchAboutFromAPI,
 } from '../../../../services/about/api-request';
-import MarkdownEditor from '../../../../components/markdown';
+import RichEditor from '../../../../components/rich-editor';
 import ImageManager, {
   ExistingImage,
   ImageChangePayload,
@@ -16,6 +16,7 @@ import { Panel, SaveBar } from '../../../../components/studio';
 import { useToast } from '../../../../components/toast';
 import { useLoading } from '../../../../context/loading-context';
 import { fileToBase64 } from '../../../../lib/project';
+import useStickyColumn from '../../../../hooks/useStickyColumn';
 import useUnsavedWarning from '../../../../hooks/useUnsavedWarning';
 
 const serialize = (a: Record<string, string>, b: Record<string, string>) => JSON.stringify([a, b]);
@@ -33,6 +34,8 @@ function EditAboutContainer() {
   const [contentByLang, setContentByLang] = useState<Record<string, string>>({});
   const [imagesDirty, setImagesDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [contentRevision, setContentRevision] = useState(0);
+  const sideRef = useStickyColumn<HTMLElement>();
   const saved = useRef('');
 
   const imagePayloadRef = useRef<ImageChangePayload>({
@@ -41,7 +44,7 @@ function EditAboutContainer() {
     removedIds: [],
   });
 
-  const fetchAboutData = useCallback(async (resetText = true) => {
+  const fetchAboutData = useCallback(async (resetText = true): Promise<ExistingImage[]> => {
     const response = await fetchAboutFromAPI();
     const rec = response?.[0] || null;
     setRecord(rec);
@@ -54,11 +57,13 @@ function EditAboutContainer() {
         });
         setTitleByLang(titles);
         setContentByLang(contents);
+        setContentRevision((revision) => revision + 1);
         saved.current = serialize(titles, contents);
       }
       setExistingImages(rec.images || []);
       imagePayloadRef.current = { existingImages: rec.images || [], newFiles: [], removedIds: [] };
     }
+    return rec?.images || [];
   }, []);
 
   const load = useCallback(() => {
@@ -84,12 +89,13 @@ function EditAboutContainer() {
     return out;
   }, [titleByLang, contentByLang]);
 
-  const handleNewFilesAdded = useCallback(
-    async (files: File[]) => {
-      if (!record?.id) return;
+  const uploadImages = useCallback(
+    async (files: File[]): Promise<ExistingImage[]> => {
+      if (!record?.id) return [];
       showLoading();
       try {
-        const base = existingImages.length;
+        const knownIds = new Set(existingImages.map((img) => img.id));
+        const base = knownIds.size;
         const images = await Promise.all(
           files.map(async (file, idx) => ({
             caption: file.name,
@@ -99,15 +105,39 @@ function EditAboutContainer() {
           }))
         );
         await fetchPatchAboutFromAPI(record.id, { images });
-        await fetchAboutData(false);
+        const refreshed = await fetchAboutData(false);
         toast.success(t('IMAGES.UPLOADED'));
+        return refreshed.filter((img) => !knownIds.has(img.id));
       } catch {
         toast.error(t('IMAGES.UPLOAD_FAILED'));
+        return [];
       } finally {
         hideLoading();
       }
     },
     [record, existingImages, fetchAboutData, toast, t, showLoading, hideLoading]
+  );
+
+  const handleNewFilesAdded = useCallback(
+    (files: File[]) => {
+      void uploadImages(files);
+    },
+    [uploadImages]
+  );
+
+  const editorImages = useMemo(
+    () => existingImages.map((img) => ({ id: img.id, url: img.image_url, caption: img.caption })),
+    [existingImages]
+  );
+
+  const uploadEditorImages = useCallback(
+    async (files: File[]) =>
+      (await uploadImages(files)).map((img) => ({
+        id: img.id,
+        url: img.image_url,
+        caption: img.caption,
+      })),
+    [uploadImages]
   );
 
   const handleExistingImageRemoved = useCallback(
@@ -216,55 +246,57 @@ function EditAboutContainer() {
   }
 
   return (
-    <form className="editor" onSubmit={onSubmit} noValidate>
-      <div className="editor__main">
-        <Panel
-          title={t('PRIVATE.PAGE_TITLE')}
-          hint={t('PRIVATE.LANG_HINT')}
-          aside={
-            <LangSelector
-              selectedLanguage={selectedLanguage}
-              onLanguageChange={setSelectedLanguage}
-              filled={filled}
+    <form className="editor-form editor-form--translated" onSubmit={onSubmit} noValidate>
+      <LanguageBar
+        selectedLanguage={selectedLanguage}
+        onLanguageChange={setSelectedLanguage}
+        written={filled}
+      />
+      <div className="editor">
+        <div className="editor__main">
+          <Panel title={t('PRIVATE.PAGE_TITLE')} hint={t('ADMIN.SECTION_TEXT_HINT')}>
+            <label className="visually-hidden" htmlFor="about-title">
+              {t('PRIVATE.PAGE_TITLE')}
+            </label>
+            <input
+              id="about-title"
+              className="input input--lg"
+              lang={selectedLanguage}
+              value={titleByLang[selectedLanguage] || ''}
+              onChange={(e) =>
+                setTitleByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))
+              }
             />
-          }
-        >
-          <label className="visually-hidden" htmlFor="about-title">
-            {t('PRIVATE.PAGE_TITLE')}
-          </label>
-          <input
-            id="about-title"
-            className="input input--lg"
-            lang={selectedLanguage}
-            value={titleByLang[selectedLanguage] || ''}
-            onChange={(e) => setTitleByLang((p) => ({ ...p, [selectedLanguage]: e.target.value }))}
-          />
-        </Panel>
+          </Panel>
 
-        <Panel title={`${t('PRIVATE.CONTENT')} · ${selectedLanguage.toUpperCase()}`}>
-          <MarkdownEditor
-            value={contentByLang[selectedLanguage] || ''}
-            onChange={(value) => setContentByLang((p) => ({ ...p, [selectedLanguage]: value }))}
-            height={520}
-          />
-        </Panel>
+          <Panel title={t('PRIVATE.CONTENT')} hint={t('ADMIN.SECTION_TEXT_HINT')}>
+            <RichEditor
+              key={`${selectedLanguage}-${contentRevision}`}
+              label={t('PRIVATE.CONTENT')}
+              value={contentByLang[selectedLanguage] || ''}
+              onChange={(value) => setContentByLang((p) => ({ ...p, [selectedLanguage]: value }))}
+              images={editorImages}
+              onUploadImages={record?.id ? uploadEditorImages : undefined}
+            />
+          </Panel>
+        </div>
+
+        <aside className="editor__side" ref={sideRef}>
+          <Panel title={t('PRIVATE.IMAGES')} hint={t('ADMIN.SECTION_IMAGES_HINT')} collapsible>
+            <ImageManager
+              existingImages={existingImages}
+              onImagesChange={(payload) => {
+                imagePayloadRef.current = payload;
+              }}
+              onDirty={() => setImagesDirty(true)}
+              onCopyImageLink={handleCopyImageLink}
+              onNewFilesAdded={record?.id ? handleNewFilesAdded : undefined}
+              onExistingImageRemoved={record?.id ? handleExistingImageRemoved : undefined}
+            />
+          </Panel>
+        </aside>
       </div>
-
-      <aside className="editor__side">
-        <Panel title={t('PRIVATE.IMAGES')}>
-          <ImageManager
-            existingImages={existingImages}
-            onImagesChange={(payload) => {
-              imagePayloadRef.current = payload;
-            }}
-            onDirty={() => setImagesDirty(true)}
-            onCopyImageLink={handleCopyImageLink}
-            onNewFilesAdded={record?.id ? handleNewFilesAdded : undefined}
-            onExistingImageRemoved={record?.id ? handleExistingImageRemoved : undefined}
-          />
-        </Panel>
-        <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
-      </aside>
+      <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
     </form>
   );
 }

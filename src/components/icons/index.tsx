@@ -217,3 +217,80 @@ export const IconLinkedin = ({ size = 20, ...rest }: IconProps) => (
     <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75ZM9.5 9.75h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-4.98c0-1.19-.02-2.72-1.66-2.72-1.66 0-1.91 1.3-1.91 2.63V21h-4V9.75Z" />
   </svg>
 );
+
+export const IconBold = (p: IconProps) => (
+  <Svg {...p} strokeWidth={2}>
+    <path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z" />
+  </Svg>
+);
+
+export const IconItalic = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M10 5h7M7 19h7M14 5l-4 14" />
+  </Svg>
+);
+
+export const IconStrike = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 12h16M16 7.5C15.5 6 14 5 12 5c-2.5 0-4 1.3-4 3 0 1 .4 1.8 1.5 2.5M8 16.5c.5 1.5 2 2.5 4 2.5 2.5 0 4-1.3 4-3 0-.6-.1-1.1-.5-1.5" />
+  </Svg>
+);
+
+export const IconList = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 6h11M9 12h11M9 18h11" />
+    <path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" strokeWidth={2.5} />
+  </Svg>
+);
+
+export const IconListOrdered = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M10 6h10M10 12h10M10 18h10M4 4.5 5.5 4v4.5M4 14.5c0-1.5 2.5-1.5 2.5 0 0 1-2.5 2-2.5 3h2.5" />
+  </Svg>
+);
+
+export const IconQuote = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 17V7M9 9h10M9 13h10M9 17h6" />
+  </Svg>
+);
+
+export const IconDivider = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 12h16M8 6h8M8 18h8" />
+  </Svg>
+);
+
+export const IconImage = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+    <circle cx="9" cy="10" r="1.5" />
+    <path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" />
+  </Svg>
+);
+
+export const IconUndo = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 6 4 10l4 4M4 10h10a5 5 0 0 1 0 10h-3" />
+  </Svg>
+);
+
+export const IconRedo = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m16 6 4 4-4 4M20 10H10a5 5 0 0 0 0 10h3" />
+  </Svg>
+);
+
+export const IconMore = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="5" cy="12" r="1.25" fill="currentColor" />
+    <circle cx="12" cy="12" r="1.25" fill="currentColor" />
+    <circle cx="19" cy="12" r="1.25" fill="currentColor" />
+  </Svg>
+);
+
+export const IconInvoice = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h5" />
+  </Svg>
+);

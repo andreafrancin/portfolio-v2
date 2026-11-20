@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Client, Condition } from '../../../lib/billing';
+import { conditionTexts, DOC_LANGUAGES } from '../../../lib/billing';
+import type { Client, Condition, DocLanguage } from '../../../lib/billing';
 import {
   createClient,
   createCondition,
@@ -231,20 +232,24 @@ export function ConditionDialog({
   const { t } = useTranslation();
   const toast = useToast();
   const [title, setTitle] = useState('');
-  const [text, setText] = useState('');
+  const [texts, setTexts] = useState<Partial<Record<DocLanguage, string>>>({});
+  const [language, setLanguage] = useState<DocLanguage>('ca');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
       setTitle(condition?.title || '');
-      setText(condition?.text || '');
+      setTexts(condition ? conditionTexts(condition) : {});
+      setLanguage('ca');
     }
   }, [open, condition]);
+
+  const hasText = Object.values(texts).some((value) => value?.trim());
 
   const submit = async () => {
     setSaving(true);
     try {
-      const body = { title: title.trim(), text };
+      const body = { title: title.trim(), text_i18n: texts };
       const saved = condition
         ? await updateCondition(condition.id, body)
         : await createCondition(body);
@@ -264,7 +269,7 @@ export function ConditionDialog({
       onClose={onClose}
       onSubmit={submit}
       saving={saving}
-      canSave={!!title.trim() && !!text.trim()}
+      canSave={!!title.trim() && hasText}
       submitLabel={condition ? t('PRIVATE.SAVE_CHANGES') : t('BILLING.CREATE_CONDITION')}
     >
       <div className="field">
@@ -281,16 +286,38 @@ export function ConditionDialog({
         />
       </div>
       <div className="field">
-        <label className="field__label" htmlFor="condition-text">
-          {t('BILLING.CONDITION_TEXT')}
-        </label>
+        <div className="field__row">
+          <label className="field__label" htmlFor="condition-text">
+            {t('BILLING.CONDITION_TEXT')}
+          </label>
+          <div
+            className="lang-switch lang-switch--doc"
+            role="group"
+            aria-label={t('ADMIN.CONTENT_LANGUAGE')}
+          >
+            {DOC_LANGUAGES.map((code) => (
+              <button
+                key={code}
+                type="button"
+                className="lang-switch__btn"
+                aria-pressed={language === code}
+                data-written={!!texts[code]?.trim()}
+                onClick={() => setLanguage(code)}
+              >
+                {t(`BILLING.LANG_${code}`)}
+              </button>
+            ))}
+          </div>
+        </div>
         <textarea
           id="condition-text"
           className="input"
           rows={10}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          lang={language}
+          value={texts[language] ?? ''}
+          onChange={(e) => setTexts((current) => ({ ...current, [language]: e.target.value }))}
         />
+        <span className="field__hint">{t('BILLING.CONDITION_LANGUAGES_HINT')}</span>
       </div>
     </FormDialog>
   );

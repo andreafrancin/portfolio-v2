@@ -79,8 +79,6 @@ function IssuerSettings() {
 
   return (
     <div className="issuer-tab">
-      <p className="billing-list__intro">{t('BILLING.ISSUER_HINT')}</p>
-
       {status === 'loading' && <div className="skeleton" style={{ height: 420, maxWidth: 900 }} />}
       {status === 'error' && (
         <div className="admin-state">
@@ -92,7 +90,7 @@ function IssuerSettings() {
       )}
 
       {status === 'ready' && (
-        <form className="editor" onSubmit={onSubmit} noValidate>
+        <form className="editor editor--single" onSubmit={onSubmit} noValidate>
           <div className="editor__main">
             <Panel title={t('BILLING.ISSUER')}>
               <div className="form-grid">
@@ -113,9 +111,7 @@ function IssuerSettings() {
               </div>
             </Panel>
           </div>
-          <aside className="editor__side">
-            <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
-          </aside>
+          <SaveBar dirty={dirty} saving={saving} label={t('PRIVATE.SAVE_CHANGES')} />
         </form>
       )}
     </div>

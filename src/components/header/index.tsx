@@ -25,7 +25,7 @@ const LANGS = [
   { code: 'en', label: 'EN', name: 'English' },
 ] as const;
 
-function LangSwitch({ className = '' }: { className?: string }) {
+export function LangSwitch({ className = '' }: { className?: string }) {
   const { lang, setLang } = useLang();
   const { t } = useTranslation();
   return (

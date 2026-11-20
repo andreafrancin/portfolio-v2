@@ -1,8 +1,20 @@
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import MDEditor from '@uiw/react-md-editor';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import '@uiw/react-markdown-preview/markdown.css';
+
+const TEXT_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+
+// Coloured text is the only HTML kept from the content: <span data-color="#rrggbb">.
+const sanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    span: [...(defaultSchema.attributes?.span ?? []), ['dataColor', TEXT_COLOR_PATTERN]],
+  },
+};
 
 interface Props {
   source: string;
@@ -19,6 +31,11 @@ function MarkdownView({ source, className = '', onImageClick }: Props) {
 
   const components = useMemo(
     () => ({
+      span: ({ node, ...props }: any) => {
+        const color = props['data-color'];
+
+        return <span {...props} style={TEXT_COLOR_PATTERN.test(color) ? { color } : undefined} />;
+      },
       img: ({ node, ...props }: any) => {
         const img = <img {...props} loading="lazy" decoding="async" alt={props.alt || ''} />;
         if (!zoomable) return img;
@@ -44,7 +61,7 @@ function MarkdownView({ source, className = '', onImageClick }: Props) {
     <div className={`prose ${className}`} data-color-mode="light">
       <MDEditor.Markdown
         source={source}
-        rehypePlugins={[[rehypeSanitize]]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
         components={components}
       />
     </div>

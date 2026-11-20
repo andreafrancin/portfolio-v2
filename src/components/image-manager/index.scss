@@ -323,3 +323,9 @@
     color: #fff;
   }
 }
+
+// Keeps the corners rounded while the blurred placeholder fades out.
+.image-tile .pimg {
+  border-radius: var(--r-md);
+  isolation: isolate;
+}

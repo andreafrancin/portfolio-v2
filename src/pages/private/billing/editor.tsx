@@ -30,6 +30,8 @@ import {
   Issuer,
   newDocument,
   normalizeDocument,
+  conditionText,
+  findConditionByText,
 } from '../../../lib/billing';
 import { downloadPdf, renderPdf } from '../../../lib/billing-pdf';
 import { Panel, StudioPageHeader } from '../../../components/studio';
@@ -49,9 +51,11 @@ import { ClientDialog, ConditionDialog } from './dialogs';
 import './list.scss';
 import './editor.scss';
 import RichField from './rich-field';
+import PdfSheets from './pdf-sheets';
+import DocumentNav from './document-nav';
 
 const STATUSES = ['draft', 'sent', 'accepted', 'rejected', 'paid'] as const;
-const listPath = (kind: DocumentKind) => `/private?tab=${kind === 'quote' ? 'quotes' : 'invoices'}`;
+const listPath = (kind: DocumentKind) => `/private/${kind === 'quote' ? 'quotes' : 'invoices'}`;
 const basePath = (kind: DocumentKind) =>
   kind === 'quote' ? '/private/quotes' : '/private/invoices';
 
@@ -96,10 +100,10 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
   });
 
   const [preview, setPreview] = useState<{
-    url: string | null;
+    blob: Blob | null;
     state: 'idle' | 'working' | 'error';
   }>({
-    url: null,
+    blob: null,
     state: 'idle',
   });
 
@@ -122,7 +126,9 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
         const layout: DocumentLayout | undefined =
           layoutParam === 'numbered' || layoutParam === 'concept' ? layoutParam : undefined;
         next = newDocument(kind, iss, layout);
-        if (kind === 'quote' && conds.length > 0) next.conditions_text = conds[0].text;
+        if (kind === 'quote' && conds.length > 0) {
+          next.conditions_text = conditionText(conds[0], next.content.language);
+        }
         const num = await fetchNextNumber(kind, next.year);
         next.sequence = num.sequence;
       }
@@ -149,12 +155,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
       setPreview((p) => ({ ...p, state: 'working' }));
       try {
         const blob = await renderPdf(doc, issuer);
-        if (cancelled) return;
-        const url = URL.createObjectURL(blob);
-        setPreview((p) => {
-          if (p.url) URL.revokeObjectURL(p.url);
-          return { url, state: 'idle' };
-        });
+        if (!cancelled) setPreview({ blob, state: 'idle' });
       } catch {
         if (!cancelled) setPreview((p) => ({ ...p, state: 'error' }));
       }
@@ -164,16 +165,6 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
       window.clearTimeout(timer);
     };
   }, [doc, issuer]);
-
-  useEffect(
-    () => () => {
-      setPreview((p) => {
-        if (p.url) URL.revokeObjectURL(p.url);
-        return p;
-      });
-    },
-    []
-  );
 
   const totals = useMemo(() => (doc ? computeTotals(doc) : null), [doc]);
 
@@ -286,7 +277,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
     setConditions((list) =>
       [...list.filter((x) => x.id !== c.id), c].sort((a, b) => a.title.localeCompare(b.title))
     );
-    update({ conditions_text: c.text });
+    update({ conditions_text: conditionText(c, doc?.content.language ?? 'ca') });
     setConditionDialog(false);
   };
 
@@ -297,7 +288,12 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
         d.content.lead === DEFAULT_LEAD[d.content.language]
           ? DEFAULT_LEAD[language]
           : d.content.lead;
-      return { ...d, content: { ...d.content, language, lead } };
+      // Saved conditions follow the PDF language; a text retouched by hand is left as it is.
+      const savedCondition = findConditionByText(conditions, d.conditions_text);
+      const conditions_text = savedCondition
+        ? conditionText(savedCondition, language)
+        : d.conditions_text;
+      return { ...d, conditions_text, content: { ...d.content, language, lead } };
     });
 
   const changeLayout = (layout: DocumentLayout) =>
@@ -435,7 +431,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
         {status === 'loading' ? (
           <div className="doc-editor">
             <div className="skeleton" style={{ height: 520 }} />
-            <div className="skeleton doc-preview__sheet" />
+            <div className="skeleton pdf-sheets__placeholder" />
           </div>
         ) : (
           <div className="admin-state">
@@ -524,13 +520,26 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
       {issuerMissing && (
         <p className="billing-notice">
           {t('BILLING.ISSUER_MISSING')}{' '}
-          <Link to="/private?tab=issuer" className="text-link">
+          <Link to="/private/issuer" className="text-link">
             {t('BILLING.ISSUER')}
           </Link>
         </p>
       )}
 
       <div className="doc-editor">
+        <DocumentNav
+          sections={[
+            { id: 'doc-number', label: t('BILLING.NUMBER') },
+            { id: 'doc-client', label: t('BILLING.CLIENT') },
+            ...(isInvoice ? [] : [{ id: 'doc-intro', label: t('BILLING.INTRO') }]),
+            { id: 'doc-items', label: t('BILLING.ITEMS') },
+            { id: 'doc-taxes', label: t('BILLING.TAXES') },
+            { id: 'doc-texts', label: t('BILLING.TEXTS') },
+          ]}
+          preview={{ id: 'doc-preview', label: t('BILLING.PREVIEW') }}
+          totalLabel={t('BILLING.TOTAL_AMOUNT')}
+          total={totals ? formatMoney(totals.total) : ''}
+        />
         <form
           className="doc-form"
           onSubmit={(e) => {
@@ -539,7 +548,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
           }}
           noValidate
         >
-          <Panel title={t('BILLING.NUMBER')}>
+          <Panel id="doc-number" title={t('BILLING.NUMBER')}>
             <div className="form-grid form-grid--4">
               <div className="field">
                 <label className="field__label" htmlFor="doc-year">
@@ -648,7 +657,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
             )}
           </Panel>
 
-          <Panel title={t('BILLING.CLIENT')}>
+          <Panel id="doc-client" title={t('BILLING.CLIENT')}>
             <div className="pick-row">
               <div className="field">
                 <label className="field__label" htmlFor="doc-client">
@@ -702,7 +711,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
           </Panel>
 
           {!isInvoice && (
-            <Panel title={t('BILLING.INTRO')}>
+            <Panel id="doc-intro" title={t('BILLING.INTRO')}>
               <div className="field">
                 <label className="field__label" htmlFor="doc-lead">
                   {t(`BILLING.LEAD_${layout}`)}
@@ -734,7 +743,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
             </Panel>
           )}
 
-          <Panel title={t('BILLING.ITEMS')}>
+          <Panel id="doc-items" title={t('BILLING.ITEMS')}>
             <ol className="doc-sections">
               {doc.content.sections.map((s, i) => (
                 <li key={s.id} className="doc-section">
@@ -914,7 +923,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
             </button>
           </Panel>
 
-          <Panel title={t('BILLING.TAXES')}>
+          <Panel id="doc-taxes" title={t('BILLING.TAXES')}>
             <div className="form-grid form-grid--3">
               <div className="field">
                 <label className="field__label" htmlFor="doc-iva">
@@ -986,7 +995,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
             )}
           </Panel>
 
-          <Panel title={t('BILLING.TEXTS')}>
+          <Panel id="doc-texts" title={t('BILLING.TEXTS')}>
             {isInvoice ? (
               <div className="field">
                 <label className="field__label" htmlFor="doc-payment">
@@ -1024,10 +1033,12 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
                     <select
                       id="doc-cond-pick"
                       className="input select"
-                      value={conditions.find((c) => c.text === doc.conditions_text)?.id ?? ''}
+                      value={findConditionByText(conditions, doc.conditions_text)?.id ?? ''}
                       onChange={(e) => {
                         const c = conditions.find((x) => x.id === Number(e.target.value));
-                        update({ conditions_text: c ? c.text : '' });
+                        update({
+                          conditions_text: c ? conditionText(c, doc.content.language) : '',
+                        });
                       }}
                     >
                       <option value="">{t('BILLING.PICK_CONDITION_NONE')}</option>
@@ -1065,7 +1076,7 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
           </Panel>
         </form>
 
-        <aside className="doc-preview" aria-label={t('BILLING.PREVIEW')}>
+        <aside id="doc-preview" className="doc-preview" aria-label={t('BILLING.PREVIEW')}>
           <div className="doc-preview__bar">
             <span>{t('BILLING.PREVIEW')}</span>
             {preview.state === 'working' && (
@@ -1077,15 +1088,13 @@ function DocumentEditor({ kind }: { kind: DocumentKind }) {
               <span className="doc-preview__status">{t('BILLING.PREVIEW_FAILED')}</span>
             )}
           </div>
-          {preview.url ? (
-            <iframe
-              className="doc-preview__sheet"
+          <div className="doc-preview__scroll">
+            <PdfSheets
+              blob={preview.blob}
               title={t('BILLING.PREVIEW')}
-              src={`${preview.url}#toolbar=0&navpanes=0&view=FitH`}
+              onError={() => setPreview((p) => ({ ...p, state: 'error' }))}
             />
-          ) : (
-            <div className="doc-preview__sheet skeleton" />
-          )}
+          </div>
         </aside>
       </div>
 
