@@ -725,3 +725,110 @@ ol.info__list {
   font-weight: 600;
   color: var(--text);
 }
+
+// ---------- Loading ----------
+
+// Changing the period keeps the old numbers on screen, dimmed, until the new ones arrive.
+.stats > * {
+  transition: opacity var(--dur-2) linear;
+}
+
+.stats.is-refreshing > :not(.stats__toolbar) {
+  opacity: 0.45;
+}
+
+.kpi__skeleton-value {
+  display: block;
+  width: 60%;
+  height: 30px;
+  margin: 2px 0 4px;
+  border-radius: 8px;
+}
+
+.kpi__skeleton-delta {
+  display: block;
+  width: 80%;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.card-skeleton__title {
+  display: block;
+  width: 45%;
+  height: 20px;
+  border-radius: 8px;
+}
+
+.card-skeleton__hint {
+  display: block;
+  width: 75%;
+  height: 12px;
+  margin: 10px 0 20px;
+  border-radius: 6px;
+}
+
+.bars-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bars-skeleton__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  gap: 6px 12px;
+  align-items: center;
+}
+
+.bars-skeleton__label {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.bars-skeleton__value {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.bars-skeleton__bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 6px;
+}
+
+.table-skeleton {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-skeleton__row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  align-items: center;
+  padding: 14px 10px;
+  border-top: 1px solid var(--line);
+
+  &:first-child {
+    border-top: 0;
+  }
+}
+
+.table-skeleton__name {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.table-skeleton__cell {
+  justify-self: end;
+  width: 60%;
+  height: 14px;
+  border-radius: 6px;
+}
+
+.stats__live-skeleton {
+  display: inline-block;
+  width: 150px;
+  height: 12px;
+  border-radius: 6px;
+}

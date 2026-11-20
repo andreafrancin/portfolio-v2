@@ -154,6 +154,50 @@ function Card({
   );
 }
 
+// Placeholders shaped like the real content, shown until the first data arrives.
+function BarsSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="bars-skeleton" aria-hidden="true">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="bars-skeleton__row">
+          <span className="skeleton bars-skeleton__label" style={{ width: `${70 - i * 9}%` }} />
+          <span className="skeleton bars-skeleton__value" />
+          <span className="skeleton bars-skeleton__bar" style={{ width: `${100 - i * 17}%` }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="table-skeleton" aria-hidden="true">
+      {Array.from({ length: 6 }, (_, i) => (
+        <div key={i} className="table-skeleton__row">
+          <span className="skeleton table-skeleton__name" style={{ width: `${55 - i * 5}%` }} />
+          {Array.from({ length: 5 }, (_, j) => (
+            <span key={j} className="skeleton table-skeleton__cell" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GridSkeleton() {
+  return (
+    <div className="stats__grid" aria-hidden="true">
+      {Array.from({ length: 6 }, (_, i) => (
+        <section key={i} className="stats-card">
+          <span className="skeleton card-skeleton__title" />
+          <span className="skeleton card-skeleton__hint" />
+          <BarsSkeleton rows={i % 2 ? 4 : 5} />
+        </section>
+      ))}
+    </div>
+  );
+}
+
 function AnalyticsPage() {
   const { t } = useTranslation();
   const { lang } = useLang();
@@ -161,6 +205,7 @@ function AnalyticsPage() {
   const [metric, setMetric] = useState<Metric>('visitors');
   const [report, setReport] = useState<AnalyticsReport | null>(null);
   const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [allProjects, setAllProjects] = useState(false);
   const [hidden, setHidden] = useState<SectionKey[]>([]);
   const [customizing, setCustomizing] = useState(false);
@@ -189,14 +234,18 @@ function AnalyticsPage() {
     loadCategories();
   }, []);
 
-  const load = useCallback(async (key: PeriodKey) => {
+  // `quiet` is the background refresh of the live count: it doesn't dim the page.
+  const load = useCallback(async (key: PeriodKey, quiet = false) => {
     setFailed(false);
+    if (!quiet) setLoading(true);
     const days = PERIODS.find((p) => p.key === key)?.days || 30;
     const { from, to } = rangeOf(days);
     try {
       setReport(await fetchAnalyticsReport(from, to));
     } catch {
       setFailed(true);
+    } finally {
+      if (!quiet) setLoading(false);
     }
   }, []);
 
@@ -206,7 +255,7 @@ function AnalyticsPage() {
 
   // The live count refreshes every minute while the page is open.
   useEffect(() => {
-    const timer = window.setInterval(() => load(period), 60_000);
+    const timer = window.setInterval(() => load(period, true), 60_000);
     return () => window.clearInterval(timer);
   }, [load, period]);
 
@@ -270,7 +319,7 @@ function AnalyticsPage() {
 
   return (
     <HiddenSections.Provider value={hidden}>
-      <div className="stats">
+      <div className={`stats${loading && report ? ' is-refreshing' : ''}`} aria-busy={loading}>
         <div className="stats__toolbar">
           <div className="stats__periods" role="group" aria-label={t('ANALYTICS.PERIOD')}>
             {PERIODS.map((p) => (
@@ -295,7 +344,11 @@ function AnalyticsPage() {
             </button>
             <p className="stats__live" aria-live="polite">
               <span className="stats__live-dot" aria-hidden="true" />
-              {t('ANALYTICS.LIVE', { count: report?.live ?? 0 })}
+              {report ? (
+                t('ANALYTICS.LIVE', { count: report.live })
+              ) : (
+                <span className="skeleton stats__live-skeleton" aria-hidden="true" />
+              )}
             </p>
           </div>
         </div>
@@ -321,7 +374,14 @@ function AnalyticsPage() {
             ).map(([key, label, format, inverse]) => (
               <div key={key} className="kpi">
                 <p className="kpi__label">{label}</p>
-                <p className="kpi__value tabular">{totals ? format(totals[key]) : '…'}</p>
+                {totals ? (
+                  <p className="kpi__value tabular">{format(totals[key])}</p>
+                ) : (
+                  <>
+                    <span className="skeleton kpi__skeleton-value" />
+                    <span className="skeleton kpi__skeleton-delta" />
+                  </>
+                )}
                 {totals && previous && (
                   <Delta now={totals[key]} before={previous[key]} inverse={inverse} />
                 )}
@@ -365,7 +425,9 @@ function AnalyticsPage() {
           hint={t('ANALYTICS.PROJECTS_HINT')}
           wide
         >
-          {report && report.projects.length ? (
+          {!report ? (
+            <TableSkeleton />
+          ) : report.projects.length ? (
             <div className="stats-table__wrap">
               <table className="stats-table">
                 <thead>
@@ -421,7 +483,9 @@ function AnalyticsPage() {
           )}
         </Card>
 
-        {report && (
+        {!report ? (
+          <GridSkeleton />
+        ) : (
           <div className="stats__grid">
             <Card section="pages" title={t('ANALYTICS.PAGES')} hint={t('ANALYTICS.PAGES_HINT')}>
               <BarList rows={groupRows(report.pages, pageLabel)} empty={t('ANALYTICS.NO_DATA')} />
