@@ -24,8 +24,10 @@ export const ADMIN_NAVIGATION: AdminNavigationGroup[] = [
   {
     titleKey: 'ADMIN.GROUP_PAGES',
     items: [
+      { to: '/private/services', labelKey: 'PRIVATE.TABS.SERVICES', matches: [] },
       { to: '/private/about', labelKey: 'PRIVATE.TABS.ABOUT', matches: [] },
       { to: '/private/contact', labelKey: 'PRIVATE.TABS.CONTACT', matches: [] },
+      { to: '/private/auto-reply', labelKey: 'PRIVATE.TABS.AUTO_REPLY', matches: [] },
     ],
   },
   {
@@ -54,6 +56,7 @@ export function isCurrentItem(item: AdminNavigationItem, path: string): boolean 
 
 const LEGACY_TAB_PATHS: Record<string, string> = {
   about: '/private/about',
+  services: '/private/services',
   contact: '/private/contact',
   categories: '/private/categories',
   quotes: '/private/quotes',

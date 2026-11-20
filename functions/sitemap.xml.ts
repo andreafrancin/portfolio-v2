@@ -1,7 +1,7 @@
 import { pageUrl, SEO_LANGS } from '../src/seo/meta';
 import { API, fetchJson } from '../functions-lib/seo';
 
-const STATIC_PATHS = ['/work', '/about', '/contact', '/legal'];
+const STATIC_PATHS = ['/work', '/services', '/about', '/contact', '/legal'];
 
 const escapeXml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

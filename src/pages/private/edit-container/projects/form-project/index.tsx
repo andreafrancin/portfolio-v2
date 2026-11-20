@@ -105,7 +105,7 @@ function FormProject({
           written={filledLanguages ?? {}}
         />
       )}
-      <div className="editor">
+      <div className="editor editor--project">
         <div className="editor__main">
           <Panel
             title={t('PRIVATE.TITLE')}
@@ -131,6 +131,7 @@ function FormProject({
             <Panel title={t('PRIVATE.CONTENT')} hint={t('ADMIN.SECTION_TEXT_HINT')}>
               <RichEditor
                 key={selectedLanguage}
+                variant="project"
                 label={t('PRIVATE.CONTENT')}
                 value={markdownValue}
                 onChange={onMarkdownChange || (() => {})}

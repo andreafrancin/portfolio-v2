@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useLang } from '../../context/lang-context';
 import { LEGAL_UPDATED } from '../../config/site';
 import { LEGAL_COPY } from './content';
@@ -9,6 +11,17 @@ function Legal() {
   const { lang } = useLang();
   const copy = LEGAL_COPY[lang] || LEGAL_COPY.es;
   useSeo({ title: PAGE_META.legal.title[lang], description: PAGE_META.legal.description[lang] });
+  const { hash } = useLocation();
+
+  // The app scrolls to the top on every page change; a link to a section scrolls there after it.
+  useEffect(() => {
+    if (!hash) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+    }, 60);
+    return () => window.clearTimeout(timer);
+  }, [hash]);
+
   const updated = new Date(`${LEGAL_UPDATED}T12:00:00`).toLocaleDateString(lang, {
     day: 'numeric',
     month: 'long',

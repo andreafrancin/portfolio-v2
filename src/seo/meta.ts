@@ -11,7 +11,7 @@ const OG_LOCALE: Record<SeoLang, string> = { es: 'es_ES', ca: 'ca_ES', en: 'en_G
 type Localized = Record<SeoLang, string>;
 
 export const PAGE_META: Record<
-  'work' | 'about' | 'contact' | 'legal',
+  'work' | 'services' | 'about' | 'contact' | 'legal',
   { title: Localized; description: Localized }
 > = {
   work: {
@@ -24,6 +24,18 @@ export const PAGE_META: Record<
       es: 'Portfolio de Andrea Francín, ilustradora y diseñadora gráfica: ilustración, branding, campañas y diseño editorial con un estilo delicado y lleno de color.',
       ca: 'Portfoli d’Andrea Francín, il·lustradora i dissenyadora gràfica: il·lustració, branding, campanyes i disseny editorial amb un estil delicat i ple de color.',
       en: 'Portfolio of Andrea Francín, illustrator and graphic designer: illustration, branding, campaigns and editorial design with a delicate, colourful style.',
+    },
+  },
+  services: {
+    title: {
+      es: 'Servicios — Andrea Francín',
+      ca: 'Serveis — Andrea Francín',
+      en: 'Services — Andrea Francín',
+    },
+    description: {
+      es: 'Servicios de Andrea Francín: branding e identidad, ilustración, campañas, diseño editorial, diseño web, animación 2D y murales.',
+      ca: 'Serveis d’Andrea Francín: branding i identitat, il·lustració, campanyes, disseny editorial, disseny web, animació 2D i murals.',
+      en: 'Services by Andrea Francín: branding and identity, illustration, campaigns, editorial design, web design, 2D animation and murals.',
     },
   },
   about: {

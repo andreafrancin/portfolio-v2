@@ -77,10 +77,21 @@ const es: LegalCopy = {
       title: 'Privacidad',
       blocks: [
         `Responsable del tratamiento: ${LEGAL_NAME}. Contacto: ${CONTACT_EMAIL}.`,
-        'Navegación: este sitio web no tiene formularios, no usa herramientas de analítica ni publicidad y no instala cookies de seguimiento. Solo guarda en tu navegador tus preferencias (idioma y vista de los proyectos), que son técnicas y necesarias para el funcionamiento del sitio y están exentas de consentimiento (artículo 22.2 de la LSSI). Por seguridad, el proveedor de alojamiento puede registrar datos técnicos como la dirección IP.',
-        'Si escribes por correo electrónico, tus datos se usan para responderte y, si lo pides, preparar un presupuesto. La base legal es tu consentimiento y la aplicación de medidas precontractuales. Se conservan mientras dure la conversación o la relación profesional.',
-        'Destinatarios: los datos no se ceden a terceros, salvo obligación legal. Los proveedores que alojan el sitio y el correo electrónico actúan como encargados del tratamiento con contrato. Si alguno está fuera del Espacio Económico Europeo, la transferencia se hace con las garantías que prevé el RGPD.',
-        `Derechos: puedes pedir el acceso, la rectificación, la supresión, la oposición, la limitación del tratamiento y la portabilidad de tus datos escribiendo a ${CONTACT_EMAIL}. Si consideras que no se han respetado, puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).`,
+        'Navegación: este sitio web no usa herramientas de analítica ni publicidad y no instala cookies de seguimiento. Solo guarda en tu navegador tus preferencias (idioma y vista de los proyectos), que son técnicas y necesarias para el funcionamiento del sitio y están exentas de consentimiento (artículo 22.2 de la LSSI). Por seguridad, el proveedor de alojamiento puede registrar datos técnicos como la dirección IP.',
+        'Formulario de contacto y correo electrónico: si escribes a través del formulario o por correo electrónico, se tratan los datos que facilitas.',
+        {
+          list: [
+            'Datos: nombre, dirección de correo electrónico, el servicio que te interesa (si lo indicas) y el contenido del mensaje.',
+            'Finalidad: confirmarte por correo que el mensaje ha llegado, responder a tu consulta y, si lo pides, preparar un presupuesto. No se usan para enviarte publicidad ni boletines.',
+            `Base legal: tu consentimiento, que das al marcar la casilla del formulario (artículo 6.1.a del RGPD), y la aplicación de medidas precontractuales a petición tuya (artículo 6.1.b). Puedes retirar el consentimiento en cualquier momento escribiendo a ${CONTACT_EMAIL}.`,
+            'Datos necesarios: el nombre, el correo, el mensaje y la aceptación de esta política son imprescindibles para poder responderte.',
+            'Conservación: el formulario no guarda los mensajes en este sitio web; se envían directamente al correo de la autora. Se conservan mientras dure la conversación y, como máximo, un año después de la última comunicación. Si se inicia una relación profesional, se conservan durante los plazos que exige la ley, por ejemplo la normativa fiscal.',
+            'Protección frente al abuso: para impedir envíos automáticos, la dirección IP se usa de forma temporal para limitar el número de mensajes. La base legal es el interés legítimo en proteger el sitio (artículo 6.1.f del RGPD).',
+            'Menores: si tienes menos de 14 años, no envíes el formulario sin el consentimiento de tus padres o tutores (artículo 7 de la LOPDGDD).',
+          ],
+        },
+        'Destinatarios: los datos no se ceden a terceros, salvo obligación legal. Acceden a ellos, como encargados del tratamiento y con contrato, los proveedores que alojan el sitio web, el servicio que entrega los mensajes del formulario y el proveedor de correo electrónico (Google). Algunos están en Estados Unidos: esas transferencias se amparan en el Marco de Privacidad de Datos UE-EE. UU. o en las cláusulas contractuales tipo de la Comisión Europea.',
+        `Derechos: puedes pedir el acceso, la rectificación, la supresión, la oposición, la limitación del tratamiento y la portabilidad de tus datos, y retirar tu consentimiento, escribiendo a ${CONTACT_EMAIL}. Si consideras que no se han respetado, puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).`,
       ],
     },
     {
@@ -155,10 +166,21 @@ const ca: LegalCopy = {
       title: 'Privacitat',
       blocks: [
         `Responsable del tractament: ${LEGAL_NAME}. Contacte: ${CONTACT_EMAIL}.`,
-        'Navegació: aquest lloc web no té formularis, no fa servir eines d’analítica ni publicitat i no instal·la galetes de seguiment. Només desa al teu navegador les teves preferències (idioma i vista dels projectes), que són tècniques i necessàries per al funcionament del lloc i estan exemptes de consentiment (article 22.2 de la LSSI). Per seguretat, el proveïdor d’allotjament pot registrar dades tècniques com l’adreça IP.',
-        'Si escrius per correu electrònic, les teves dades es fan servir per respondre’t i, si ho demanes, preparar un pressupost. La base legal és el teu consentiment i l’aplicació de mesures precontractuals. Es conserven mentre duri la conversa o la relació professional.',
-        'Destinataris: les dades no es cedeixen a tercers, llevat d’obligació legal. Els proveïdors que allotgen el lloc i el correu electrònic actuen com a encarregats del tractament amb contracte. Si algun és fora de l’Espai Econòmic Europeu, la transferència es fa amb les garanties que preveu el RGPD.',
-        `Drets: pots demanar l’accés, la rectificació, la supressió, l’oposició, la limitació del tractament i la portabilitat de les teves dades escrivint a ${CONTACT_EMAIL}. Si consideres que no s’han respectat, pots reclamar davant l’Agència Espanyola de Protecció de Dades (www.aepd.es).`,
+        'Navegació: aquest lloc web no fa servir eines d’analítica ni publicitat i no instal·la galetes de seguiment. Només desa al teu navegador les teves preferències (idioma i vista dels projectes), que són tècniques i necessàries per al funcionament del lloc i estan exemptes de consentiment (article 22.2 de la LSSI). Per seguretat, el proveïdor d’allotjament pot registrar dades tècniques com l’adreça IP.',
+        'Formulari de contacte i correu electrònic: si escrius a través del formulari o per correu electrònic, es tracten les dades que facilites.',
+        {
+          list: [
+            'Dades: nom, adreça de correu electrònic, el servei que t’interessa (si l’indiques) i el contingut del missatge.',
+            'Finalitat: confirmar-te per correu que el missatge ha arribat, respondre la teva consulta i, si ho demanes, preparar un pressupost. No es fan servir per enviar-te publicitat ni butlletins.',
+            `Base legal: el teu consentiment, que dones en marcar la casella del formulari (article 6.1.a del RGPD), i l’aplicació de mesures precontractuals a petició teva (article 6.1.b). Pots retirar el consentiment en qualsevol moment escrivint a ${CONTACT_EMAIL}.`,
+            'Dades necessàries: el nom, el correu, el missatge i l’acceptació d’aquesta política són imprescindibles per poder respondre’t.',
+            'Conservació: el formulari no desa els missatges en aquest lloc web; s’envien directament al correu de l’autora. Es conserven mentre duri la conversa i, com a màxim, un any després de la darrera comunicació. Si s’inicia una relació professional, es conserven durant els terminis que exigeix la llei, per exemple la normativa fiscal.',
+            'Protecció davant l’abús: per impedir enviaments automàtics, l’adreça IP es fa servir de manera temporal per limitar el nombre de missatges. La base legal és l’interès legítim a protegir el lloc (article 6.1.f del RGPD).',
+            'Menors: si tens menys de 14 anys, no enviïs el formulari sense el consentiment dels teus pares o tutors (article 7 de la LOPDGDD).',
+          ],
+        },
+        'Destinataris: les dades no es cedeixen a tercers, llevat d’obligació legal. Hi accedeixen, com a encarregats del tractament i amb contracte, els proveïdors que allotgen el lloc web, el servei que lliura els missatges del formulari i el proveïdor de correu electrònic (Google). Alguns són als Estats Units: aquestes transferències s’emparen en el Marc de Privacitat de Dades UE-EUA o en les clàusules contractuals tipus de la Comissió Europea.',
+        `Drets: pots demanar l’accés, la rectificació, la supressió, l’oposició, la limitació del tractament i la portabilitat de les teves dades, i retirar el teu consentiment, escrivint a ${CONTACT_EMAIL}. Si consideres que no s’han respectat, pots reclamar davant l’Agència Espanyola de Protecció de Dades (www.aepd.es).`,
       ],
     },
     {
@@ -233,10 +255,21 @@ const en: LegalCopy = {
       title: 'Privacy',
       blocks: [
         `Data controller: ${LEGAL_NAME}. Contact: ${CONTACT_EMAIL}.`,
-        'Browsing: this website has no forms, uses no analytics or advertising tools and sets no tracking cookies. It only stores your preferences (language and project view) in your browser; these are technical, necessary for the site to work and exempt from consent (article 22.2 LSSI). For security, the hosting provider may log technical data such as your IP address.',
-        'If you write by email, your data is used to reply and, if you ask for one, to prepare a quote. The legal basis is your consent and pre-contractual measures. It is kept for as long as the conversation or the professional relationship lasts.',
-        'Recipients: data is not shared with third parties except where required by law. The providers that host the site and the email act as data processors under contract. Where a provider is outside the European Economic Area, transfers are made with the safeguards required by the GDPR.',
-        `Your rights: you can request access, rectification, erasure, objection, restriction of processing and portability of your data by writing to ${CONTACT_EMAIL}. If you believe your rights have not been respected, you can complain to the Spanish Data Protection Agency (www.aepd.es).`,
+        'Browsing: this website uses no analytics or advertising tools and sets no tracking cookies. It only stores your preferences (language and project view) in your browser; these are technical, necessary for the site to work and exempt from consent (article 22.2 LSSI). For security, the hosting provider may log technical data such as your IP address.',
+        'Contact form and email: if you write through the form or by email, the data you provide is processed.',
+        {
+          list: [
+            'Data: name, email address, the service you are interested in (if you choose one) and the content of your message.',
+            'Purpose: to confirm by email that your message has arrived, to answer your enquiry and, if you ask for one, to prepare a quote. It is not used to send you advertising or newsletters.',
+            `Legal basis: your consent, given by ticking the box in the form (article 6.1.a GDPR), and pre-contractual measures taken at your request (article 6.1.b). You can withdraw your consent at any time by writing to ${CONTACT_EMAIL}.`,
+            'Required data: your name, email, message and acceptance of this policy are needed to be able to reply.',
+            'Retention: the form does not store messages on this website; they are sent straight to the author’s email. They are kept while the conversation lasts and at most one year after the last exchange. If a professional relationship begins, they are kept for the periods required by law, such as tax rules.',
+            'Abuse prevention: to stop automated submissions, your IP address is used temporarily to limit the number of messages. The legal basis is the legitimate interest in protecting the site (article 6.1.f GDPR).',
+            'Minors: if you are under 14, do not send the form without the consent of your parents or guardians (article 7 LOPDGDD).',
+          ],
+        },
+        'Recipients: data is not shared with third parties except where required by law. The providers that host the website, the service that delivers the form messages and the email provider (Google) access it as data processors under contract. Some are in the United States: those transfers rely on the EU-US Data Privacy Framework or the European Commission’s standard contractual clauses.',
+        `Your rights: you can request access, rectification, erasure, objection, restriction of processing and portability of your data, and withdraw your consent, by writing to ${CONTACT_EMAIL}. If you believe your rights have not been respected, you can complain to the Spanish Data Protection Agency (www.aepd.es).`,
       ],
     },
     {
@@ -248,6 +281,13 @@ const en: LegalCopy = {
       ],
     },
   ],
+};
+
+// The privacy section's anchor in each language, for links from the contact form.
+export const PRIVACY_ANCHOR: Record<string, string> = {
+  es: 'privacidad',
+  ca: 'privacitat',
+  en: 'privacy',
 };
 
 export const LEGAL_COPY: Record<string, LegalCopy> = { es, ca, en };

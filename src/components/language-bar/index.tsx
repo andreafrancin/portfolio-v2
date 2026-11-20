@@ -11,9 +11,15 @@ interface LanguageBarProps {
   selectedLanguage: string;
   onLanguageChange: (language: string) => void;
   written: Record<string, boolean>;
+  className?: string;
 }
 
-function LanguageBar({ selectedLanguage, onLanguageChange, written }: LanguageBarProps) {
+function LanguageBar({
+  selectedLanguage,
+  onLanguageChange,
+  written,
+  className = '',
+}: LanguageBarProps) {
   const { t } = useTranslation();
 
   const selectByOffset = (currentIndex: number, offset: number, list: HTMLElement | null): void => {
@@ -25,7 +31,7 @@ function LanguageBar({ selectedLanguage, onLanguageChange, written }: LanguageBa
   };
 
   return (
-    <div className="language-bar">
+    <div className={`language-bar ${className}`.trim()}>
       <span className="language-bar__label" id="language-bar-label">
         {t('ADMIN.CONTENT_LANGUAGE')}
       </span>

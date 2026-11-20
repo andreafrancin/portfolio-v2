@@ -1,4 +1,5 @@
 @use '../../../styles/variables' as *;
+@use '../../../styles/project-content' as *;
 
 .reading-progress {
   position: fixed;
@@ -119,7 +120,8 @@
 .ink-chip--placeholder {
   width: 96px;
   pointer-events: none;
-  background: linear-gradient(90deg, var(--surface-2) 0%, #fff 50%, var(--surface-2) 100%) 0 0 / 200% 100%;
+  background: linear-gradient(90deg, var(--surface-2) 0%, #fff 50%, var(--surface-2) 100%) 0 0 /
+    200% 100%;
   animation: chip-pulse 1.4s ease-in-out infinite;
 
   & + & {
@@ -222,11 +224,10 @@
 }
 
 .project__prose {
-  max-width: var(--measure);
+  max-width: $project-measure;
   margin-inline: auto;
 
-  > .wmde-markdown,
-  .wmde-markdown > * {
+  > .wmde-markdown {
     max-width: none;
   }
 
@@ -238,114 +239,7 @@
   }
 
   &.prose .wmde-markdown {
-    p,
-    ul,
-    ol,
-    blockquote,
-    table,
-    pre {
-      margin: 0 0 16px;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4 {
-      font-family: $font;
-      font-weight: 600;
-      line-height: 1.25;
-      text-align: start;
-      text-wrap: pretty;
-    }
-
-    h1 {
-      font-size: 32px;
-      color: var(--text);
-      text-align: center;
-      margin: 24px 0 30px;
-      padding-bottom: 0.3em;
-      border-bottom: 1px solid #d8dee4;
-    }
-
-    h2 {
-      font-size: 24px;
-      color: #24292f;
-      margin: 24px 0 16px;
-      padding-bottom: 0.3em;
-      border-bottom: 1px solid #d8dee4;
-    }
-
-    h3 {
-      font-size: 20px;
-      color: #24292f;
-      margin: 24px 0 16px;
-    }
-
-    h4 {
-      font-size: 16px;
-      color: #24292f;
-      margin: 24px 0 16px;
-    }
-
-    > :first-child {
-      margin-top: 0;
-    }
-
-    hr {
-      height: 0;
-      border: 0;
-      border-top: 1px solid #d8dee4;
-      margin: 24px 0;
-    }
-
-    strong {
-      color: inherit;
-      font-weight: 600;
-    }
-
-    ul,
-    ol {
-      padding-left: 2em;
-    }
-
-    li + li {
-      margin-top: 0.25em;
-    }
-
-    blockquote {
-      padding: 0 16px;
-      font-size: 16px;
-      font-weight: 400;
-      line-height: 1.5;
-      color: #57606a;
-      border-left: 4px solid #d0d7de;
-      box-shadow: none;
-
-      p {
-        margin: 0;
-      }
-    }
-  }
-
-  &.prose img,
-  &.prose video,
-  &.prose iframe {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 70vh;
-    margin-inline: auto;
-    justify-self: center;
-    object-fit: contain;
-  }
-
-  &.prose img {
-    box-shadow: none;
-  }
-
-  .wmde-markdown > p:has(img) {
-    justify-items: center;
+    @include project-content;
   }
 }
 

@@ -15,6 +15,7 @@ import './index.scss';
 
 const NAV = [
   { path: '/work', key: 'HEADER.WORK' },
+  { path: '/services', key: 'HEADER.SERVICES' },
   { path: '/about', key: 'HEADER.ABOUT' },
   { path: '/contact', key: 'HEADER.CONTACT' },
 ];

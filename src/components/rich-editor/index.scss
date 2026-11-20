@@ -1,4 +1,5 @@
 @use '../../styles/variables' as *;
+@use '../../styles/project-content' as *;
 
 .rich-editor {
   border: 1px solid var(--line-strong);
@@ -274,7 +275,18 @@
   // ProseMirror adds a helper image after a trailing inline node; it must not turn text into a gallery.
   p:has(img.ProseMirror-separator):not(:has(img:not(.ProseMirror-separator))) {
     display: block;
-    margin: 0 0 1.15em;
+    margin: 0 0 var(--paragraph-gap, 1.15em);
+  }
+
+  // The helpers ProseMirror adds around an image must not add rows of space to the image column.
+  p:has(img:not(.ProseMirror-separator)) {
+    img.ProseMirror-separator {
+      position: absolute;
+    }
+
+    br.ProseMirror-trailingBreak {
+      display: none;
+    }
   }
 
   img.ProseMirror-separator {
@@ -538,4 +550,16 @@
   .btn {
     min-height: 42px;
   }
+}
+
+// Projects are edited with the same type and spacing as the public project page.
+.rich-editor__content.rich-editor__content--project {
+  --paragraph-gap: 16px;
+  // ProseMirror turns ligatures off, which makes some words wider than on the public page.
+  font-variant-ligatures: normal;
+  font-feature-settings: normal;
+  // With break-spaces a space at the end of a line takes room, so lines wrapped sooner than on the page.
+  white-space: pre-wrap;
+  padding-inline: max(16px, calc((100% - #{$project-measure}) / 2));
+  @include project-content;
 }

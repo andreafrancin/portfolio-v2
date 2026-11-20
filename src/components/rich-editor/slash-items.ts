@@ -21,7 +21,7 @@ function normalizeForSearch(text: string): string {
   return text.normalize('NFD').replace(COMBINING_DIACRITICS_PATTERN, '').toLowerCase();
 }
 
-function headingItem(level: 1 | 2 | 3, id: string, keywords: string[]): SlashCommandItem {
+function headingItem(level: 1 | 2 | 3 | 4, id: string, keywords: string[]): SlashCommandItem {
   return {
     id,
     titleKey: `EDITOR.BLOCK_${id}`,
@@ -52,6 +52,15 @@ export const SLASH_COMMAND_ITEMS: SlashCommandItem[] = [
   ]),
   headingItem(2, 'HEADING_2', ['titulo', 'titol', 'title', 'heading', 'h2']),
   headingItem(3, 'HEADING_3', ['subtitulo', 'subtitol', 'subtitle', 'heading', 'h3']),
+  headingItem(4, 'HEADING_4', [
+    'subtitulo',
+    'subtitol',
+    'subtitle',
+    'pequeño',
+    'petit',
+    'small',
+    'h4',
+  ]),
   {
     id: 'IMAGE',
     titleKey: 'EDITOR.BLOCK_IMAGE',

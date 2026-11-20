@@ -124,3 +124,41 @@
     white-space: nowrap;
   }
 }
+
+// Inside a dialog the bar is part of the form: it does not float over the page.
+.language-bar--inline {
+  position: static;
+  align-self: stretch;
+  min-height: 0;
+  padding: 4px;
+  box-shadow: none;
+  backdrop-filter: none;
+  background: var(--surface-2);
+
+  .language-bar__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .language-bar__tabs {
+    flex: 1;
+  }
+
+  .language-bar__tab {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .language-bar__status-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}

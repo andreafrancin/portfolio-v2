@@ -59,6 +59,9 @@ function Footer({ showCta = true }: { showCta?: boolean }) {
                   <Link to="/work">{t('HEADER.WORK')}</Link>
                 </li>
                 <li>
+                  <Link to="/services">{t('HEADER.SERVICES')}</Link>
+                </li>
+                <li>
                   <Link to="/about">{t('HEADER.ABOUT')}</Link>
                 </li>
                 <li>

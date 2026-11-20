@@ -25,10 +25,16 @@ const BLOCK_STYLE_LABELS: Record<BlockStyle, string> = {
   'heading-1': 'EDITOR.BLOCK_HEADING_1',
   'heading-2': 'EDITOR.BLOCK_HEADING_2',
   'heading-3': 'EDITOR.BLOCK_HEADING_3',
-  'heading-4': 'EDITOR.BLOCK_HEADING_3',
+  'heading-4': 'EDITOR.BLOCK_HEADING_4',
 };
 
-const SELECTABLE_BLOCK_STYLES: BlockStyle[] = ['text', 'heading-1', 'heading-2', 'heading-3'];
+const SELECTABLE_BLOCK_STYLES: BlockStyle[] = [
+  'text',
+  'heading-1',
+  'heading-2',
+  'heading-3',
+  'heading-4',
+];
 
 interface ToolbarButton {
   icon: ReactNode;
@@ -174,9 +180,6 @@ function Toolbar({ editor, onOpenPanel }: ToolbarProps) {
               {t(BLOCK_STYLE_LABELS[style])}
             </option>
           ))}
-          {state.blockStyle === 'heading-4' && (
-            <option value="heading-4">{t(BLOCK_STYLE_LABELS['heading-4'])}</option>
-          )}
         </select>
       </label>
       {groups.map((buttons, groupIndex) => (

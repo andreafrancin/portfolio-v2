@@ -27,6 +27,7 @@ interface RichEditorProps {
   onChange: (markdown: string) => void;
   images?: EditorImage[];
   onUploadImages?: (files: File[]) => Promise<EditorImage[]>;
+  variant?: 'project' | 'page';
 }
 
 function imageParagraphs(images: PickedImage[]): object[] {
@@ -45,7 +46,14 @@ function insertImages(editor: Editor, images: PickedImage[]): void {
   editor.chain().focus().insertContent(imageParagraphs(images)).run();
 }
 
-function RichEditor({ label, value, onChange, images = [], onUploadImages }: RichEditorProps) {
+function RichEditor({
+  label,
+  value,
+  onChange,
+  images = [],
+  onUploadImages,
+  variant = 'page',
+}: RichEditorProps) {
   const { t } = useTranslation();
   const [uiStore] = useState(() => new EditorUiStore());
   const uiState = useSyncExternalStore(uiStore.subscribe, uiStore.getState);
@@ -72,7 +80,7 @@ function RichEditor({ label, value, onChange, images = [], onUploadImages }: Ric
     content: initial.document.toJSON(),
     editorProps: {
       attributes: {
-        class: 'prose rich-editor__content',
+        class: `prose rich-editor__content rich-editor__content--${variant}`,
         role: 'textbox',
         'aria-multiline': 'true',
         'aria-label': label,

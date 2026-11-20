@@ -7,6 +7,7 @@ import RevealObserver from './components/reveal-observer';
 import Work from './pages/work';
 import About from './pages/about';
 import Contact from './pages/contact';
+import Services from './pages/services';
 import Legal from './pages/legal';
 import ProjectDetail from './pages/work/project';
 import Login from './pages/login';
@@ -19,6 +20,8 @@ import EditProjectsContainer from './pages/private/edit-container/projects';
 import EditAboutContainer from './pages/private/edit-container/about';
 import EditContactContainer from './pages/private/edit-container/contact';
 import EditCategoriesContainer from './pages/private/edit-container/categories';
+import EditServicesContainer from './pages/private/edit-container/services';
+import EditAutoReplyContainer from './pages/private/edit-container/auto-reply';
 import BillingList from './pages/private/billing/list';
 import ClientsTab from './pages/private/billing/clients';
 import ConditionsTab from './pages/private/billing/conditions';
@@ -84,6 +87,7 @@ function Main() {
             <Route path="/" element={<Navigate to="/work" replace />} />
             <Route path="/work" element={<Work />} />
             <Route path="/work/:id" element={<ProjectDetail />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/legal" element={<Legal />} />
@@ -115,10 +119,26 @@ function Main() {
                 }
               />
               <Route
+                path="/private/services"
+                element={
+                  <SectionPage titleKey="PRIVATE.TABS.SERVICES">
+                    <EditServicesContainer />
+                  </SectionPage>
+                }
+              />
+              <Route
                 path="/private/contact"
                 element={
                   <SectionPage titleKey="PRIVATE.TABS.CONTACT" introKey="ADMIN.CONTACT_INTRO">
                     <EditContactContainer />
+                  </SectionPage>
+                }
+              />
+              <Route
+                path="/private/auto-reply"
+                element={
+                  <SectionPage titleKey="PRIVATE.TABS.AUTO_REPLY" introKey="ADMIN.AUTO_REPLY_INTRO">
+                    <EditAutoReplyContainer />
                   </SectionPage>
                 }
               />
@@ -181,7 +201,7 @@ function Main() {
           </Routes>
         </div>
       </main>
-      {!isPrivate && <Footer showCta={location.pathname !== '/contact'} />}
+      {!isPrivate && <Footer showCta={!['/contact', '/services'].includes(location.pathname)} />}
     </div>
   );
 }

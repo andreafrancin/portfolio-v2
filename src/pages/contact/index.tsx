@@ -5,6 +5,7 @@ import { useLang } from '../../context/lang-context';
 import { useToast } from '../../components/toast';
 import { CONTACT_EMAIL, INSTAGRAM_URL, LINKEDIN_URL } from '../../config/site';
 import { IconArrowUpRight, IconCopy, IconInstagram, IconLinkedin } from '../../components/icons';
+import ContactForm from './contact-form';
 import useSeo from '../../seo/useSeo';
 import { PAGE_META } from '../../seo/meta';
 import './index.scss';
@@ -49,32 +50,36 @@ function Contact() {
         <h1 className="contact__title">{title || t('HEADER.CONTACT')}</h1>
         {description && <p className="contact__lead">{description}</p>}
 
-        <div className="contact__card">
-          <p className="contact__label">{t('CONTACT.EMAIL')}</p>
-          <a className="contact__email" href={`mailto:${CONTACT_EMAIL}`}>
-            {CONTACT_EMAIL}
-          </a>
-          <div className="contact__actions">
-            <button type="button" className="btn btn--quiet btn--sm" onClick={copyEmail}>
-              <IconCopy size={16} /> {t('CONTACT.COPY')}
-            </button>
-            <a
-              className="btn btn--quiet btn--sm"
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <IconInstagram size={16} /> {t('CONTACT.INSTAGRAM')} <IconArrowUpRight size={14} />
+        <div className="contact__grid">
+          <ContactForm />
+
+          <aside className="contact__card">
+            <p className="contact__label">{t('CONTACT.DIRECT')}</p>
+            <a className="contact__email" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
             </a>
-            <a
-              className="btn btn--quiet btn--sm"
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <IconLinkedin size={16} /> {t('CONTACT.LINKEDIN')} <IconArrowUpRight size={14} />
-            </a>
-          </div>
+            <div className="contact__actions">
+              <button type="button" className="btn btn--quiet btn--sm" onClick={copyEmail}>
+                <IconCopy size={16} /> {t('CONTACT.COPY')}
+              </button>
+              <a
+                className="btn btn--quiet btn--sm"
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <IconInstagram size={16} /> {t('CONTACT.INSTAGRAM')} <IconArrowUpRight size={14} />
+              </a>
+              <a
+                className="btn btn--quiet btn--sm"
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <IconLinkedin size={16} /> {t('CONTACT.LINKEDIN')} <IconArrowUpRight size={14} />
+              </a>
+            </div>
+          </aside>
         </div>
       </div>
     </section>

@@ -69,6 +69,16 @@
   }
 }
 
+// The project text needs the same width as on the public page, so the settings column is narrower
+// and moves under the text sooner.
+.editor--project {
+  grid-template-columns: minmax(0, 1fr) 280px;
+
+  @media (max-width: 1439px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .editor--single {
   grid-template-columns: minmax(0, 880px);
 }
