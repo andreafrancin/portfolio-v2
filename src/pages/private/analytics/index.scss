@@ -715,3 +715,13 @@ ol.info__list {
     text-underline-offset: 0.2em;
   }
 }
+
+.info__check {
+  margin: 8px 0 10px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}

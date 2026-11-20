@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../components/toast';
 import { IconCopy, IconInfo } from '../../../components/icons';
+import { fetchConnection } from '../../../services/analytics/api-request';
 
 const SITE = 'https://andreafrancin.com';
 
@@ -182,11 +183,40 @@ export function SourcesInfo() {
   );
 }
 
+// Locates the signed-in person's own connection, to check at a glance that countries come out right.
+function ConnectionCheck() {
+  const { t, i18n } = useTranslation();
+  const [state, setState] = useState<{ country: string; source: string } | null | 'error'>(null);
+
+  useEffect(() => {
+    fetchConnection()
+      .then(setState)
+      .catch(() => setState('error'));
+  }, []);
+
+  if (state === null) return <p className="info__check">{t('ANALYTICS.CONNECTION_CHECKING')}</p>;
+  if (state === 'error') return <p className="info__check">{t('ANALYTICS.CONNECTION_FAILED')}</p>;
+  let name = state.country;
+  try {
+    name = new Intl.DisplayNames([i18n.language], { type: 'region' }).of(state.country) || name;
+  } catch {
+    // Fall back to the code.
+  }
+  return (
+    <p className="info__check">
+      {state.country
+        ? t('ANALYTICS.CONNECTION_COUNTRY', { country: name, source: state.source })
+        : t('ANALYTICS.CONNECTION_UNKNOWN', { source: state.source })}
+    </p>
+  );
+}
+
 export function CountriesInfo() {
   const { t } = useTranslation();
   return (
     <>
       <p className="info__title">{t('ANALYTICS.INFO_COUNTRIES_TITLE')}</p>
+      <ConnectionCheck />
       <p>{t('ANALYTICS.INFO_COUNTRIES_TEXT')}</p>
       <p className="info__subtitle">{t('ANALYTICS.INFO_COUNTRIES_UNKNOWN')}</p>
       <ul className="info__list">

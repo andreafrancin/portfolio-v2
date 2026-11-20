@@ -705,6 +705,10 @@
     "INFO_COUNTRIES_CASE_1": "On your computer, while testing the site locally: the connection has no public address to locate.",
     "INFO_COUNTRIES_CASE_2": "If the last backend deploy couldn’t download the database (it tries again on the next one).",
     "INFO_COUNTRIES_CASE_3": "With some VPNs or private networks that can’t be located.",
-    "GEO_CREDIT": "Country data:"
+    "GEO_CREDIT": "Country data:",
+    "CONNECTION_CHECKING": "Checking your connection…",
+    "CONNECTION_FAILED": "Your connection could not be checked.",
+    "CONNECTION_COUNTRY": "Your connection now: {{country}} (read from {{source}}).",
+    "CONNECTION_UNKNOWN": "Your connection now: can’t be located (read from {{source}})."
   }
 }

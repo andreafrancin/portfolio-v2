@@ -705,6 +705,10 @@
     "INFO_COUNTRIES_CASE_1": "Al teu ordinador, mentre proves la web en local: la connexió no té una adreça pública per ubicar.",
     "INFO_COUNTRIES_CASE_2": "Si l’última publicació del backend no va poder descarregar la base de dades (es torna a provar a la següent).",
     "INFO_COUNTRIES_CASE_3": "Amb algunes VPN o xarxes privades que no es poden ubicar.",
-    "GEO_CREDIT": "Dades de país:"
+    "GEO_CREDIT": "Dades de país:",
+    "CONNECTION_CHECKING": "Comprovant la teva connexió…",
+    "CONNECTION_FAILED": "No s’ha pogut comprovar la teva connexió.",
+    "CONNECTION_COUNTRY": "La teva connexió ara: {{country}} (llegit de {{source}}).",
+    "CONNECTION_UNKNOWN": "La teva connexió ara: no es pot ubicar (llegit de {{source}})."
   }
 }

@@ -78,3 +78,6 @@ export const fetchAnalyticsSettings = (): Promise<AnalyticsSettings> =>
   get('analytics/settings/', true);
 export const saveAnalyticsSettings = (hidden_sections: string[]): Promise<AnalyticsSettings> =>
   put('analytics/settings/', { hidden_sections }, true);
+
+export const fetchConnection = (): Promise<{ country: string; source: string }> =>
+  get('analytics/connection/', true);
