@@ -709,6 +709,9 @@
     "CONNECTION_CHECKING": "Checking your connection…",
     "CONNECTION_FAILED": "Your connection could not be checked.",
     "CONNECTION_COUNTRY": "Your connection now: {{country}} (read from {{source}}).",
-    "CONNECTION_UNKNOWN": "Your connection now: can’t be located (read from {{source}})."
+    "CONNECTION_UNKNOWN": "Your connection now: can’t be located (read from {{source}}).",
+    "REFRESH": "Refresh",
+    "REFRESHING": "Refreshing…",
+    "REFRESH_HINT": "Reload the data now"
   }
 }

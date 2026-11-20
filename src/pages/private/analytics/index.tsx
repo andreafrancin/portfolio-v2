@@ -9,7 +9,7 @@ import {
   saveAnalyticsSettings,
 } from '../../../services/analytics/api-request';
 import { useToast } from '../../../components/toast';
-import { IconEdit } from '../../../components/icons';
+import { IconEdit, IconRefresh } from '../../../components/icons';
 import { CountriesInfo, GeoCredit, InfoButton, SourcesInfo } from './info';
 import { CustomizeDialog, SECTIONS } from './customize';
 import type { SectionKey } from './customize';
@@ -335,6 +335,15 @@ function AnalyticsPage() {
             ))}
           </div>
           <div className="stats__tools">
+            <button
+              type="button"
+              className={`btn btn--quiet btn--sm stats__refresh${loading ? ' is-loading' : ''}`}
+              onClick={() => load(period)}
+              disabled={loading}
+              title={t('ANALYTICS.REFRESH_HINT')}
+            >
+              <IconRefresh size={16} /> {t(loading ? 'ANALYTICS.REFRESHING' : 'ANALYTICS.REFRESH')}
+            </button>
             <button
               type="button"
               className="btn btn--quiet btn--sm"

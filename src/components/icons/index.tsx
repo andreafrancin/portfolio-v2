@@ -281,6 +281,13 @@ export const IconRedo = (p: IconProps) => (
   </Svg>
 );
 
+export const IconRefresh = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M20 11a8 8 0 1 0-2.34 5.66" />
+    <path d="M20 4v7h-7" />
+  </Svg>
+);
+
 export const IconMore = (p: IconProps) => (
   <Svg {...p}>
     <circle cx="5" cy="12" r="1.25" fill="currentColor" />

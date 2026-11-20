@@ -709,6 +709,9 @@
     "CONNECTION_CHECKING": "Comprovant la teva connexió…",
     "CONNECTION_FAILED": "No s’ha pogut comprovar la teva connexió.",
     "CONNECTION_COUNTRY": "La teva connexió ara: {{country}} (llegit de {{source}}).",
-    "CONNECTION_UNKNOWN": "La teva connexió ara: no es pot ubicar (llegit de {{source}})."
+    "CONNECTION_UNKNOWN": "La teva connexió ara: no es pot ubicar (llegit de {{source}}).",
+    "REFRESH": "Actualitzar",
+    "REFRESHING": "Actualitzant…",
+    "REFRESH_HINT": "Tornar a carregar les dades ara"
   }
 }

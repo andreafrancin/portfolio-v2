@@ -832,3 +832,25 @@ ol.info__list {
   height: 12px;
   border-radius: 6px;
 }
+
+.stats__refresh {
+  svg {
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  &.is-loading svg {
+    animation: stats-spin 0.9s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &.is-loading svg {
+      animation: none;
+    }
+  }
+}
+
+@keyframes stats-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
