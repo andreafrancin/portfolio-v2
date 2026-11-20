@@ -6,6 +6,7 @@ import type { ServiceGroup } from '../../services/service-catalog/api-request';
 import { fetchServiceGroups, pickText } from '../../services/service-catalog/api-request';
 import { IconArrowRight } from '../../components/icons';
 import useSeo from '../../seo/useSeo';
+import { trackEvent } from '../../lib/analytics';
 import { PAGE_META } from '../../seo/meta';
 import './index.scss';
 
@@ -90,6 +91,8 @@ function Services() {
     const target = document.getElementById(groupAnchor(id));
     if (!target) return;
     event.preventDefault();
+    const group = visible.find((g) => g.id === id);
+    if (group) trackEvent('services_group', pickText(group.name_i18n, 'es'));
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   };

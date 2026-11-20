@@ -77,7 +77,18 @@ const es: LegalCopy = {
       title: 'Privacidad',
       blocks: [
         `Responsable del tratamiento: ${LEGAL_NAME}. Contacto: ${CONTACT_EMAIL}.`,
-        'Navegación: este sitio web no usa herramientas de analítica ni publicidad y no instala cookies de seguimiento. Solo guarda en tu navegador tus preferencias (idioma y vista de los proyectos), que son técnicas y necesarias para el funcionamiento del sitio y están exentas de consentimiento (artículo 22.2 de la LSSI). Por seguridad, el proveedor de alojamiento puede registrar datos técnicos como la dirección IP.',
+        'Navegación: este sitio web no usa publicidad, herramientas de terceros como Google Analytics ni cookies de seguimiento. Solo guarda en tu navegador tus preferencias (idioma y vista de los proyectos), que son técnicas y necesarias para el funcionamiento del sitio y están exentas de consentimiento (artículo 22.2 de la LSSI). Por seguridad, el proveedor de alojamiento puede registrar datos técnicos como la dirección IP.',
+        'Estadísticas de visitas: la web cuenta sus visitas con un sistema propio, anónimo y sin cookies, para saber qué páginas y proyectos interesan y de dónde llegan las visitas.',
+        {
+          list: [
+            'Qué se registra: la página visitada, la web desde la que llegas (si tu navegador la indica), el país de la conexión, el idioma elegido en la web, el tipo de dispositivo (ordenador, móvil o tableta), el tiempo que la página está a la vista, hasta dónde se lee y algunas acciones en la web, como abrir una imagen o empezar a escribir en el formulario.',
+            'Cómo se evita identificarte: no se guarda nada en tu dispositivo. Para no contar dos veces a la misma persona, tu dirección IP y los datos de tu navegador se combinan con una clave secreta que cambia cada día y se transforman en un código; la dirección IP no se guarda y la clave se borra al día siguiente, así que nadie puede saber quién eres ni seguir tus visitas de un día a otro. El país se calcula en el servidor de la web a partir de esa misma dirección IP, con la base de datos «IP to Country Lite» de DB-IP.com (licencia CC BY 4.0), y la IP se descarta enseguida.',
+            'Base legal: el interés legítimo en conocer, de forma agregada, cómo se usa la web y mejorarla (artículo 6.1.f del RGPD).',
+            'Conservación: los registros se borran a los 13 meses.',
+            'Destinatarios: nadie; los datos solo están en el servidor de la propia web y no se envían a ningún servicio externo de estadísticas.',
+            `Oposición: si tu navegador envía la señal de «no rastrear» o Global Privacy Control, tus visitas no se cuentan. También puedes oponerte en cualquier momento escribiendo a ${CONTACT_EMAIL}.`,
+          ],
+        },
         'Formulario de contacto y correo electrónico: si escribes a través del formulario o por correo electrónico, se tratan los datos que facilitas.',
         {
           list: [
@@ -166,7 +177,18 @@ const ca: LegalCopy = {
       title: 'Privacitat',
       blocks: [
         `Responsable del tractament: ${LEGAL_NAME}. Contacte: ${CONTACT_EMAIL}.`,
-        'Navegació: aquest lloc web no fa servir eines d’analítica ni publicitat i no instal·la galetes de seguiment. Només desa al teu navegador les teves preferències (idioma i vista dels projectes), que són tècniques i necessàries per al funcionament del lloc i estan exemptes de consentiment (article 22.2 de la LSSI). Per seguretat, el proveïdor d’allotjament pot registrar dades tècniques com l’adreça IP.',
+        'Navegació: aquest lloc web no fa servir publicitat, eines de tercers com Google Analytics ni galetes de seguiment. Només desa al teu navegador les teves preferències (idioma i vista dels projectes), que són tècniques i necessàries per al funcionament del lloc i estan exemptes de consentiment (article 22.2 de la LSSI). Per seguretat, el proveïdor d’allotjament pot registrar dades tècniques com l’adreça IP.',
+        'Estadístiques de visites: la web compta les seves visites amb un sistema propi, anònim i sense galetes, per saber quines pàgines i projectes interessen i d’on arriben les visites.',
+        {
+          list: [
+            'Què es registra: la pàgina visitada, la web des de la qual arribes (si el teu navegador la indica), el país de la connexió, l’idioma triat a la web, el tipus de dispositiu (ordinador, mòbil o tauleta), el temps que la pàgina és a la vista, fins on es llegeix i algunes accions a la web, com obrir una imatge o començar a escriure al formulari.',
+            'Com s’evita identificar-te: no es desa res al teu dispositiu. Per no comptar dues vegades la mateixa persona, la teva adreça IP i les dades del teu navegador es combinen amb una clau secreta que canvia cada dia i es transformen en un codi; l’adreça IP no es desa i la clau s’esborra l’endemà, de manera que ningú no pot saber qui ets ni seguir les teves visites d’un dia a l’altre. El país es calcula al servidor de la web a partir d’aquesta mateixa adreça IP, amb la base de dades «IP to Country Lite» de DB-IP.com (llicència CC BY 4.0), i la IP es descarta de seguida.',
+            'Base legal: l’interès legítim a conèixer, de manera agregada, com s’utilitza la web i millorar-la (article 6.1.f del RGPD).',
+            'Conservació: els registres s’esborren als 13 mesos.',
+            'Destinataris: ningú; les dades només són al servidor de la mateixa web i no s’envien a cap servei extern d’estadístiques.',
+            `Oposició: si el teu navegador envia el senyal de «no rastrejar» o Global Privacy Control, les teves visites no es compten. També t’hi pots oposar en qualsevol moment escrivint a ${CONTACT_EMAIL}.`,
+          ],
+        },
         'Formulari de contacte i correu electrònic: si escrius a través del formulari o per correu electrònic, es tracten les dades que facilites.',
         {
           list: [
@@ -255,7 +277,18 @@ const en: LegalCopy = {
       title: 'Privacy',
       blocks: [
         `Data controller: ${LEGAL_NAME}. Contact: ${CONTACT_EMAIL}.`,
-        'Browsing: this website uses no analytics or advertising tools and sets no tracking cookies. It only stores your preferences (language and project view) in your browser; these are technical, necessary for the site to work and exempt from consent (article 22.2 LSSI). For security, the hosting provider may log technical data such as your IP address.',
+        'Browsing: this website uses no advertising, no third-party tools such as Google Analytics and no tracking cookies. It only stores your preferences (language and project view) in your browser; these are technical, necessary for the site to work and exempt from consent (article 22.2 LSSI). For security, the hosting provider may log technical data such as your IP address.',
+        'Visit statistics: the site counts its visits with its own anonymous, cookie-free system, to learn which pages and projects interest people and where visits come from.',
+        {
+          list: [
+            'What is recorded: the page visited, the website you came from (if your browser shares it), the country of the connection, the language chosen on the site, the type of device (computer, phone or tablet), how long the page is in view, how far down it is read and a few actions on the site, such as opening an image or starting to write in the form.',
+            'How you are kept unidentified: nothing is stored on your device. So that the same person is not counted twice, your IP address and browser details are combined with a secret key that changes every day and turned into a code; the IP address is not stored and the key is deleted the next day, so nobody can tell who you are or follow your visits from one day to the next. The country is worked out on the website’s own server from that same IP address, using the “IP to Country Lite” database by DB-IP.com (CC BY 4.0 licence), and the IP is discarded straight away.',
+            'Legal basis: the legitimate interest in understanding, in aggregate, how the site is used and improving it (article 6.1.f GDPR).',
+            'Retention: records are deleted after 13 months.',
+            'Recipients: nobody; the data stays only on the website’s own server and is not sent to any external analytics service.',
+            `Objection: if your browser sends a “Do Not Track” or Global Privacy Control signal, your visits are not counted. You can also object at any time by writing to ${CONTACT_EMAIL}.`,
+          ],
+        },
         'Contact form and email: if you write through the form or by email, the data you provide is processed.',
         {
           list: [

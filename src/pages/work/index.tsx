@@ -18,6 +18,7 @@ import useSeo from '../../seo/useSeo';
 import { PAGE_META } from '../../seo/meta';
 import { useLang } from '../../context/lang-context';
 import nameLettering from '../../assets/images/logo/name-lettering.webp';
+import { trackEvent } from '../../lib/analytics';
 import './index.scss';
 
 type Status = 'loading' | 'ready' | 'error';
@@ -97,6 +98,7 @@ function Work() {
   const selectFilter = (slug: CategorySlug | null) => {
     if (slug === active) return;
     snapshot();
+    if (slug) trackEvent('filter_category', slug);
     const next = new URLSearchParams(searchParams);
     if (slug) next.set('d', slug);
     else next.delete('d');

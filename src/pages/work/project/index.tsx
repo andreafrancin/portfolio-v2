@@ -16,6 +16,7 @@ import Lightbox, { LightboxImage } from '../../../components/lightbox';
 import ProgressiveImage from '../../../components/progressive-image';
 import { IconArrowLeft, IconArrowRight, IconShare } from '../../../components/icons';
 import useSeo from '../../../seo/useSeo';
+import { trackEvent } from '../../../lib/analytics';
 import {
   artworkJsonLd,
   pageUrl,
@@ -84,6 +85,7 @@ function ProjectDetail() {
       index: Math.max(0, all.indexOf(clicked)),
       rect: clicked.getBoundingClientRect(),
     });
+    trackEvent('lightbox_open');
   }, []);
 
   const load = useCallback(async () => {
@@ -258,7 +260,11 @@ function ProjectDetail() {
       {suggested && (
         <aside className="suggestion" aria-label={t('PROJECT.SUGGESTED')} data-reveal>
           <p className="suggestion__label">{t('PROJECT.SUGGESTED')}</p>
-          <Link to={`/work/${suggested.id}`} className="suggestion__link">
+          <Link
+            to={`/work/${suggested.id}`}
+            className="suggestion__link"
+            onClick={() => trackEvent('suggested_click', String(suggested.id))}
+          >
             {suggestedCover && (
               <span className="suggestion__thumb">
                 <ProgressiveImage

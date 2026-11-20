@@ -6,6 +6,7 @@ import { useToast } from '../../components/toast';
 import { CONTACT_EMAIL, INSTAGRAM_URL, LINKEDIN_URL } from '../../config/site';
 import { IconArrowUpRight, IconCopy, IconInstagram, IconLinkedin } from '../../components/icons';
 import ContactForm from './contact-form';
+import { trackEvent } from '../../lib/analytics';
 import useSeo from '../../seo/useSeo';
 import { PAGE_META } from '../../seo/meta';
 import './index.scss';
@@ -38,6 +39,7 @@ function Contact() {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       toast.success(t('CONTACT.COPIED'));
+      trackEvent('copy_email');
     } catch {}
   };
 

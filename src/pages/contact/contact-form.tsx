@@ -8,6 +8,7 @@ import { fetchServiceGroups, pickText } from '../../services/service-catalog/api
 import { CONTACT_EMAIL, LEGAL_NAME } from '../../config/site';
 import { PRIVACY_ANCHOR } from '../legal/content';
 import Spinner from '../../components/spinner';
+import { trackEvent } from '../../lib/analytics';
 import { IconArrowRight, IconCheck } from '../../components/icons';
 
 type Field = 'name' | 'email' | 'message' | 'consent';
@@ -24,6 +25,7 @@ function ContactForm() {
   const { lang } = useLang();
   const id = useId();
   const formRef = useRef<HTMLFormElement>(null);
+  const startedRef = useRef(false);
   const [values, setValues] = useState(EMPTY);
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -87,6 +89,11 @@ function ContactForm() {
         language: lang,
         website: values.website,
       });
+      // Services are counted under their Spanish name, whatever language the visitor used.
+      const chosen = groups
+        .flatMap((group) => group.services)
+        .find((service) => pickText(service.name_i18n, lang) === values.service);
+      trackEvent('contact_sent', chosen ? pickText(chosen.name_i18n, 'es') : values.service);
       setState('sent');
       setValues(EMPTY);
       setConsent(false);
@@ -122,7 +129,17 @@ function ContactForm() {
     undefined;
 
   return (
-    <form ref={formRef} className="contact-form" onSubmit={onSubmit} noValidate>
+    <form
+      ref={formRef}
+      className="contact-form"
+      onSubmit={onSubmit}
+      onFocus={() => {
+        if (startedRef.current) return;
+        startedRef.current = true;
+        trackEvent('contact_start');
+      }}
+      noValidate
+    >
       <h2 className="contact-form__title">{t('CONTACT.FORM.TITLE')}</h2>
 
       <div className="contact-form__row">

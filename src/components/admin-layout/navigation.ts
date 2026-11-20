@@ -11,6 +11,10 @@ export interface AdminNavigationGroup {
 
 export const ADMIN_NAVIGATION: AdminNavigationGroup[] = [
   {
+    titleKey: 'ADMIN.GROUP_INSIGHTS',
+    items: [{ to: '/private/analytics', labelKey: 'PRIVATE.TABS.ANALYTICS', matches: [] }],
+  },
+  {
     titleKey: 'ADMIN.GROUP_PORTFOLIO',
     items: [
       {
@@ -64,6 +68,7 @@ const LEGACY_TAB_PATHS: Record<string, string> = {
   clients: '/private/clients',
   conditions: '/private/conditions',
   issuer: '/private/issuer',
+  analytics: '/private/analytics',
 };
 
 export function findLegacyTabPath(search: string): string | null {

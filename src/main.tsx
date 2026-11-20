@@ -22,6 +22,7 @@ import EditContactContainer from './pages/private/edit-container/contact';
 import EditCategoriesContainer from './pages/private/edit-container/categories';
 import EditServicesContainer from './pages/private/edit-container/services';
 import EditAutoReplyContainer from './pages/private/edit-container/auto-reply';
+import AnalyticsPage from './pages/private/analytics';
 import BillingList from './pages/private/billing/list';
 import ClientsTab from './pages/private/billing/clients';
 import ConditionsTab from './pages/private/billing/conditions';
@@ -31,6 +32,7 @@ import EditProject from './pages/private/edit-container/projects/edit-project';
 import DocumentEditor from './pages/private/billing/editor';
 import { syncUrl, useLang } from './context/lang-context';
 import useSeo from './seo/useSeo';
+import { trackPageview } from './lib/analytics';
 import { SITE_NAME } from './seo/meta';
 import './styles/main.scss';
 
@@ -69,6 +71,13 @@ function Main() {
     if (!isPrivate) syncUrl(lang);
   }, [location.pathname, lang, isPrivate]);
 
+  // One page view per page: changing the language or a filter in the address is not a new one.
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  useEffect(() => {
+    trackPageview(location.pathname + window.location.search, langRef.current);
+  }, [location.pathname]);
+
   return (
     <div className="app">
       <a className="skip-link" href="#main">
@@ -102,6 +111,14 @@ function Main() {
               <Route path="/private" element={<ProjectsHome />} />
               <Route path="/private/add-project" element={<AddProject />} />
               <Route path="/private/edit-project/:id" element={<EditProject />} />
+              <Route
+                path="/private/analytics"
+                element={
+                  <SectionPage titleKey="PRIVATE.TABS.ANALYTICS">
+                    <AnalyticsPage />
+                  </SectionPage>
+                }
+              />
               <Route
                 path="/private/categories"
                 element={
